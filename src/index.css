@@ -1,0 +1,105 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@400;500;700;900&family=Playfair+Display:wght@400;600;700&display=swap');
+@import "tailwindcss";
+
+@layer base {
+  /* Configuración General */
+  :root {
+    --font-main: 'Inter', sans-serif;
+    --font-titles: 'Playfair Display', serif;
+  }
+
+  /* Títulos: Autoridad y elegancia */
+  h1 {
+    font-family: var(--font-titles);
+    font-size: clamp(28px, 5vw, 40px); /* Ajuste automático móvil/PC */
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  /* Subtítulos: Navegación clara */
+  h2, h3 {
+    font-family: var(--font-main);
+    font-size: clamp(18px, 3vw, 22px);
+    font-weight: 600;
+  }
+
+  /* Cuerpo y Datos: Lectura cómoda */
+  body, p, td, li, span, div, a, button, input {
+    font-family: var(--font-main);
+  }
+
+  /* Specific base rules per user request */
+  body, p, td {
+    font-family: var(--font-main);
+    font-size: 15px;
+    line-height: 1.6;
+    color: #333;
+  }
+}
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-display: "Outfit", "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --color-forest-950: #051A15;
+  --color-forest-900: #072920;
+  --color-forest-800: #0B4233;
+}
+
+@layer utilities {
+  @keyframes shimmer-effect {
+    0% { transform: translateX(-150%) skewX(-15deg); }
+    30% { transform: translateX(300%) skewX(-15deg); }
+    100% { transform: translateX(300%) skewX(-15deg); }
+  }
+
+  .animate-shimmer {
+    animation: shimmer-effect 3s infinite;
+  }
+
+  .bg-honeycomb {
+    background-color: #f8fafc;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg id='hexagons' fill='%23022c22' fill-opacity='0.02' fill-rule='nonzero'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9l11 6.35 11-6.35V30.1l-11 6.35-11-6.35V17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  .bg-honeycomb-dark {
+    background-color: #022c22;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg id='hexagons' fill='%23facc15' fill-opacity='0.05' fill-rule='nonzero'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9l11 6.35 11-6.35V30.1l-11 6.35-11-6.35V17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(16, 185, 129, 0.2); 
+    border-radius: 10px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(16, 185, 129, 0.4); 
+  }
+
+  /* Hexagonal Loader */
+  .hex-loader {
+    clip-path: polygon(
+      25% 5%, 75% 5%,
+      100% 50%,
+      75% 95%,
+      25% 95%,
+      0% 50%
+    );
+    animation: giro 1.4s linear infinite;
+  }
+
+  @keyframes giro {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+}
