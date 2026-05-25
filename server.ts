@@ -20,7 +20,7 @@ async function startServer() {
     try {
       // Dynamic import to avoid breaking if not installed (though we installed it)
       const zadarma = await import('zadarma-api');
-      const api = new zadarma.default.Api(ZADARMA_KEY, ZADARMA_SECRET);
+      const api = new zadarma.Api(ZADARMA_KEY, ZADARMA_SECRET);
       
       let fromNumber = internalNumber;
       
@@ -65,7 +65,7 @@ async function startServer() {
 
     try {
       const zadarma = await import('zadarma-api');
-      const api = new zadarma.default.Api(ZADARMA_KEY, ZADARMA_SECRET);
+      const api = new zadarma.Api(ZADARMA_KEY, ZADARMA_SECRET);
       
       let sipLogin = req.query.sipLogin as string;
       

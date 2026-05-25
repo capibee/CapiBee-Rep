@@ -21,7 +21,21 @@ import {
   Target,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import { Client, Business } from "../types";
+
+const getCountryName = (phoneNumberString: string) => {
+  try {
+    const phoneNumber = parsePhoneNumberFromString("+" + phoneNumberString.replace(/[^0-9]/g, ''));
+    if (phoneNumber && phoneNumber.country) {
+      const displayNames = new Intl.DisplayNames(['es'], { type: 'region' });
+      return displayNames.of(phoneNumber.country);
+    }
+  } catch (e) {
+    console.error(e);
+  }
+  return null;
+};
 import { usePermissions } from "../hooks/usePermissions";
 import { supabase } from "../lib/supabase";
 import { Pagination } from "./Pagination";
@@ -1257,9 +1271,15 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
                 <p className="text-slate-400 text-sm mb-4">
                   ¿Está seguro que desea llamar a <strong className="text-white">{callConfirmModal.businessName}</strong>?
                 </p>
-                <div className="bg-slate-800/50 rounded-lg p-3 w-full mb-8 font-mono text-amber-400 font-bold tracking-wider text-xl">
+                <div className="bg-slate-800/50 rounded-lg p-3 w-full mb-4 font-mono text-amber-400 font-bold tracking-wider text-xl">
                     {callConfirmModal.phoneNumber}
                 </div>
+                {getCountryName(callConfirmModal.cleanNumber) && (
+                  <div className="flex items-center gap-2 mb-8 text-slate-300 text-sm bg-slate-800/30 px-3 py-1.5 rounded-full">
+                    <Globe2 size={14} className="text-amber-400" />
+                    País: <strong className="text-white">{getCountryName(callConfirmModal.cleanNumber)}</strong>
+                  </div>
+                )}
                 
                 <div className="flex gap-3 w-full">
                   <button

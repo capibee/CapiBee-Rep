@@ -34,9 +34,24 @@ import {
   Paperclip,
   Upload,
   MessageSquare,
+  Globe2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import { Business, BusinessCategory, PlatformUser, Client } from "../types";
+
+const getCountryName = (phoneNumberString: string) => {
+  try {
+    const phoneNumber = parsePhoneNumberFromString("+" + phoneNumberString.replace(/[^0-9]/g, ''));
+    if (phoneNumber && phoneNumber.country) {
+      const displayNames = new Intl.DisplayNames(['es'], { type: 'region' });
+      return displayNames.of(phoneNumber.country);
+    }
+  } catch (e) {
+    console.error(e);
+  }
+  return null;
+};
 import { usePermissions } from "../hooks/usePermissions";
 import {
   BUSINESS_CATEGORIES,
@@ -150,6 +165,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
   const [meetingDateToConfirm, setMeetingDateToConfirm] = useState<string>('');
   const [callConfirmModal, setCallConfirmModal] = useState<{
     isOpen: boolean;
+    businessId?: string;
     businessName: string;
     phoneNumber: string;
     cleanNumber: string;
@@ -751,6 +767,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
       if (clean) {
          setCallConfirmModal({
            isOpen: true,
+           businessId: id,
            businessName: businessName || 'Contacto',
            phoneNumber: text,
            cleanNumber: clean
@@ -769,6 +786,16 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
     
     // Attempt to invoke Zadarma web phone if available
     window.location.href = `tel:${callConfirmModal.cleanNumber}`;
+
+    if (callConfirmModal.businessId) {
+      const business = businesses.find((b) => b.id === callConfirmModal.businessId);
+      if (business) {
+        setNoteModal({
+          id: business.id,
+          notes: business.notes || [],
+        });
+      }
+    }
     
     setCallConfirmModal(null);
   };
@@ -2094,7 +2121,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
         )}
 
         {statusToConfirm && (
-          <motion.div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+          <motion.div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
             <div className="bg-slate-900 border border-amber-500/20 rounded-xl w-full max-w-sm p-5 shadow-2xl">
               <h3 className="font-bold text-white mb-2">Confirmar cambio</h3>
               <p className="text-slate-400 text-xs mb-4">¿Seguro que quieres cambiar el estado a <span className="text-amber-400 font-bold">{statusToConfirm.newStatus}</span>?</p>
@@ -2226,6 +2253,25 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                     <h3 className="font-bold text-white text-base leading-snug">
                       {businessObj?.name || "Empresa"}
                     </h3>
+                    {businessObj && (
+                      <div className="mt-1">
+                        <select
+                          value={businessObj.status || "Nuevo"}
+                          onChange={(e) => handleSaveInline(businessObj.id, "status", e.target.value)}
+                          className="bg-slate-800 text-[10px] text-white border border-slate-700 rounded px-2 py-1 outline-none focus:border-amber-500 cursor-pointer"
+                        >
+                          <optgroup label="Contactabilidad">
+                            {STATUSES.Contactabilidad.map(s => <option key={s} value={s}>{s}</option>)}
+                          </optgroup>
+                          <optgroup label="Gestión">
+                            {STATUSES.Gestión.map(s => <option key={s} value={s}>{s}</option>)}
+                          </optgroup>
+                          <optgroup label="Cierre">
+                            {STATUSES.Cierre.map(s => <option key={s} value={s}>{s}</option>)}
+                          </optgroup>
+                        </select>
+                      </div>
+                    )}
                   </div>
                   <button
                     onClick={() => setNoteModal(null)}
@@ -3108,9 +3154,15 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                 <p className="text-slate-400 text-sm mb-4">
                   ¿Está seguro que desea llamar a <strong className="text-white">{callConfirmModal.businessName}</strong>?
                 </p>
-                <div className="bg-slate-800/50 rounded-lg p-3 w-full mb-8 font-mono text-amber-400 font-bold tracking-wider text-xl">
+                <div className="bg-slate-800/50 rounded-lg p-3 w-full mb-4 font-mono text-amber-400 font-bold tracking-wider text-xl">
                     {callConfirmModal.phoneNumber}
                 </div>
+                {getCountryName(callConfirmModal.cleanNumber) && (
+                  <div className="flex items-center gap-2 mb-8 text-slate-300 text-sm bg-slate-800/30 px-3 py-1.5 rounded-full">
+                    <Globe2 size={14} className="text-amber-400" />
+                    País: <strong className="text-white">{getCountryName(callConfirmModal.cleanNumber)}</strong>
+                  </div>
+                )}
                 
                 <div className="flex gap-3 w-full">
                   <button
