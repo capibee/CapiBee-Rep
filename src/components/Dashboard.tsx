@@ -203,18 +203,6 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
     });
   };
 
-  const handleStartAutoDial = () => {
-    // Determine the list of remaining "Nuevo" contacts that actually have a phone number.
-    const nuevos = businesses.filter(b => b.status === "Nuevo" && (b.phone || b.contactPhone || b.responsiblePhone));
-    if (nuevos.length === 0) {
-      alert("No hay contactos con estado 'Nuevo' que tengan número de teléfono.");
-      return;
-    }
-    setIsAutoDialing(true);
-    callNextInQueue(nuevos);
-  };
-
-
   const STATUSES = {
     Contactabilidad: [
       "Nuevo",
@@ -1310,6 +1298,19 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
 
     return searchMatch && countryMatch && cityMatch && statusMatch && userMatch;
   });
+
+  const handleStartAutoDial = () => {
+    // Determine the list of filtered visible contacts that actually have a phone number or WhatsApp.
+    const toDial = filteredBusinesses.filter(
+      b => b.phone || b.contactPhone || b.responsiblePhone || b.whatsapp
+    );
+    if (toDial.length === 0) {
+      alert("No hay contactos visibles en la lista filtrada actual que tengan número de teléfono o WhatsApp.");
+      return;
+    }
+    setIsAutoDialing(true);
+    callNextInQueue(toDial);
+  };
 
   const totalPages = Math.ceil(filteredBusinesses.length / itemsPerPage);
   const currentItems = filteredBusinesses.slice(
