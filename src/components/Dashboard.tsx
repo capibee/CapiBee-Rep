@@ -1530,7 +1530,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                       </option>
                     ))}
                   </select>
-                  {(currentUser?.roleName?.toLowerCase() === "superadmin" || currentUser?.roleId === "ADMIN_MAESTRO") && (
+                  {(currentUser?.roleName?.toLowerCase() === "superadmin" || currentUser?.roleId === "ADMIN_MAESTRO" || currentUser?.roleName?.toLowerCase().includes('ejecutivo') || currentUser?.roleId?.includes('6940')) && (
                     <select
                       value={filterAssignedUser}
                       onChange={(e) => setFilterAssignedUser(e.target.value)}
@@ -1572,7 +1572,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                     <Phone size={10} strokeWidth={2.5} />
                     Automarcación
                   </button>
-                  {(currentUser?.roleName?.toLowerCase() === "superadmin" || currentUser?.roleId === "ADMIN_MAESTRO" || currentUser?.roleName?.toLowerCase().includes('admin')) && (
+                  {(currentUser?.roleName?.toLowerCase() === "superadmin" || currentUser?.roleId === "ADMIN_MAESTRO" || currentUser?.roleName?.toLowerCase().includes('admin') || currentUser?.roleName?.toLowerCase().includes('ejecutivo') || currentUser?.roleId?.includes('6940')) && (
                     <button
                       onClick={() => setIsScrapingModalOpen(true)}
                       disabled={!canCreateContact}
@@ -2137,7 +2137,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
 
       {/* Modal / Form Overlay */}
       <AnimatePresence>
-        {isScrapingModalOpen && (currentUser?.roleName?.toLowerCase() === "superadmin" || currentUser?.roleId === "ADMIN_MAESTRO" || currentUser?.roleName?.toLowerCase().includes('admin')) && (
+        {isScrapingModalOpen && (currentUser?.roleName?.toLowerCase() === "superadmin" || currentUser?.roleId === "ADMIN_MAESTRO" || currentUser?.roleName?.toLowerCase().includes('admin') || currentUser?.roleName?.toLowerCase().includes('ejecutivo') || currentUser?.roleId?.includes('6940')) && (
           <ScrapingModal
             onClose={() => setIsScrapingModalOpen(false)}
             onConfirm={handleAddScrapedLeads}
