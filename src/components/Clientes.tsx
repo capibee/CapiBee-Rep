@@ -1172,7 +1172,7 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
                   Editar Contacto
                 </h3>
                 <p className="text-sm text-slate-400">
-                  Actualizando detalles para: <strong className="text-slate-200">{editingClientDetails.companyName || editingClientDetails.contactName}</strong>
+                  Actualizando detalles para: <strong className="text-slate-200">{editingClientDetails.type === "Empresa" ? (editingClientDetails.companyName || "—") : (editingClientDetails.contactName || "—")}</strong>
                 </p>
               </div>
 
