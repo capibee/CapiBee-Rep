@@ -2299,24 +2299,25 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
           const businessObj = businesses.find((b) => b.id === noteModal.id);
           return (
             <motion.div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-              <div className="bg-slate-900 border border-amber-500/20 rounded-2xl w-full max-w-lg p-5 flex flex-col max-h-[90vh] shadow-2xl">
+              <div className="bg-slate-900 border border-amber-500/20 rounded-2xl w-full max-w-4xl p-6 flex flex-col max-h-[90vh] md:max-h-[85vh] shadow-2xl">
                 
-                {/* Minimalist Header with Business Name */}
-                <div className="flex justify-between items-start pb-3 border-b border-slate-800">
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[9px] uppercase tracking-widest text-amber-500 font-extrabold">
-                      Bitácora de Notas
+                {/* Modern Header with Business Name & Status */}
+                <div className="flex justify-between items-start pb-4 border-b border-slate-800">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] uppercase tracking-widest text-amber-500 font-extrabold flex items-center gap-1">
+                      <Zap size={10} className="text-amber-500" />
+                      Gestión de Lead
                     </span>
-                    <h3 className="font-bold text-white text-base leading-snug">
+                    <h3 className="font-extrabold text-white text-lg tracking-tight leading-snug">
                       {businessObj?.name || "Empresa"}
                     </h3>
                     {businessObj && (
-                      <div className="mt-2 flex items-center gap-1.5">
-                        <span className="text-[9px] uppercase tracking-wider font-bold text-slate-500">Estado:</span>
+                      <div className="mt-1 flex items-center gap-2">
+                        <span className="text-[10px] uppercase tracking-wider font-bold text-slate-500">Estado Celda:</span>
                         <select
                           value={businessObj.status || "Nuevo"}
                           onChange={(e) => handleSaveInline(businessObj.id, "status", e.target.value)}
-                          className="bg-slate-950 text-[10px] text-amber-400 font-bold border border-slate-800 hover:border-amber-500/30 rounded px-2.5 py-1 outline-none cursor-pointer transition-colors"
+                          className="bg-slate-950 text-[10px] text-amber-400 font-bold border border-slate-800 hover:border-amber-500/30 rounded-lg px-3 py-1 outline-none cursor-pointer transition-colors"
                         >
                           <optgroup label="Contactabilidad">
                             {STATUSES.Contactabilidad.map(s => <option key={s} value={s}>{s}</option>)}
@@ -2333,8 +2334,8 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                   </div>
                   <div className="flex items-center gap-2">
                     {isAutoDialing && (
-                      <span className="text-[10px] font-bold text-amber-500 bg-amber-500/10 px-2.5 py-1.5 rounded-full animate-pulse border border-amber-500/20 flex items-center whitespace-nowrap">
-                        <span className="mr-1">📞 Auto:</span> {autoDialQueue.length} rest.
+                      <span className="text-[11px] font-bold text-amber-500 bg-amber-500/10 px-3 py-1.5 rounded-full animate-pulse border border-amber-500/20 flex items-center whitespace-nowrap shadow-sm">
+                        <span className="mr-1">📞 Auto:</span> {autoDialQueue.length + 1} restante(s)
                       </span>
                     )}
                     <button
@@ -2345,173 +2346,222 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                           setAutoDialQueue([]);
                         }
                       }}
-                      className="text-slate-400 hover:text-white transition-colors p-1.5 hover:bg-slate-800 rounded-lg"
+                      className="text-slate-400 hover:text-white transition-colors p-2 hover:bg-slate-800 rounded-lg"
                       title={isAutoDialing ? "Detener Automarcación y Cerrar" : "Cerrar"}
                     >
-                      <X size={16} />
+                      <X size={18} />
                     </button>
                   </div>
                 </div>
 
-                {/* Automarcación banner as a sleek floating bar in progress */}
-                {isAutoDialing && (
-                  <div className="mt-3 p-3 bg-amber-500/10 rounded-xl border border-amber-500/20 flex items-center justify-between shadow-sm">
-                    <div className="flex items-center gap-2">
-                      <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-550"></span>
-                      </span>
-                      <span className="text-[10px] text-amber-500 font-extrabold uppercase tracking-wider">
-                        Automarcación en progreso
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setNoteModal(null);
-                        callNextInQueue(autoDialQueue);
-                      }}
-                      className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10px] px-3.5 py-1.5 rounded-lg uppercase tracking-widest transition-all shadow-[0_2px_8px_rgba(245,158,11,0.2)] hover:shadow-[0_4px_12px_rgba(245,158,11,0.3)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
-                    >
-                      Siguiente Cliente
-                    </button>
-                  </div>
-                )}
-
-                {/* Contact Information Edit Card */}
-                <div className="mt-3 p-3 bg-slate-950/60 rounded-xl border border-slate-800/80 space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] uppercase tracking-wider font-extrabold text-slate-400 block">
-                      Datos del Contacto
-                    </span>
-                    <span className="text-[8px] text-slate-500">
-                      Se guarda al salir del campo
-                    </span>
-                  </div>
+                {/* 2-Column Responsive Layout */}
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 mt-4 flex-1 min-h-0 overflow-y-auto md:overflow-hidden">
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    {/* Nombre del contacto */}
-                    <div className="space-y-1 sm:col-span-2">
-                      <label className="block text-[8px] uppercase tracking-wider text-slate-500 font-bold flex items-center gap-1">
-                        <UserIcon size={9} className="text-amber-500/80" />
-                        Nombre del Contacto
-                      </label>
-                      <input
-                        type="text"
-                        value={contactNameEdit}
-                        onChange={(e) => setContactNameEdit(e.target.value)}
-                        onBlur={() => handleSaveContactField('contactName', contactNameEdit)}
-                        placeholder="Sin registrar - escribe aquí para agregar..."
-                        className="w-full bg-slate-900 border border-slate-800 focus:border-amber-500/50 rounded-lg px-2.5 py-1 text-xs text-slate-100 placeholder-slate-650 focus:outline-none transition-all shadow-inner focus:ring-1 focus:ring-amber-500/20"
-                      />
-                    </div>
-
-                    {/* Número del contacto */}
-                    <div className="space-y-1">
-                      <label className="block text-[8px] uppercase tracking-wider text-slate-500 font-bold flex items-center gap-1">
-                        <Phone size={9} className="text-amber-500/80" />
-                        Teléfono de Contacto
-                      </label>
-                      <input
-                        type="tel"
-                        value={phoneEdit}
-                        onChange={(e) => setPhoneEdit(e.target.value)}
-                        onBlur={() => handleSaveContactField('contactPhone', phoneEdit)}
-                        placeholder="Sin registrar - escribe para agregar..."
-                        className="w-full bg-slate-900 border border-slate-800 focus:border-amber-500/50 rounded-lg px-2.5 py-1 text-xs text-slate-100 placeholder-slate-650 focus:outline-none transition-all shadow-inner focus:ring-1 focus:ring-amber-500/20"
-                      />
-                    </div>
-
-                    {/* Correo del contacto */}
-                    <div className="space-y-1">
-                      <label className="block text-[8px] uppercase tracking-wider text-slate-500 font-bold flex items-center gap-1">
-                        <Mail size={9} className="text-amber-500/80" />
-                        Correo de Contacto
-                      </label>
-                      <input
-                        type="email"
-                        value={emailEdit}
-                        onChange={(e) => setEmailEdit(e.target.value)}
-                        onBlur={() => handleSaveContactField('email', emailEdit)}
-                        placeholder="Sin registrar - escribe para agregar..."
-                        className="w-full bg-slate-900 border border-slate-800 focus:border-amber-500/50 rounded-lg px-2.5 py-1 text-xs text-slate-100 placeholder-slate-650 focus:outline-none transition-all shadow-inner focus:ring-1 focus:ring-amber-500/20"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Scrollable Chat Area */}
-                <div className="flex-1 overflow-y-auto my-3 pr-1 custom-scrollbar space-y-3 min-h-[160px]">
-                  {noteModal.notes.map((n, i) => {
-                    const authorFull = n.authorName || "Usuario";
-                    const resolvedUser = platformUsers?.find(u => u?.fullName?.toLowerCase() === authorFull?.toLowerCase());
-                    const roleDisplay = n.authorRole || resolvedUser?.roleName || "Colaborador";
+                  {/* Left Column: Controls & Information */}
+                  <div className="col-span-12 md:col-span-5 flex flex-col gap-4 overflow-y-auto pr-1 pb-4 custom-scrollbar">
                     
-                    return (
-                      <div
-                        key={i}
-                        className="flex flex-col gap-1 group relative bg-slate-950/40 hover:bg-slate-950/80 border border-slate-800/40 hover:border-slate-800/80 p-3 rounded-xl transition-all"
-                      >
-                        <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                          <span className="text-amber-400 font-bold text-xs">
-                            {authorFull}
+                    {/* Automarcación banner */}
+                    {isAutoDialing && (
+                      <div className="p-4 bg-amber-500/5 rounded-xl border border-amber-500/15 flex flex-col gap-3 shadow-md">
+                        <div className="flex items-center gap-2">
+                          <span className="relative flex h-2.5 w-2.5">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
                           </span>
-                          <span className="px-1.5 py-0.5 rounded text-[8px] font-black uppercase bg-amber-500/10 text-amber-500 border border-amber-500/20">
-                            {roleDisplay}
-                          </span>
-                          <span className="text-[9px] text-slate-500 ml-auto">
-                            {new Date(n.date).toLocaleDateString()} {new Date(n.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          <span className="text-[11px] text-amber-500 font-extrabold uppercase tracking-widest">
+                            Autollamada en Proceso
                           </span>
                         </div>
-                        
-                        <p className="text-slate-200 text-xs leading-relaxed break-words whitespace-pre-wrap pl-0.5">
-                          {n.text}
+                        <p className="text-[11px] text-slate-400 leading-normal">
+                          Marcando automáticamente la lista de leads filtrados. Presiona el botón al finalizar de registrar tu nota para continuar.
                         </p>
-
                         <button
-                          onClick={() => handleDeleteNote(i)}
-                          className="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity p-1 absolute top-2.5 right-2.5"
-                          title="Eliminar nota"
+                          onClick={() => {
+                            setNoteModal(null);
+                            callNextInQueue(autoDialQueue);
+                          }}
+                          className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs py-2.5 rounded-lg uppercase tracking-widest transition-all shadow-[0_4px_12px_rgba(245,158,11,0.2)] hover:shadow-[0_6px_16px_rgba(245,158,11,0.35)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] text-center"
                         >
-                          <Trash2 size={11} />
+                          Siguiente Cliente
                         </button>
                       </div>
-                    );
-                  })}
-                  
-                  {noteModal.notes.length === 0 && (
-                    <div className="h-full flex flex-col items-center justify-center py-8 text-center">
-                      <MessageSquare size={24} className="text-slate-600 mb-1.5 opacity-40 animate-pulse" />
-                      <p className="text-slate-550 text-[10px] italic">
-                        Sin comentarios registrados en esta bitácora.
-                      </p>
-                    </div>
-                  )}
-                </div>
+                    )}
 
-                {/* Sleek chat input form at the bottom */}
-                <div className="pt-2.5 border-t border-slate-800">
-                  <div className="flex gap-2 bg-slate-950 p-1.5 rounded-xl border border-slate-850 focus-within:border-amber-500/30 transition-all">
-                    <textarea
-                      value={newNote}
-                      onChange={(e) => setNewNote(e.target.value)}
-                      placeholder="Escribe una nueva nota y presiona Enviar..."
-                      className="flex-1 bg-transparent px-2.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none min-h-[38px] max-h-[80px] resize-none custom-scrollbar"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
-                          e.preventDefault();
-                          handleSendInstantNote();
-                        }
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={handleSendInstantNote}
-                      disabled={!newNote.trim()}
-                      className="self-end p-2.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:hover:bg-amber-500 text-slate-950 rounded-lg transition-all scale-95 hover:scale-100 active:scale-95 shadow-md flex items-center justify-center shrink-0"
-                      title="Enviar nota"
-                    >
-                      <Send size={12} className="rotate-45 text-slate-950 font-black" />
-                    </button>
+                    {/* Contact Information Cards (Editable Fields) */}
+                    <div className="p-4 bg-slate-950/60 rounded-xl border border-slate-800/85 space-y-4 shadow-sm">
+                      <div className="flex items-center justify-between border-b border-slate-900 pb-2">
+                        <span className="text-[10px] uppercase tracking-wider font-extrabold text-slate-400 block">
+                          Datos de Contacto
+                        </span>
+                        <span className="text-[8px] text-slate-500 font-medium">
+                          Auto-guardado al salir del campo
+                        </span>
+                      </div>
+                      
+                      <div className="space-y-3.5">
+                        {/* Nombre del contacto */}
+                        <div className="space-y-1.5">
+                          <label className="block text-[9px] uppercase tracking-wider text-slate-400 font-bold flex items-center gap-1.5">
+                            <UserIcon size={10} className="text-amber-500/80" />
+                            Nombre del Contacto
+                          </label>
+                          <input
+                            type="text"
+                            value={contactNameEdit}
+                            onChange={(e) => setContactNameEdit(e.target.value)}
+                            onBlur={() => handleSaveContactField('contactName', contactNameEdit)}
+                            placeholder="Ej. Juan Pérez (escribe para guardar)"
+                            className="w-full bg-slate-900 border border-slate-800 focus:border-amber-500/50 rounded-lg px-3 py-1.5 text-xs text-slate-100 placeholder-slate-600 focus:outline-none transition-all shadow-inner focus:ring-1 focus:ring-amber-500/20"
+                          />
+                        </div>
+
+                        {/* Número del contacto */}
+                        <div className="space-y-1.5">
+                          <label className="block text-[9px] uppercase tracking-wider text-slate-400 font-bold flex items-center gap-1.5">
+                            <Phone size={10} className="text-amber-500/80" />
+                            Teléfono de Contacto
+                          </label>
+                          <input
+                            type="tel"
+                            value={phoneEdit}
+                            onChange={(e) => setPhoneEdit(e.target.value)}
+                            onBlur={() => handleSaveContactField('contactPhone', phoneEdit)}
+                            placeholder="Ej. +57 300 123 4567"
+                            className="w-full bg-slate-900 border border-slate-800 focus:border-amber-500/50 rounded-lg px-3 py-1.5 text-xs text-slate-100 placeholder-slate-600 focus:outline-none transition-all shadow-inner focus:ring-1 focus:ring-amber-500/20 font-mono"
+                          />
+                        </div>
+
+                        {/* Correo del contacto */}
+                        <div className="space-y-1.5">
+                          <label className="block text-[9px] uppercase tracking-wider text-slate-400 font-bold flex items-center gap-1.5">
+                            <Mail size={10} className="text-amber-500/80" />
+                            Correo del Contacto
+                          </label>
+                          <input
+                            type="email"
+                            value={emailEdit}
+                            onChange={(e) => setEmailEdit(e.target.value)}
+                            onBlur={() => handleSaveContactField('email', emailEdit)}
+                            placeholder="Ej. contacto@empresa.com"
+                            className="w-full bg-slate-900 border border-slate-800 focus:border-amber-500/50 rounded-lg px-3 py-1.5 text-xs text-slate-100 placeholder-slate-600 focus:outline-none transition-all shadow-inner focus:ring-1 focus:ring-amber-500/20"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Company Background Context */}
+                    <div className="p-4 bg-slate-950/20 rounded-xl border border-slate-850/80 space-y-2.5">
+                      <span className="text-[10px] uppercase tracking-wider font-extrabold text-slate-500 block">
+                        Detalles de la Empresa
+                      </span>
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-[11px]">
+                        <div>
+                          <span className="text-slate-500 block text-[9px] uppercase font-bold">Teléfono Principal</span>
+                          <span className="text-slate-300 font-mono">{businessObj?.prefix} {businessObj?.phone || "No Registrado"}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block text-[9px] uppercase font-bold">Categoría / Sector</span>
+                          <span className="text-slate-300 truncate block">{businessObj?.category || "No Especificado"}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block text-[9px] uppercase font-bold">Ubicación / País</span>
+                          <span className="text-slate-300 flex items-center gap-1">
+                            <MapPin size={9} className="text-amber-500/50 shrink-0" />
+                            {businessObj?.country || "No especificado"}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block text-[9px] uppercase font-bold">Asesor Responsable</span>
+                          <span className="text-slate-300 truncate block">{businessObj?.responsibleName || "No Asignado"}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  {/* Right Column: Bitácora Notes chat History */}
+                  <div className="col-span-12 md:col-span-7 flex flex-col h-full min-h-[30vh] md:min-h-0 md:border-l md:border-slate-800/80 md:pl-6 overflow-hidden">
+                    
+                    <span className="text-[10px] uppercase tracking-wider font-extrabold text-slate-400 mb-2 block">
+                      Bitácora de Comentarios / Historial de Gestión
+                    </span>
+
+                    {/* Scrollable Chat Area */}
+                    <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar space-y-3 pb-3">
+                      {noteModal.notes.map((n, i) => {
+                        const authorFull = n.authorName || "Usuario";
+                        const resolvedUser = platformUsers?.find(u => u?.fullName?.toLowerCase() === authorFull?.toLowerCase());
+                        const roleDisplay = n.authorRole || resolvedUser?.roleName || "Colaborador";
+                        
+                        return (
+                          <div
+                            key={i}
+                            className="flex flex-col gap-1.5 group relative bg-slate-950/40 hover:bg-slate-950/80 border border-slate-800/40 hover:border-slate-800/80 p-3.5 rounded-xl transition-all"
+                          >
+                            <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                              <span className="text-amber-400 font-bold text-xs">
+                                {authorFull}
+                              </span>
+                              <span className="px-1.5 py-0.5 rounded text-[8px] font-black uppercase bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                                {roleDisplay}
+                              </span>
+                              <span className="text-[9px] text-slate-500 ml-auto font-medium">
+                                {new Date(n.date).toLocaleDateString()} {new Date(n.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            </div>
+                            
+                            <p className="text-slate-200 text-xs leading-relaxed break-words whitespace-pre-wrap pl-0.5">
+                              {n.text}
+                            </p>
+
+                            <button
+                              onClick={() => handleDeleteNote(i)}
+                              className="text-slate-550 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity p-1 absolute top-3 right-3"
+                              title="Eliminar nota"
+                            >
+                              <Trash2 size={11} />
+                            </button>
+                          </div>
+                        );
+                      })}
+                      
+                      {noteModal.notes.length === 0 && (
+                        <div className="h-full flex flex-col items-center justify-center py-10 text-center">
+                          <MessageSquare size={26} className="text-slate-700 mb-2 opacity-40 animate-pulse" />
+                          <p className="text-slate-550 text-[11px] italic">
+                            Sin comentarios registrados en esta empresa.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Sleek chat input form at the bottom */}
+                    <div className="pt-3 border-t border-slate-800 mt-auto">
+                      <div className="flex gap-2 bg-slate-950 p-1.5 rounded-xl border border-slate-850 focus-within:border-amber-500/30 transition-all">
+                        <textarea
+                          value={newNote}
+                          onChange={(e) => setNewNote(e.target.value)}
+                          placeholder="Escribe una nueva nota de gestión y presiona Enviar..."
+                          className="flex-1 bg-transparent px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none min-h-[46px] max-h-[90px] resize-none custom-scrollbar"
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                              e.preventDefault();
+                              handleSendInstantNote();
+                            }
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={handleSendInstantNote}
+                          disabled={!newNote.trim()}
+                          className="self-end p-2.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:hover:bg-amber-500 text-slate-950 rounded-lg transition-all scale-95 hover:scale-100 active:scale-95 shadow-md flex items-center justify-center shrink-0"
+                          title="Enviar nota"
+                        >
+                          <Send size={12} className="rotate-45 text-slate-950 font-black" />
+                        </button>
+                      </div>
+                    </div>
+
                   </div>
                 </div>
 
