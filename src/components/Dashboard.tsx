@@ -918,7 +918,14 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
   const handleSaveContactField = (field: string, value: string) => {
     if (!noteModal) return;
     const updated = businesses.map((b) =>
-      b.id === noteModal.id ? { ...b, [field]: value.trim() } : b
+      b.id === noteModal.id
+        ? {
+            ...b,
+            [field]: value.trim(),
+            ...(field === "contactPhone" ? { whatsapp: value.trim() } : {}),
+            ...(field === "whatsapp" ? { contactPhone: value.trim() } : {}),
+          }
+        : b
     );
     saveBusinesses(updated);
   };
@@ -931,6 +938,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
             ...b,
             contactName: contactNameEdit.trim(),
             contactPhone: phoneEdit.trim(),
+            whatsapp: phoneEdit.trim(),
             email: emailEdit.trim(),
           }
         : b

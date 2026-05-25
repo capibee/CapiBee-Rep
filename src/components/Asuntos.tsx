@@ -149,13 +149,15 @@ export default function Asuntos({ onBack }: AsuntosProps) {
         setPlatformUsers(uniqueUsers);
       }
       
-      const { data: dbBusinesses } = await supabase.from('businesses').select('id, name, contact_name, phone, whatsapp, responsible_name, responsible_phone');
+      const { data: dbBusinesses } = await supabase.from('businesses').select('id, name, contact_name, contact_phone, phone, whatsapp, responsible_name, responsible_phone');
       if (dbBusinesses) {
          const mappedB = dbBusinesses.map((b: any) => ({
              id: b.id,
              name: b.name,
              contactName: b.contact_name || '',
-             phone: b.phone || b.whatsapp || ''
+             contactPhone: b.contact_phone || b.whatsapp || '',
+             phone: b.phone || '',
+             whatsapp: b.whatsapp || ''
          }));
          setBusinesses(mappedB);
       }
@@ -620,7 +622,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                                                     ...formData,
                                                     businessId: b.id,
                                                     contactName: b.contactName || "",
-                                                    contactPhone: b.phone || ""
+                                                    contactPhone: b.contactPhone || b.whatsapp || ""
                                                 });
                                                 setClientSearchText("");
                                                 setIsClientDropdownOpen(false);
@@ -648,7 +650,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                                 />
                             </div>
                             <div>
-                                <label className="block text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1 font-sans">Teléfono de Contacto</label>
+                                <label className="block text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1 font-sans">Teléfono de Contacto / WhatsApp</label>
                                 <input 
                                     className="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-white outline-none focus:ring-1 focus:ring-yellow-500/50 text-xs placeholder:text-slate-600 font-mono" 
                                     placeholder="Ej. +52 1..." 
