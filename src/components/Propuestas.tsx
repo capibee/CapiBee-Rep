@@ -6,7 +6,9 @@ import {
   FileText,
   Briefcase,
   Eye,
-  ChevronLeft
+  ChevronLeft,
+  Trash2,
+  Edit
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Asunto, Propuesta, Business } from "../types";
@@ -71,6 +73,119 @@ export default function Propuestas({ onBack }: PropuestasProps) {
     return JSON.parse(localStorage.getItem("capibee_user") || "{}");
   }, []);
 
+  const isSuperAdmin = useMemo(() => {
+    if (!currentUser) return false;
+    const roleId = String(currentUser.roleId || "").toUpperCase();
+    const roleName = String(currentUser.roleName || "").toUpperCase();
+    return roleId === 'ADMIN_MAESTRO' || 
+           roleId === 'SUPERADMIN' || 
+           roleName === 'SUPERADMIN' || 
+           roleName === 'SUPER ADMINISTRADOR' ||
+           roleName.includes('ADMIN') ||
+           roleId.includes('ADMIN');
+  }, [currentUser]);
+
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [editingPropuesta, setEditingPropuesta] = useState<Propuesta | null>(null);
+  const [isCreatingForAsunto, setIsCreatingForAsunto] = useState(false);
+  const [modalPdfUrl, setModalPdfUrl] = useState<string>("");
+  const [modalPdfName, setModalPdfName] = useState<string>("");
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingPropuesta(null);
+    setIsCreatingForAsunto(false);
+    setFormData({ asuntoId: "", propuestaTexto: "", honorarios: "", gastos: "" });
+    setModalPdfUrl("");
+    setModalPdfName("");
+  };
+
+  const handleEditClick = (p: Propuesta) => {
+    setEditingPropuesta(p);
+    setFormData({
+      asuntoId: p.asuntoId,
+      propuestaTexto: p.propuestaTexto,
+      honorarios: String(p.honorarios),
+      gastos: String(p.gastos)
+    });
+    setModalPdfUrl(p.pdfUrl || "");
+    setModalPdfName(p.pdfName || "");
+    setIsModalOpen(true);
+  };
+
+  const handleDeletePropuesta = async (id: string) => {
+    try {
+      const { error } = await supabase.from('propuestas').delete().eq('id', id);
+      if (error) {
+        console.error("Error deleting proposal from Supabase:", error);
+      }
+    } catch (err) {
+      console.error("Error deleting proposal:", err);
+    }
+
+    const updated = propuestas.filter(p => p.id !== id);
+    setPropuestas(updated);
+    localStorage.setItem("capibee_propuestas", JSON.stringify(updated));
+    setDeleteConfirmId(null);
+    setIsViewModalOpen(false);
+  };
+
+  const handlePdfUpload = async (propuestaId: string, event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const pdfBase64 = reader.result as string;
+      const pdfName = file.name;
+
+      const updated = propuestas.map(pr => {
+        if (pr.id === propuestaId) {
+          return { ...pr, pdfUrl: pdfBase64, pdfName: pdfName };
+        }
+        return pr;
+      });
+      setPropuestas(updated);
+      localStorage.setItem("capibee_propuestas", JSON.stringify(updated));
+
+      try {
+        await supabase
+          .from('propuestas')
+          .update({ 
+            pdf_url: pdfBase64, 
+            pdf_name: pdfName 
+          })
+          .eq('id', propuestaId);
+      } catch (err) {
+        console.warn("Failed to sync pdf_url to database:", err);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemovePdf = async (propuestaId: string) => {
+    const updated = propuestas.map(pr => {
+      if (pr.id === propuestaId) {
+        return { ...pr, pdfUrl: "", pdfName: "" };
+      }
+      return pr;
+    });
+    setPropuestas(updated);
+    localStorage.setItem("capibee_propuestas", JSON.stringify(updated));
+
+    try {
+      await supabase
+        .from('propuestas')
+        .update({ 
+          pdf_url: null, 
+          pdf_name: null 
+        })
+        .eq('id', propuestaId);
+    } catch (err) {
+      console.warn("Failed to delete pdf_url in database:", err);
+    }
+  };
+
   const [formData, setFormData] = useState({
     asuntoId: "",
     propuestaTexto: "",
@@ -99,18 +214,26 @@ export default function Propuestas({ onBack }: PropuestasProps) {
 
   const fetchFreshData = async () => {
     try {
+      const localPropuestas = localStorage.getItem("capibee_propuestas");
+      const parsedLocal = localPropuestas ? JSON.parse(localPropuestas) : [];
+
       const { data: dbPropuestas } = await supabase.from('propuestas').select('*');
       if (dbPropuestas) {
-          const mapped = dbPropuestas.map((p: any) => ({
-              id: p.id,
-              asuntoId: p.asunto_id,
-              propuestaTexto: p.propuesta_texto,
-              honorarios: p.honorarios,
-              gastos: p.gastos,
-              userId: p.user_id,
-              createdAt: Number(p.created_at),
-              status: p.status || 'Enviada'
-          }));
+          const mapped = dbPropuestas.map((p: any) => {
+              const localProp = parsedLocal.find((lp: any) => lp.id === p.id);
+              return {
+                  id: p.id,
+                  asuntoId: p.asunto_id,
+                  propuestaTexto: p.propuesta_texto,
+                  honorarios: p.honorarios,
+                  gastos: p.gastos,
+                  userId: p.user_id,
+                  createdAt: Number(p.created_at),
+                  status: p.status || 'Enviada',
+                  pdfUrl: p.pdf_url || localProp?.pdfUrl || "",
+                  pdfName: p.pdf_name || localProp?.pdfName || ""
+              };
+          });
           setPropuestas(mapped);
           localStorage.setItem("capibee_propuestas", JSON.stringify(mapped));
       }
@@ -169,42 +292,88 @@ export default function Propuestas({ onBack }: PropuestasProps) {
         return;
     }
     
-    const newPropuesta: Propuesta = {
-      id: crypto.randomUUID(),
-      asuntoId: formData.asuntoId,
-      propuestaTexto: formData.propuestaTexto,
-      honorarios: Number(formData.honorarios) || 0,
-      gastos: Number(formData.gastos) || 0,
-      userId: currentUser.id || "unknown",
-      createdAt: Date.now(),
-      status: 'Enviada',
-    };
+    if (editingPropuesta) {
+      // Edit Mode
+      const updatedPropuesta: Propuesta = {
+        ...editingPropuesta,
+        asuntoId: formData.asuntoId,
+        propuestaTexto: formData.propuestaTexto,
+        honorarios: Number(formData.honorarios) || 0,
+        gastos: Number(formData.gastos) || 0,
+        pdfUrl: modalPdfUrl,
+        pdfName: modalPdfName
+      };
 
-    try {
-      const { error } = await supabase.from('propuestas').insert({
-          id: newPropuesta.id,
-          asunto_id: newPropuesta.asuntoId,
-          propuesta_texto: newPropuesta.propuestaTexto,
-          honorarios: newPropuesta.honorarios,
-          gastos: newPropuesta.gastos,
-          user_id: newPropuesta.userId,
-          created_at: newPropuesta.createdAt,
-          status: newPropuesta.status
-      });
+      try {
+        const { error } = await supabase.from('propuestas').update({
+            asunto_id: updatedPropuesta.asuntoId,
+            propuesta_texto: updatedPropuesta.propuestaTexto,
+            honorarios: updatedPropuesta.honorarios,
+            gastos: updatedPropuesta.gastos,
+            pdf_url: updatedPropuesta.pdfUrl,
+            pdf_name: updatedPropuesta.pdfName,
+        }).eq('id', updatedPropuesta.id);
 
-      if (error && error.code !== '42P01') { 
-          // Ignore table not found if it's purely local mode for now
-          console.error("Error creating Propuesta:", error);
+        if (error && error.code !== '42P01') { 
+            console.error("Error updating Propuesta:", error);
+        }
+      } catch (err) {
+        console.error(err);
       }
-    } catch (err) {
-      console.error(err);
-    }
 
-    const updated = [newPropuesta, ...propuestas];
-    setPropuestas(updated);
-    localStorage.setItem("capibee_propuestas", JSON.stringify(updated));
-    setIsModalOpen(false);
-    setFormData({ asuntoId: "", propuestaTexto: "", honorarios: "", gastos: "" });
+      const updated = propuestas.map(p => p.id === editingPropuesta.id ? updatedPropuesta : p);
+      setPropuestas(updated);
+      localStorage.setItem("capibee_propuestas", JSON.stringify(updated));
+      setIsModalOpen(false);
+      setEditingPropuesta(null);
+      setFormData({ asuntoId: "", propuestaTexto: "", honorarios: "", gastos: "" });
+      setModalPdfUrl("");
+      setModalPdfName("");
+    } else {
+      // Create Mode
+      const newPropuesta: Propuesta = {
+        id: crypto.randomUUID(),
+        asuntoId: formData.asuntoId,
+        propuestaTexto: formData.propuestaTexto,
+        honorarios: Number(formData.honorarios) || 0,
+        gastos: Number(formData.gastos) || 0,
+        userId: currentUser.id || "unknown",
+        createdAt: Date.now(),
+        status: 'Enviada',
+        pdfUrl: modalPdfUrl,
+        pdfName: modalPdfName
+      };
+
+      try {
+        const { error } = await supabase.from('propuestas').insert({
+            id: newPropuesta.id,
+            asunto_id: newPropuesta.asuntoId,
+            propuesta_texto: newPropuesta.propuestaTexto,
+            honorarios: newPropuesta.honorarios,
+            gastos: newPropuesta.gastos,
+            user_id: newPropuesta.userId,
+            created_at: newPropuesta.createdAt,
+            status: newPropuesta.status,
+            pdf_url: newPropuesta.pdfUrl,
+            pdf_name: newPropuesta.pdfName
+        });
+
+        if (error && error.code !== '42P01') { 
+            // Ignore table not found if it's purely local mode for now
+            console.error("Error creating Propuesta:", error);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+
+      const updated = [newPropuesta, ...propuestas];
+      setPropuestas(updated);
+      localStorage.setItem("capibee_propuestas", JSON.stringify(updated));
+      setIsModalOpen(false);
+      setFormData({ asuntoId: "", propuestaTexto: "", honorarios: "", gastos: "" });
+      setModalPdfUrl("");
+      setModalPdfName("");
+    }
   };
 
   const { kpis, filteredItems } = useMemo(() => {
@@ -224,7 +393,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
       userId: string;
     }> = [];
 
-    const isAdmin = currentUser?.roleId === 'ADMIN_MAESTRO' || currentUser?.roleName?.toUpperCase() === 'SUPERADMIN' || currentUser?.roleId?.toUpperCase() === 'SUPERADMIN';
+    const isAdmin = isSuperAdmin;
 
     // Filter asuntos (checking for missing propuestas to mark as pending)
     asuntos.forEach((a) => {
@@ -422,6 +591,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                     <th className="p-4 font-bold">Asignado a</th>
                     <th className="p-4 font-bold">Nombre del contacto</th>
                     <th className="p-4 font-bold">Estado</th>
+                    <th className="p-4 font-bold">Propuesta</th>
                     <th className="p-4 font-bold text-right">Acciones</th>
                 </tr>
             </thead>
@@ -478,19 +648,39 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                                 </select>
                               )}
                             </td>
-                            <td className="p-4 text-right">
-                              <div className="flex items-center justify-end gap-2 text-right">
-                                {p.isAsunto ? (
+                            <td className="p-4 text-sm">
+                              {p.isAsunto ? (
+                                <button 
+                                  onClick={() => {
+                                    setFormData({...formData, asuntoId: p.asuntoId});
+                                    setIsCreatingForAsunto(true);
+                                    setIsModalOpen(true);
+                                  }}
+                                  className="px-2.5 py-1.5 bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-bold text-[10px] rounded-lg transition-colors whitespace-nowrap"
+                                >
+                                  Crear Propuesta
+                                </button>
+                              ) : p.pdfUrl ? (
+                                <div className="flex items-center gap-2">
+                                   <FileText size={16} className="text-blue-400" />
+                                   <a href={p.pdfUrl} download={p.pdfName} className="text-blue-400 hover:text-blue-300 text-[10px] truncate max-w-[100px]">{p.pdfName}</a>
+                                   <button onClick={() => handleRemovePdf(p.id)} className="text-red-400 hover:text-red-300"><X size={12}/></button>
+                                </div>
+                              ) : (
+                                <>
                                   <button 
-                                    onClick={() => {
-                                      setFormData({...formData, asuntoId: p.asuntoId});
-                                      setIsModalOpen(true);
-                                    }}
-                                    className="px-2.5 py-1.5 bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-bold text-xs rounded-lg transition-colors whitespace-nowrap"
+                                    onClick={() => document.getElementById(`pdf-upload-${p.id}`)?.click()} 
+                                    className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors text-[10px] font-bold"
                                   >
-                                    Crear Propuesta
+                                    <FileText size={12} /> Subir PDF
                                   </button>
-                                ) : (
+                                  <input type="file" id={`pdf-upload-${p.id}`} className="hidden" accept="application/pdf" onChange={(e) => handlePdfUpload(p.id, e)} />
+                                </>
+                              )}
+                            </td>
+                            <td className="p-4 text-right">
+                              {!p.isAsunto && (
+                                <div className="flex items-center justify-end gap-1.5">
                                   <button 
                                       onClick={() => {
                                         const relatedPropuesta = propuestas.find(pr => pr.id === p.id);
@@ -504,8 +694,31 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                                   >
                                       <Eye size={16} />
                                   </button>
-                                )}
-                              </div>
+                                  <button 
+                                      onClick={() => {
+                                        const relatedPropuesta = propuestas.find(pr => pr.id === p.id);
+                                        if (relatedPropuesta) {
+                                          handleEditClick(relatedPropuesta);
+                                        }
+                                      }}
+                                      className="p-1.5 text-slate-400 hover:text-cyan-400 hover:bg-cyan-400/10 rounded-lg transition-colors"
+                                      title="Editar Propuesta"
+                                  >
+                                      <Edit size={16} />
+                                  </button>
+                                  {isSuperAdmin && (
+                                    <button 
+                                        onClick={() => {
+                                          setDeleteConfirmId(p.id);
+                                        }}
+                                        className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                                        title="Eliminar Propuesta"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                  )}
+                                </div>
+                              )}
                             </td>
                         </tr>
                         )
@@ -530,10 +743,27 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                     className="bg-slate-900 p-6 rounded-2xl w-full max-w-lg border border-slate-800 shadow-2xl"
                 >
                     <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-xl font-bold text-white">Nueva Propuesta</h2>
-                        <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-white transition-colors"><X size={20}/></button>
+                        <h2 className="text-xl font-bold text-white">{editingPropuesta ? "Editar Propuesta" : "Nueva Propuesta"}</h2>
+                        <button onClick={handleCloseModal} className="text-slate-400 hover:text-white transition-colors"><X size={20}/></button>
                     </div>
                     <form onSubmit={handleCreate} className="space-y-4">
+                        <div>
+                            <label className="block text-xs uppercase tracking-widest text-slate-500 font-bold mb-2">Archivo PDF de la Propuesta</label>
+                            <input type="file" id="propuesta-upload" className="hidden" accept="application/pdf" onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                const reader = new FileReader();
+                                reader.onloadend = () => {
+                                    setModalPdfUrl(reader.result as string);
+                                    setModalPdfName(file.name);
+                                };
+                                reader.readAsDataURL(file);
+                            }} />
+                            <button type="button" onClick={() => document.getElementById('propuesta-upload')?.click()} className="w-full bg-slate-800 hover:bg-slate-700 text-white p-3 rounded-xl transition-all">
+                                {modalPdfName || "Seleccionar archivo PDF"}
+                            </button>
+                         </div>
+                        {!isCreatingForAsunto && (
                         <div>
                            <label className="block text-xs uppercase tracking-widest text-slate-500 font-bold mb-2">Seleccione el Asunto</label>
                            <select 
@@ -547,6 +777,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                              ))}
                            </select>
                         </div>
+                        )}
                         <div>
                            <label className="block text-xs uppercase tracking-widest text-slate-500 font-bold mb-2">Campo de Propuesta</label>
                            <textarea 
@@ -584,7 +815,9 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                               </div>
                            </div>
                         </div>
-                        <button type="submit" className="w-full bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black p-3 rounded-xl transition-all mt-4">Guardar Propuesta</button>
+                        <button type="submit" className="w-full bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black p-3 rounded-xl transition-all mt-4">
+                          {editingPropuesta ? "Actualizar Propuesta" : "Guardar Propuesta"}
+                        </button>
                     </form>
                 </motion.div>
             </div>
@@ -665,9 +898,63 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                              {selectedPropuesta.propuestaTexto || "Sin descripción proporcionada."}
                           </div>
                        </div>
+
+                       {isSuperAdmin && (
+                         <div className="pt-4 border-t border-slate-800 flex justify-end">
+                           <button
+                             type="button"
+                             onClick={() => setDeleteConfirmId(selectedPropuesta.id)}
+                             className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/20 font-black rounded-xl text-[10px] uppercase tracking-wider transition-all flex items-center gap-1.5"
+                           >
+                             <Trash2 size={12} /> Eliminar Propuesta
+                           </button>
+                         </div>
+                       )}
                     </div>
                 </motion.div>
             </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {deleteConfirmId && (
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl relative overflow-hidden text-left"
+            >
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 to-rose-600" />
+              <div className="text-center">
+                <div className="w-12 h-12 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Trash2 size={24} />
+                </div>
+                
+                <h3 className="text-lg font-bold text-white mb-2">¿Eliminar Propuesta?</h3>
+                <p className="text-slate-400 text-xs mb-6 leading-relaxed">
+                  Esta acción es irreversible y eliminará permanentemente la propuesta seleccionada tanto de la base de datos de Supabase como de la vista local.
+                </p>
+                
+                <div className="flex gap-3 w-full">
+                  <button
+                    type="button"
+                    onClick={() => setDeleteConfirmId(null)}
+                    className="flex-1 py-2 bg-slate-800 text-slate-300 font-bold rounded-xl hover:bg-slate-700 transition-colors text-xs uppercase tracking-wider"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDeletePropuesta(deleteConfirmId)}
+                    className="flex-1 py-2 bg-red-500 text-white font-bold rounded-xl hover:bg-red-400 transition-colors text-xs uppercase tracking-wider shadow-lg shadow-red-500/20"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>

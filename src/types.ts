@@ -150,6 +150,8 @@ export interface Propuesta {
   createdAt: number;
   userId: string;
   status?: 'Enviada' | 'Aceptada' | 'Cancelada';
+  pdfUrl?: string;
+  pdfName?: string;
 }
 
 export interface Asunto {

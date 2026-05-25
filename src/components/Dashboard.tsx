@@ -2511,7 +2511,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                       </span>
                       <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-[11px]">
                         <div>
-                          <span className="text-slate-500 block text-[9px] uppercase font-bold">Teléfono Principal</span>
+                          <span className="text-slate-500 block text-[9px] uppercase font-bold">TELEFONO EMPRESA</span>
                           <span className="text-slate-300 font-mono">{businessObj?.prefix} {businessObj?.phone || "No Registrado"}</span>
                         </div>
                         <div>
