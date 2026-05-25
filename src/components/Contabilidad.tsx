@@ -435,8 +435,15 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
   };
 
   const handleUpdateStatus = async (inv: Invoice, newStatus: string) => {
-    const updatedInvoices = invoices.map(i => i.id === inv.id ? { ...i, status: newStatus } : i);
-    await saveInvoices(updatedInvoices);
+    // Check if current user is admin OR if it's the executive paying (and only changing to 'Pagado')
+    const user = JSON.parse(localStorage.getItem('capibee_user') || '{}');
+    const isSuperAdmin = user?.roleName?.toLowerCase().includes('admin') || user?.roleId === 'ADMIN_MAESTRO';
+    
+    if (isSuperAdmin || (newStatus === 'Pagado' && user?.roleName?.toLowerCase().includes('ejecutivo'))) {
+      const updatedInvoices = invoices.map(i => i.id === inv.id ? { ...i, status: newStatus } : i);
+      await saveInvoices(updatedInvoices);
+      syncSingleInvoiceToSupabase(updatedInvoices.find(i => i.id === inv.id)!);
+    }
   };
 
   const safeToLocaleString = (val: number | undefined | null) => (val || 0).toLocaleString();

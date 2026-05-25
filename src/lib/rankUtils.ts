@@ -38,7 +38,7 @@ export function calculateUserRank(userId: string, userFullName: string): UserRan
                 isUserInvoice = true;
             }
 
-            if (isUserInvoice && inv.status !== 'Rechazado' && inv.status !== 'Anulado') {
+            if (isUserInvoice && inv.status === 'Pagado') {
                 const subtotal = inv.items ? inv.items.reduce((acc: number, item: any) => acc + (item.quantity * item.price), 0)
                                             : ((inv.quantity || 0) * (inv.priceUSD || 0));
                 monthlySales += subtotal;
