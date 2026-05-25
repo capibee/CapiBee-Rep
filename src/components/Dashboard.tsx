@@ -184,11 +184,6 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
     const nextContact = queue[0];
     setAutoDialQueue(queue.slice(1));
     
-    setNoteModal({
-      id: nextContact.id,
-      notes: nextContact.notes || [],
-    });
-
     const rawNumber = nextContact.phone || nextContact.contactPhone || nextContact.responsiblePhone || "";
     const prefix = nextContact.prefix || "";
     const clean = `${prefix}${rawNumber}`.replace(/[^0-9+]/g, '');
@@ -2353,11 +2348,12 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                     </span>
                     <button
                       onClick={() => {
+                        setNoteModal(null);
                         callNextInQueue(autoDialQueue);
                       }}
                       className="bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold text-[10px] px-3 py-1.5 rounded uppercase tracking-wider transition-colors"
                     >
-                      Siguiente Llamada
+                      Siguiente Cliente
                     </button>
                   </div>
                 )}
