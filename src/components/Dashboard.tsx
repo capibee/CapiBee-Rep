@@ -148,6 +148,12 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
   );
   const [statusToConfirm, setStatusToConfirm] = useState<{ businessId: string, newStatus: string } | null>(null);
   const [meetingDateToConfirm, setMeetingDateToConfirm] = useState<string>('');
+  const [callConfirmModal, setCallConfirmModal] = useState<{
+    isOpen: boolean;
+    businessName: string;
+    phoneNumber: string;
+    cleanNumber: string;
+  } | null>(null);
 
   const STATUSES = {
     Contactabilidad: [
@@ -738,17 +744,33 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
     id: string,
     text: string,
     type: "phone" | "whatsapp" | "responsiblePhone",
+    businessName?: string
   ) => {
-    navigator.clipboard.writeText(text);
-    setCopyStatus({ id, type });
-    setTimeout(() => setCopyStatus(null), 2000);
-
     if (type === "phone" || type === "responsiblePhone") {
       const clean = text.replace(/[^0-9+]/g, '');
       if (clean) {
-         window.location.href = `tel:${clean}`;
+         setCallConfirmModal({
+           isOpen: true,
+           businessName: businessName || 'Contacto',
+           phoneNumber: text,
+           cleanNumber: clean
+         });
       }
+      return;
     }
+
+    navigator.clipboard.writeText(text);
+    setCopyStatus({ id, type });
+    setTimeout(() => setCopyStatus(null), 2000);
+  };
+
+  const executePhoneCall = () => {
+    if (!callConfirmModal) return;
+    
+    // Attempt to invoke Zadarma web phone if available
+    window.location.href = `tel:${callConfirmModal.cleanNumber}`;
+    
+    setCallConfirmModal(null);
   };
 
   const handleDeleteNote = (noteIndex: number) => {
@@ -1553,7 +1575,8 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                                   handleCopy(
                                     business.id,
                                     `${business.prefix || ""} ${business.phone || ""}`.trim(),
-                                    "phone"
+                                    "phone",
+                                    business.name
                                   )
                                 }
                                 className="flex items-center gap-1 text-slate-300 cursor-pointer hover:text-amber-400 transition-colors relative"
@@ -1904,6 +1927,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                                   business.id,
                                   `${business.prefix || ""} ${business.phone || ""}`.trim(),
                                   "phone",
+                                  business.name
                                 )
                               }
                               className="text-amber-500 flex items-center gap-1"
@@ -3053,6 +3077,53 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                     className="flex-1 py-3 bg-red-500 text-white font-bold rounded-xl hover:bg-red-400 transition-colors text-xs uppercase tracking-wider shadow-lg shadow-red-500/20"
                   >
                     Eliminar
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+        {/* Call Confirmation Modal */}
+        {callConfirmModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl relative overflow-hidden"
+            >
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 to-yellow-500 space-x-1 flex" />
+              
+              <div className="flex flex-col items-center text-center">
+                <div className="w-16 h-16 rounded-full bg-amber-400/10 flex items-center justify-center mb-4">
+                  <Phone className="text-amber-400 w-8 h-8" />
+                </div>
+                
+                <h3 className="text-xl font-bold text-white mb-2">Realizar Llamada</h3>
+                <p className="text-slate-400 text-sm mb-4">
+                  ¿Está seguro que desea llamar a <strong className="text-white">{callConfirmModal.businessName}</strong>?
+                </p>
+                <div className="bg-slate-800/50 rounded-lg p-3 w-full mb-8 font-mono text-amber-400 font-bold tracking-wider text-xl">
+                    {callConfirmModal.phoneNumber}
+                </div>
+                
+                <div className="flex gap-3 w-full">
+                  <button
+                    onClick={() => setCallConfirmModal(null)}
+                    className="flex-1 py-3 bg-slate-800 text-slate-300 font-bold rounded-xl hover:bg-slate-700 transition-colors text-xs uppercase tracking-wider"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={executePhoneCall}
+                    className="flex-1 py-3 bg-amber-400 text-slate-950 font-bold rounded-xl hover:bg-amber-500 transition-colors text-xs uppercase tracking-wider shadow-lg shadow-amber-400/20"
+                  >
+                    Llamar
                   </button>
                 </div>
               </div>
