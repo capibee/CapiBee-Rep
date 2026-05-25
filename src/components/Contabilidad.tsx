@@ -1572,8 +1572,16 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
                         <div className="flex justify-center">
                           <button 
                             onClick={() => { setSelectedInvoice(inv); setIsPaymentModalOpen(true); }}
-                            disabled={!permissions.edit || inv.status === 'Anulado' || debe <= 0}
-                            className={`text-[10px] font-bold px-3 py-1.5 uppercase tracking-wider rounded-md transition-all ${(!permissions.edit || inv.status === 'Anulado' || debe <= 0) ? 'bg-emerald-600/50 text-white/50 cursor-not-allowed' : 'bg-emerald-600 text-white hover:bg-emerald-500 shadow hover:shadow-lg active:scale-95'}`}
+                            disabled={
+                              (!permissions.edit && !currentUser?.roleName?.toLowerCase().includes('ejecutivo')) || 
+                              inv.status === 'Anulado' || 
+                              debe <= 0
+                            }
+                            className={`text-[10px] font-bold px-3 py-1.5 uppercase tracking-wider rounded-md transition-all ${
+                              ((!permissions.edit && !currentUser?.roleName?.toLowerCase().includes('ejecutivo')) || inv.status === 'Anulado' || debe <= 0) 
+                              ? 'bg-emerald-600/50 text-white/50 cursor-not-allowed' 
+                              : 'bg-emerald-600 text-white hover:bg-emerald-500 shadow hover:shadow-lg active:scale-95'
+                            }`}
                           >
                             Pagar
                           </button>
