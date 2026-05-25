@@ -2328,8 +2328,8 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
         {noteModal && (() => {
           const businessObj = businesses.find((b) => b.id === noteModal.id);
           return (
-            <motion.div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-              <div className="bg-slate-900 border border-amber-500/20 rounded-2xl w-full max-w-4xl p-6 flex flex-col max-h-[90vh] md:max-h-[85vh] shadow-2xl">
+            <motion.div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md">
+              <div className="bg-slate-900 border border-amber-500/20 rounded-2xl w-full max-w-4xl p-4 sm:p-6 flex flex-col max-h-[95vh] md:max-h-[85vh] shadow-2xl">
                 
                 {/* Modern Header with Business Name & Status */}
                 <div className="flex justify-between items-start pb-4 border-b border-slate-800">
@@ -2390,33 +2390,6 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                   {/* Left Column: Controls & Information */}
                   <div className="col-span-12 md:col-span-5 flex flex-col gap-4 overflow-y-auto pr-1 pb-4 custom-scrollbar">
                     
-                    {/* Automarcación banner */}
-                    {isAutoDialing && (
-                      <div className="p-4 bg-amber-500/5 rounded-xl border border-amber-500/15 flex flex-col gap-3 shadow-md">
-                        <div className="flex items-center gap-2">
-                          <span className="relative flex h-2.5 w-2.5">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
-                          </span>
-                          <span className="text-[11px] text-amber-500 font-extrabold uppercase tracking-widest">
-                            Autollamada en Proceso
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-slate-400 leading-normal">
-                          Marcando automáticamente la lista de leads filtrados. Presiona el botón al finalizar de registrar tu nota para continuar.
-                        </p>
-                        <button
-                          onClick={() => {
-                            setNoteModal(null);
-                            callNextInQueue(autoDialQueue);
-                          }}
-                          className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs py-2.5 rounded-lg uppercase tracking-widest transition-all shadow-[0_4px_12px_rgba(245,158,11,0.2)] hover:shadow-[0_6px_16px_rgba(245,158,11,0.35)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] text-center"
-                        >
-                          Siguiente Cliente
-                        </button>
-                      </div>
-                    )}
-
                     {/* Contact Information Cards (Editable Fields) */}
                     <div className="p-4 bg-slate-950/60 rounded-xl border border-slate-800/85 space-y-4 shadow-sm">
                       <div className="flex items-center justify-between border-b border-slate-900 pb-2">
@@ -2503,6 +2476,33 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                         </div>
                       </div>
                     </div>
+                    
+                    {/* Automarcación banner */}
+                    {isAutoDialing && (
+                      <div className="p-4 bg-amber-500/5 rounded-xl border border-amber-500/15 flex flex-col gap-3 shadow-md">
+                        <div className="flex items-center gap-2">
+                          <span className="relative flex h-2.5 w-2.5">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
+                          </span>
+                          <span className="text-[11px] text-amber-500 font-extrabold uppercase tracking-widest">
+                            Autollamada en Proceso
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-400 leading-normal">
+                          Marcando automáticamente la lista de leads filtrados. Presiona el botón al finalizar de registrar tu nota para continuar.
+                        </p>
+                        <button
+                          onClick={() => {
+                            setNoteModal(null);
+                            callNextInQueue(autoDialQueue);
+                          }}
+                          className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs py-2.5 rounded-lg uppercase tracking-widest transition-all shadow-[0_4px_12px_rgba(245,158,11,0.2)] hover:shadow-[0_6px_16px_rgba(245,158,11,0.35)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] text-center"
+                        >
+                          Siguiente Cliente
+                        </button>
+                      </div>
+                    )}
 
                     {/* Company Background Context */}
                     <div className="p-4 bg-slate-950/20 rounded-xl border border-slate-850/80 space-y-2.5">
