@@ -189,19 +189,23 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
       notes: nextContact.notes || [],
     });
 
-    const clean = (nextContact.contactPhone || "").replace(/[^0-9+]/g, '');
+    const rawNumber = nextContact.phone || nextContact.contactPhone || nextContact.responsiblePhone || "";
+    const prefix = nextContact.prefix || "";
+    const clean = `${prefix}${rawNumber}`.replace(/[^0-9+]/g, '');
+    const phoneNumber = `${prefix} ${rawNumber}`.trim();
+
     setCallConfirmModal({
       isOpen: true,
       businessId: nextContact.id,
       businessName: nextContact.contactName || nextContact.name || 'Contacto',
-      phoneNumber: nextContact.contactPhone || "",
+      phoneNumber: phoneNumber,
       cleanNumber: clean
     });
   };
 
   const handleStartAutoDial = () => {
     // Determine the list of remaining "Nuevo" contacts that actually have a phone number.
-    const nuevos = businesses.filter(b => b.status === "Nuevo" && b.contactPhone);
+    const nuevos = businesses.filter(b => b.status === "Nuevo" && (b.phone || b.contactPhone || b.responsiblePhone));
     if (nuevos.length === 0) {
       alert("No hay contactos con estado 'Nuevo' que tengan número de teléfono.");
       return;
