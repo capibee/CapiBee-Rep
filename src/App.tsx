@@ -10,6 +10,7 @@ import ModulesSelection from './components/ModulesSelection';
 import Layout from './components/Layout';
 import SplashLoader from './components/SplashLoader';
 import ModuleLoader from './components/ModuleLoader';
+import ZadarmaWidget from './components/ZadarmaWidget';
 import { Role, ModulePermission } from './types';
 
 const Dashboard = lazy(() => import('./components/Dashboard'));
@@ -270,6 +271,7 @@ export default function App() {
   return (
     <>
       {mainChild}
+      {isAuthenticated && <ZadarmaWidget />}
       <WorldClocks />
     </>
   );

@@ -325,19 +325,10 @@ export default function Propuestas({ onBack }: PropuestasProps) {
 
   return (
     <div className="h-full bg-slate-950 p-6 flex flex-col overflow-hidden">
-      <div className="flex items-center gap-4 mb-6">
-        <button onClick={onBack} className="p-2 text-slate-400 hover:text-white hover:bg-slate-900 rounded-xl transition-all">
-          <ChevronLeft size={20} />
-        </button>
-        <div>
-           <h1 className="text-3xl font-bold text-white tracking-tight">Propuestas Comerciales</h1>
-           <p className="text-slate-400 mt-1">Crea y gestiona las propuestas para tus asuntos</p>
-        </div>
-        <div className="ml-auto">
+      <div className="flex justify-end items-center mb-6">
            <button onClick={() => setIsModalOpen(true)} className="bg-yellow-400 hover:bg-yellow-500 text-slate-950 px-5 py-2.5 rounded-xl flex items-center gap-2 font-black transition-all shadow-lg shadow-yellow-500/20">
               <Plus size={20} /> Crear Propuesta
            </button>
-        </div>
       </div>
 
       {/* Panel de KPIs Mensuales */}

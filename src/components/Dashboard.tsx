@@ -742,6 +742,13 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
     navigator.clipboard.writeText(text);
     setCopyStatus({ id, type });
     setTimeout(() => setCopyStatus(null), 2000);
+
+    if (type === "phone" || type === "responsiblePhone") {
+      const clean = text.replace(/[^0-9+]/g, '');
+      if (clean) {
+         window.location.href = `tel:${clean}`;
+      }
+    }
   };
 
   const handleDeleteNote = (noteIndex: number) => {
@@ -1477,7 +1484,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
 
             <div className="flex-1 overflow-y-auto custom-scrollbar p-1 sm:p-2 mt-1 lg:mt-2">
               {/* Desktop Table View */}
-              <div className="hidden">
+              <div className="hidden lg:block min-w-[1000px] pb-2">
                 <table className="w-full text-left border-separate border-spacing-y-0.5">
                   <thead>
                     <tr className="text-slate-400 sticky top-0 bg-slate-900/95 backdrop-blur-xl z-20 shadow-sm">
@@ -1542,12 +1549,15 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                           <div className="flex flex-col gap-0.5 text-[11px] text-slate-300">
                             {business.phone && (
                               <div
-                                onClick={() => handleCall(
-                                  `${business.prefix || ""}${business.phone}`,
-                                  (business.phone || "").replace(/\D/g, "")
-                                )}
+                                onClick={() =>
+                                  handleCopy(
+                                    business.id,
+                                    `${business.prefix || ""} ${business.phone || ""}`.trim(),
+                                    "phone"
+                                  )
+                                }
                                 className="flex items-center gap-1 text-slate-300 cursor-pointer hover:text-amber-400 transition-colors relative"
-                                title="Llamar con Zadarma API"
+                                title="Copiar número"
                               >
                                 <Phone
                                   size={10}
@@ -1892,14 +1902,15 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                               onClick={() =>
                                 handleCopy(
                                   business.id,
-                                  `${business.prefix || ""}${business.phone}`,
+                                  `${business.prefix || ""} ${business.phone || ""}`.trim(),
                                   "phone",
                                 )
                               }
                               className="text-amber-500 flex items-center gap-1"
+                              title="Copiar número"
                             >
                               <Phone size={10} />{" "}
-                              <span className="opacity-80">Llamar</span>
+                              <span className="opacity-80">Copiar</span>
                             </button>
                           )}
                           {business.whatsapp && (

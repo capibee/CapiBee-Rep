@@ -426,6 +426,7 @@ export default function Layout({ children, activeModule, onSelectModule, onLogou
                    activeModule === 'solicitudes' ? 'Formularios' :
                    activeModule === 'supabase' ? 'Backoffice' :
                    activeModule === 'finanzas' ? 'KPI\'s' :
+                   activeModule === 'propuestas' ? 'Propuestas' :
                    'Panel de Control'}
                 </h2>
               </div>

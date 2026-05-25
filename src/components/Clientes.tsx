@@ -54,6 +54,19 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
     );
   };
 
+  const [copyStatus, setCopyStatus] = useState<string | null>(null);
+
+  const handleCopy = (id: string, text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopyStatus(id);
+    setTimeout(() => setCopyStatus(null), 2000);
+
+    const clean = text.replace(/[^0-9+]/g, '');
+    if (clean) {
+      window.location.href = `tel:${clean}`;
+    }
+  };
+
   // Form State
   const [formData, setFormData] = useState({
     type: "Particular" as "Particular" | "Empresa",
@@ -675,7 +688,18 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
                         </div>
                       </td>
                       <td className="p-2 text-[10px] text-slate-400">
-                        {cli.phone || "-"}
+                        {cli.phone ? (
+                          <div
+                            onClick={() => handleCopy(cli.id, cli.phone)}
+                            className="flex items-center gap-1 cursor-pointer hover:text-amber-400 transition-colors"
+                            title="Copiar número"
+                          >
+                            <Phone size={10} />
+                            <span>{copyStatus === cli.id ? "Copiado!" : cli.phone}</span>
+                          </div>
+                        ) : (
+                          "-"
+                        )}
                       </td>
                       <td className="p-2 text-[10px] text-slate-400">
                         <button 

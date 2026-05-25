@@ -383,23 +383,22 @@ export default function Asuntos({ onBack }: AsuntosProps) {
   }, [filteredAsuntos, currentPage, itemsPerPage]);
 
   return (
-    <div className="h-full bg-slate-950 p-6">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-            <h1 className="text-3xl font-bold text-white tracking-tight">Asuntos Potenciales</h1>
-            <p className="text-slate-400 mt-1">Gestiona tus asuntos y oportunidades de negocio.</p>
-        </div>
-        <button onClick={() => {
-            setFormData({ nombreAsunto: "", businessId: "", datosAsunto: "", archivoAdjuntoUrl: "", contactName: "", contactPhone: "" });
-            setAsuntoFileName("");
-            setIsAsuntoDragOver(false);
-            setIsModalOpen(true);
-        }} className="bg-yellow-400 hover:bg-yellow-500 text-slate-950 px-5 py-2.5 rounded-xl flex items-center gap-2 font-black transition-all shadow-lg shadow-yellow-500/20">
-            <Plus size={20} /> Crear Asunto
-        </button>
-      </div>
+    <div className="h-full bg-transparent flex flex-col font-sans overflow-hidden text-slate-200">
+      <main className="flex-1 p-3 sm:p-5 lg:p-8 overflow-y-auto relative custom-scrollbar min-h-0">
+        <div className="max-w-[1400px] mx-auto relative z-10">
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+          <div className="flex justify-end items-center mb-2">
+            <button onClick={() => {
+                setFormData({ nombreAsunto: "", businessId: "", datosAsunto: "", archivoAdjuntoUrl: "", contactName: "", contactPhone: "" });
+                setAsuntoFileName("");
+                setIsAsuntoDragOver(false);
+                setIsModalOpen(true);
+            }} className="bg-yellow-400 hover:bg-yellow-500 text-slate-950 px-4 py-2 rounded-lg flex items-center gap-2 font-black transition-all shadow-md text-sm">
+                <Plus size={16} /> Crear Asunto
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2 mb-2">
           <button 
             type="button"
             onClick={() => toggleKpi("totalPotenciales")}
@@ -491,35 +490,38 @@ export default function Asuntos({ onBack }: AsuntosProps) {
           </button>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4 mb-6 p-2">
+      <div className="flex flex-col md:flex-row gap-2 mb-2">
         <div className="relative flex-grow">
-            <Search className="absolute left-3 top-3 text-slate-600" size={16}/>
-            <input type="text" placeholder="Buscar por nombre..." className="bg-slate-900/30 border border-slate-800 rounded-xl p-3 pl-9 text-white w-full focus:ring-1 focus:ring-yellow-500/50 outline-none transition-all placeholder:text-slate-600" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}/>
+            <Search className="absolute left-3 top-2.5 text-slate-600" size={14}/>
+            <input type="text" placeholder="Buscar por nombre..." className="bg-slate-900/30 border border-slate-800 rounded-lg p-2 pl-9 text-slate-200 text-sm w-full focus:ring-1 focus:ring-yellow-500/50 outline-none transition-all placeholder:text-slate-600" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}/>
         </div>
-        <select className="bg-slate-900/30 border border-slate-800 rounded-xl p-3 text-slate-300 outline-none focus:ring-1 focus:ring-yellow-500/50" value={clientFilter} onChange={e => setClientFilter(e.target.value)}>
+        <select className="bg-slate-900/30 border border-slate-800 rounded-lg p-2 text-slate-300 text-sm outline-none focus:ring-1 focus:ring-yellow-500/50" value={clientFilter} onChange={e => setClientFilter(e.target.value)}>
             <option value="">Todos los contactos</option>
             {businesses.map(b => <option key={b.id} value={b.name}>{b.name}</option>)}
         </select>
-        <select className="bg-slate-900/30 border border-slate-800 rounded-xl p-3 text-slate-300 outline-none focus:ring-1 focus:ring-yellow-500/50 min-w-[124px]" value={yearFilter} onChange={e => { setYearFilter(e.target.value); setCurrentPage(1); }}>
+        <select className="bg-slate-900/30 border border-slate-800 rounded-lg p-2 text-slate-300 text-sm outline-none focus:ring-1 focus:ring-yellow-500/50 min-w-[124px]" value={yearFilter} onChange={e => { setYearFilter(e.target.value); setCurrentPage(1); }}>
             <option value="">Todos los años</option>
             {availableYears.map(y => <option key={y} value={String(y)}>{y}</option>)}
         </select>
         {canViewAll && (
-            <select className="bg-slate-900/30 border border-slate-800 rounded-xl p-3 text-slate-300 outline-none focus:ring-1 focus:ring-yellow-500/50" value={executiveFilter} onChange={e => setExecutiveFilter(e.target.value)}>
+            <select className="bg-slate-900/30 border border-slate-800 rounded-lg p-2 text-slate-300 text-sm outline-none focus:ring-1 focus:ring-yellow-500/50" value={executiveFilter} onChange={e => setExecutiveFilter(e.target.value)}>
                 <option value="">Todos los Ejecutivos</option>
                 {uniquePlatformUsers.map(u => <option key={u.id} value={u.id}>{u.full_name || u.email}</option>)}
             </select>
         )}
-      </div>      <div className="rounded-2xl overflow-hidden">
+      </div>
+
+      <div className="rounded-xl overflow-hidden bg-slate-900/20 border border-slate-800">
+          <div className="overflow-x-auto min-h-[400px]">
           <table className="w-full text-left text-slate-300">
-            <thead className="text-slate-500 text-[10px] uppercase tracking-widest">
+            <thead className="bg-slate-900/80 text-slate-400 text-[10px] uppercase tracking-widest border-b border-slate-800">
                 <tr>
-                    <th className="p-4 font-bold text-center w-10">#</th>
-                    <th className="p-4 font-bold">Fecha</th>
-                    <th className="p-4 font-bold">Nombre asunto</th>
-                    <th className="p-4 font-bold">Nombre Contacto</th>
-                    <th className="p-4 font-bold">Creado por</th>
-                    <th className="p-4 font-bold text-right">Acciones</th>
+                    <th className="py-2.5 px-4 font-bold text-center w-10">#</th>
+                    <th className="py-2.5 px-4 font-bold">Fecha</th>
+                    <th className="py-2.5 px-4 font-bold">Nombre asunto</th>
+                    <th className="py-2.5 px-4 font-bold">Nombre Contacto</th>
+                    <th className="py-2.5 px-4 font-bold">Creado por</th>
+                    <th className="py-2.5 px-4 font-bold text-right">Acciones</th>
                 </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/30">
@@ -532,20 +534,20 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                 ) : currentItems.length > 0 ? (
                     currentItems.map((a, index) => (
                         <tr key={a.id} className="hover:bg-slate-900/20 transition-colors">
-                            <td className="p-4 text-center font-mono text-[10px] text-slate-500 select-none w-10">
+                            <td className="py-2 px-4 text-center font-mono text-[10px] text-slate-500 select-none w-10">
                                 {(currentPage - 1) * itemsPerPage + index + 1}
                             </td>
-                            <td className="p-4 text-sm text-slate-500">{new Date(a.fecha).toLocaleDateString()}</td>
-                            <td className="p-4 text-sm font-medium text-white">{a.nombreAsunto}</td>
-                            <td className="p-4 text-sm text-slate-300">{a.contactName || businesses.find(b => b.id === a.businessId)?.contactName || "—"}</td>
-                            <td className="p-4 text-sm text-slate-500">{platformUsers.find(u => u.id === a.userId)?.full_name || a.userId}</td>
-                            <td className="p-4 text-right">
+                            <td className="py-2 px-4 text-sm text-slate-500">{new Date(a.fecha).toLocaleDateString()}</td>
+                            <td className="py-2 px-4 text-sm font-medium text-white">{a.nombreAsunto}</td>
+                            <td className="py-2 px-4 text-sm text-slate-300">{a.contactName || businesses.find(b => b.id === a.businessId)?.contactName || "—"}</td>
+                            <td className="py-2 px-4 text-sm text-slate-500">{platformUsers.find(u => u.id === a.userId)?.full_name || a.userId}</td>
+                            <td className="py-2 px-4 text-right">
                                 <button 
                                     onClick={() => {
                                       setSelectedAsunto(a);
                                       setIsViewModalOpen(true);
                                     }}
-                                    className="p-2 text-slate-400 hover:text-yellow-400 hover:bg-yellow-400/10 rounded-lg transition-colors"
+                                    className="p-1.5 text-slate-400 hover:text-yellow-400 hover:bg-yellow-400/10 rounded-lg transition-colors"
                                     title="Ver detalle"
                                   >
                                     <Eye size={18} />
@@ -560,7 +562,10 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                 )}
             </tbody>
           </table>
-          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+          </div>
+          <div className="border-t border-slate-800">
+             <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+          </div>
       </div>
 
       <AnimatePresence>
@@ -959,6 +964,8 @@ export default function Asuntos({ onBack }: AsuntosProps) {
             </div>
         )}
       </AnimatePresence>
+        </div>
+      </main>
     </div>
   );
 }
