@@ -133,6 +133,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
   const [companyNameEdit, setCompanyNameEdit] = useState("");
   const [countryEdit, setCountryEdit] = useState("");
   const [phoneEdit, setPhoneEdit] = useState("");
+  const [emailEdit, setEmailEdit] = useState("");
 
   useEffect(() => {
     if (noteModal) {
@@ -144,6 +145,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
       setCompanyNameEdit(b?.name || "");
       setCountryEdit(b?.country || "");
       setPhoneEdit(b?.contactPhone || "");
+      setEmailEdit(b?.email || "");
     } else {
       setContactNameEdit("");
       setAddressEdit("");
@@ -152,6 +154,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
       setCompanyNameEdit("");
       setCountryEdit("");
       setPhoneEdit("");
+      setEmailEdit("");
     }
   }, [noteModal, businesses]);
   const [copyStatus, setCopyStatus] = useState<{
@@ -908,6 +911,14 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
     );
     saveBusinesses(updated);
     setEditingCell(null);
+  };
+
+  const handleSaveContactField = (field: string, value: string) => {
+    if (!noteModal) return;
+    const updated = businesses.map((b) =>
+      b.id === noteModal.id ? { ...b, [field]: value.trim() } : b
+    );
+    saveBusinesses(updated);
   };
 
   const handleCall = async (phone: string, cleanPhone?: string) => {
@@ -2288,7 +2299,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
           const businessObj = businesses.find((b) => b.id === noteModal.id);
           return (
             <motion.div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-              <div className="bg-slate-900 border border-amber-500/20 rounded-2xl w-full max-w-md p-5 flex flex-col max-h-[80vh] shadow-2xl">
+              <div className="bg-slate-900 border border-amber-500/20 rounded-2xl w-full max-w-lg p-5 flex flex-col max-h-[90vh] shadow-2xl">
                 
                 {/* Minimalist Header with Business Name */}
                 <div className="flex justify-between items-start pb-3 border-b border-slate-800">
@@ -2300,11 +2311,12 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                       {businessObj?.name || "Empresa"}
                     </h3>
                     {businessObj && (
-                      <div className="mt-1">
+                      <div className="mt-2 flex items-center gap-1.5">
+                        <span className="text-[9px] uppercase tracking-wider font-bold text-slate-500">Estado:</span>
                         <select
                           value={businessObj.status || "Nuevo"}
                           onChange={(e) => handleSaveInline(businessObj.id, "status", e.target.value)}
-                          className="bg-slate-800 text-[10px] text-white border border-slate-700 rounded px-2 py-1 outline-none focus:border-amber-500 cursor-pointer"
+                          className="bg-slate-950 text-[10px] text-amber-400 font-bold border border-slate-800 hover:border-amber-500/30 rounded px-2.5 py-1 outline-none cursor-pointer transition-colors"
                         >
                           <optgroup label="Contactabilidad">
                             {STATUSES.Contactabilidad.map(s => <option key={s} value={s}>{s}</option>)}
@@ -2321,7 +2333,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                   </div>
                   <div className="flex items-center gap-2">
                     {isAutoDialing && (
-                      <span className="text-[10px] font-bold text-amber-500 bg-amber-500/10 px-2 py-1 rounded-full animate-pulse border border-amber-500/20 flex flex-col sm:flex-row items-center whitespace-nowrap">
+                      <span className="text-[10px] font-bold text-amber-500 bg-amber-500/10 px-2.5 py-1.5 rounded-full animate-pulse border border-amber-500/20 flex items-center whitespace-nowrap">
                         <span className="mr-1">📞 Auto:</span> {autoDialQueue.length} rest.
                       </span>
                     )}
@@ -2341,25 +2353,94 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                   </div>
                 </div>
 
+                {/* Automarcación banner as a sleek floating bar in progress */}
                 {isAutoDialing && (
-                  <div className="py-2 px-3 bg-amber-500/10 border-b border-amber-500/20 flex items-center justify-between">
-                    <span className="text-xs text-amber-500/80 font-semibold">
-                      Automarcación en progreso
-                    </span>
+                  <div className="mt-3 p-3 bg-amber-500/10 rounded-xl border border-amber-500/20 flex items-center justify-between shadow-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-550"></span>
+                      </span>
+                      <span className="text-[10px] text-amber-500 font-extrabold uppercase tracking-wider">
+                        Automarcación en progreso
+                      </span>
+                    </div>
                     <button
                       onClick={() => {
                         setNoteModal(null);
                         callNextInQueue(autoDialQueue);
                       }}
-                      className="bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold text-[10px] px-3 py-1.5 rounded uppercase tracking-wider transition-colors"
+                      className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10px] px-3.5 py-1.5 rounded-lg uppercase tracking-widest transition-all shadow-[0_2px_8px_rgba(245,158,11,0.2)] hover:shadow-[0_4px_12px_rgba(245,158,11,0.3)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
                     >
                       Siguiente Cliente
                     </button>
                   </div>
                 )}
 
+                {/* Contact Information Edit Card */}
+                <div className="mt-3 p-3 bg-slate-950/60 rounded-xl border border-slate-800/80 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] uppercase tracking-wider font-extrabold text-slate-400 block">
+                      Datos del Contacto
+                    </span>
+                    <span className="text-[8px] text-slate-500">
+                      Se guarda al salir del campo
+                    </span>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {/* Nombre del contacto */}
+                    <div className="space-y-1 sm:col-span-2">
+                      <label className="block text-[8px] uppercase tracking-wider text-slate-500 font-bold flex items-center gap-1">
+                        <UserIcon size={9} className="text-amber-500/80" />
+                        Nombre del Contacto
+                      </label>
+                      <input
+                        type="text"
+                        value={contactNameEdit}
+                        onChange={(e) => setContactNameEdit(e.target.value)}
+                        onBlur={() => handleSaveContactField('contactName', contactNameEdit)}
+                        placeholder="Sin registrar - escribe aquí para agregar..."
+                        className="w-full bg-slate-900 border border-slate-800 focus:border-amber-500/50 rounded-lg px-2.5 py-1 text-xs text-slate-100 placeholder-slate-650 focus:outline-none transition-all shadow-inner focus:ring-1 focus:ring-amber-500/20"
+                      />
+                    </div>
+
+                    {/* Número del contacto */}
+                    <div className="space-y-1">
+                      <label className="block text-[8px] uppercase tracking-wider text-slate-500 font-bold flex items-center gap-1">
+                        <Phone size={9} className="text-amber-500/80" />
+                        Teléfono de Contacto
+                      </label>
+                      <input
+                        type="tel"
+                        value={phoneEdit}
+                        onChange={(e) => setPhoneEdit(e.target.value)}
+                        onBlur={() => handleSaveContactField('contactPhone', phoneEdit)}
+                        placeholder="Sin registrar - escribe para agregar..."
+                        className="w-full bg-slate-900 border border-slate-800 focus:border-amber-500/50 rounded-lg px-2.5 py-1 text-xs text-slate-100 placeholder-slate-650 focus:outline-none transition-all shadow-inner focus:ring-1 focus:ring-amber-500/20"
+                      />
+                    </div>
+
+                    {/* Correo del contacto */}
+                    <div className="space-y-1">
+                      <label className="block text-[8px] uppercase tracking-wider text-slate-500 font-bold flex items-center gap-1">
+                        <Mail size={9} className="text-amber-500/80" />
+                        Correo de Contacto
+                      </label>
+                      <input
+                        type="email"
+                        value={emailEdit}
+                        onChange={(e) => setEmailEdit(e.target.value)}
+                        onBlur={() => handleSaveContactField('email', emailEdit)}
+                        placeholder="Sin registrar - escribe para agregar..."
+                        className="w-full bg-slate-900 border border-slate-800 focus:border-amber-500/50 rounded-lg px-2.5 py-1 text-xs text-slate-100 placeholder-slate-650 focus:outline-none transition-all shadow-inner focus:ring-1 focus:ring-amber-500/20"
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 {/* Scrollable Chat Area */}
-                <div className="flex-1 overflow-y-auto my-4 pr-1 custom-scrollbar space-y-3 min-h-[220px]">
+                <div className="flex-1 overflow-y-auto my-3 pr-1 custom-scrollbar space-y-3 min-h-[160px]">
                   {noteModal.notes.map((n, i) => {
                     const authorFull = n.authorName || "Usuario";
                     const resolvedUser = platformUsers?.find(u => u?.fullName?.toLowerCase() === authorFull?.toLowerCase());
@@ -2398,9 +2479,9 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                   })}
                   
                   {noteModal.notes.length === 0 && (
-                    <div className="h-full flex flex-col items-center justify-center py-12 text-center">
-                      <MessageSquare size={28} className="text-slate-600 mb-2 opacity-40 animate-pulse" />
-                      <p className="text-slate-500 text-[11px] italic">
+                    <div className="h-full flex flex-col items-center justify-center py-8 text-center">
+                      <MessageSquare size={24} className="text-slate-600 mb-1.5 opacity-40 animate-pulse" />
+                      <p className="text-slate-550 text-[10px] italic">
                         Sin comentarios registrados en esta bitácora.
                       </p>
                     </div>
@@ -2408,7 +2489,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                 </div>
 
                 {/* Sleek chat input form at the bottom */}
-                <div className="pt-3 border-t border-slate-800">
+                <div className="pt-2.5 border-t border-slate-800">
                   <div className="flex gap-2 bg-slate-950 p-1.5 rounded-xl border border-slate-850 focus-within:border-amber-500/30 transition-all">
                     <textarea
                       value={newNote}
