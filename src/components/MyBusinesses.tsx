@@ -201,7 +201,7 @@ export default function MyBusinesses({ onLogout, onBack }: MyBusinessesProps) {
             id: b.id,
             type: "Empresa",
             companyName: b.name,
-            contactName: b.contactName || b.name,
+            contactName: b.contactName || "",
             email: b.email || "",
             phone: b.phone || "",
             language: "Español",

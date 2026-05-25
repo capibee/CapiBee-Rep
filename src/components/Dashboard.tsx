@@ -134,6 +134,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
   const [countryEdit, setCountryEdit] = useState("");
   const [phoneEdit, setPhoneEdit] = useState("");
   const [emailEdit, setEmailEdit] = useState("");
+  const [isContactSaved, setIsContactSaved] = useState(false);
 
   useEffect(() => {
     if (noteModal) {
@@ -156,7 +157,8 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
       setPhoneEdit("");
       setEmailEdit("");
     }
-  }, [noteModal, businesses]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [noteModal?.id]);
   const [copyStatus, setCopyStatus] = useState<{
     id: string;
     type: "phone" | "whatsapp" | "responsiblePhone";
@@ -431,7 +433,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
             id: b.id,
             type: "Empresa",
             companyName: b.name,
-            contactName: b.contactName || b.name,
+            contactName: b.contactName || "",
             email: b.email || "",
             phone: b.phone || "",
             language: "Español",
@@ -919,6 +921,25 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
       b.id === noteModal.id ? { ...b, [field]: value.trim() } : b
     );
     saveBusinesses(updated);
+  };
+
+  const handleSaveAllContactDetails = () => {
+    if (!noteModal) return;
+    const updated = businesses.map((b) =>
+      b.id === noteModal.id
+        ? {
+            ...b,
+            contactName: contactNameEdit.trim(),
+            contactPhone: phoneEdit.trim(),
+            email: emailEdit.trim(),
+          }
+        : b
+    );
+    saveBusinesses(updated);
+    setIsContactSaved(true);
+    setTimeout(() => {
+      setIsContactSaved(false);
+    }, 2000);
   };
 
   const handleCall = async (phone: string, cleanPhone?: string) => {
@@ -2445,6 +2466,31 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                             placeholder="Ej. contacto@empresa.com"
                             className="w-full bg-slate-900 border border-slate-800 focus:border-amber-500/50 rounded-lg px-3 py-1.5 text-xs text-slate-100 placeholder-slate-600 focus:outline-none transition-all shadow-inner focus:ring-1 focus:ring-amber-500/20"
                           />
+                        </div>
+
+                        {/* Botón de Guardar Manual */}
+                        <div className="pt-2">
+                          <button
+                            type="button"
+                            onClick={handleSaveAllContactDetails}
+                            className={`w-full flex items-center justify-center gap-2 py-2 px-4 rounded-lg font-extrabold text-xs transition-all tracking-wider uppercase ${
+                              isContactSaved
+                                ? "bg-emerald-600 text-white shadow-[0_2px_10px_rgba(16,185,129,0.3)]"
+                                : "bg-amber-500 hover:bg-amber-400 text-slate-950 hover:shadow-[0_2px_10px_rgba(245,158,11,0.2)] active:scale-[0.98]"
+                            }`}
+                          >
+                            {isContactSaved ? (
+                              <>
+                                <Check size={14} className="stroke-[3]" />
+                                ¡Datos de Contacto Guardados!
+                              </>
+                            ) : (
+                              <>
+                                <Check size={14} className="stroke-[3]" />
+                                Guardar Datos de Contacto
+                              </>
+                            )}
+                          </button>
                         </div>
                       </div>
                     </div>
