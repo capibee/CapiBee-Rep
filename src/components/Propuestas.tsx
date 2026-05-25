@@ -654,10 +654,19 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                                 >
                                   Subir Propuesta
                                 </button>
-                              ) : p.pdfUrl ? (
+                              ) : (p.pdfUrl && p.pdfUrl !== "") ? (
                                 <div className="flex items-center gap-2">
-                                   <FileText size={16} className="text-blue-400" />
-                                   <a href={p.pdfUrl} download={p.pdfName} className="text-blue-400 hover:text-blue-300 text-[10px] truncate max-w-[100px]">{p.pdfName}</a>
+                                   <button
+                                     onClick={() => {
+                                         const win = window.open();
+                                         if (win) {
+                                             win.document.write(`<iframe src="${p.pdfUrl}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+                                         }
+                                     }}
+                                     className="flex items-center gap-1.5 px-2.5 py-1 text-blue-400 border border-blue-500/20 rounded-lg hover:bg-blue-500/10 transition-colors text-[10px] font-bold"
+                                  >
+                                      👌Subido
+                                  </button>
                                    <button onClick={() => handleRemovePdf(p.id)} className="text-red-400 hover:text-red-300"><X size={12}/></button>
                                 </div>
                               ) : (
@@ -666,7 +675,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                                     onClick={() => document.getElementById(`pdf-upload-${p.id}`)?.click()} 
                                     className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors text-[10px] font-bold"
                                   >
-                                    <FileText size={12} /> Subir PDF
+                                    <FileText size={12} /> Subir Propuesta
                                   </button>
                                   <input type="file" id={`pdf-upload-${p.id}`} className="hidden" accept="application/pdf" onChange={(e) => handlePdfUpload(p.id, e)} />
                                 </>
