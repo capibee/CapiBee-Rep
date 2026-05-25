@@ -18,6 +18,7 @@ import {
   FileDown,
   Contact,
   Globe2,
+  Wallet,
   Briefcase,
   Globe,
   Mail,
@@ -598,7 +599,7 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
 
   const handlePayInvoice = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedInvoice || !permissions.edit) return;
+    if (!selectedInvoice || (!permissions.edit && !currentUser?.roleName?.toLowerCase().includes('ejecutivo'))) return;
 
     const subtotal = selectedInvoice.items && selectedInvoice.items.length > 0
         ? selectedInvoice.items.reduce((acc, item) => acc + (item.quantity * item.price), 0)
@@ -1495,14 +1496,14 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
                 <thead>
                   <tr className="bg-slate-950 border-b border-slate-800">
                     <th className="py-3 px-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center w-10">#</th>
-                    <th className="py-3 px-4 text-xs font-bold text-emerald-500 uppercase tracking-widest text-center flex items-center justify-center"><Hash size={14} className="mr-1" /> Factura</th>
-                    <th className="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-widest"><User size={14} className="inline mr-1" /> Cliente</th>
-                    <th className="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-center"><Calendar size={14} className="inline mr-1" /> Emisión</th>
-                    <th className="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-center"><Calendar size={14} className="inline mr-1" /> Vencimiento</th>
-                    <th className="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-center">Debe</th>
-                    <th className="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-center">Estado</th>
-                    <th className="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-center">Pagar</th>
-                    <th className="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Acciones</th>
+                    <th className="py-3 px-4 text-xs font-bold text-emerald-500 uppercase tracking-widest text-center flex items-center justify-center"><Hash size={14} className="mr-1" /> FACTURA</th>
+                    <th className="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-widest">NOMBRE EMPRESA</th>
+                    <th className="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-center"><Calendar size={14} className="inline mr-1" /> EMISIÓN</th>
+                    <th className="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-center">TOTAL FACTURA</th>
+                    <th className="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-center">DEBE</th>
+                    <th className="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-center">ESTADO</th>
+                    <th className="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-center">PAGAR</th>
+                    <th className="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">ACCIONES</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/50">
@@ -1540,11 +1541,7 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
                         <div className="font-bold text-slate-100 text-sm">{inv.businessName}</div>
                       </td>
                       <td className="py-4 px-4 text-xs text-slate-400 tabular-nums text-center">{inv.emissionDate}</td>
-                      <td className="py-4 px-4 text-xs tabular-nums font-bold text-center">
-                        <span className={`px-2 py-1 rounded-md ${getInvoiceComputedStatus(inv).label === 'VENCIDA' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}`}>
-                          {inv.dueDate}
-                        </span>
-                      </td>
+                      <td className="py-4 px-4 text-sm text-slate-300 font-bold text-center">${safeToLocaleString(total)} {currency}</td>
                       <td className="py-4 px-4 text-sm text-emerald-400 font-black text-center">${safeToLocaleString(debe)} {currency}</td>
                       <td className="py-4 px-4 text-center">
                         <div className="flex justify-center">
@@ -1577,13 +1574,13 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
                               inv.status === 'Anulado' || 
                               debe <= 0
                             }
-                            className={`text-[10px] font-bold px-3 py-1.5 uppercase tracking-wider rounded-md transition-all ${
+                            className={`p-2 rounded-full transition-all ${
                               ((!permissions.edit && !currentUser?.roleName?.toLowerCase().includes('ejecutivo')) || inv.status === 'Anulado' || debe <= 0) 
                               ? 'bg-emerald-600/50 text-white/50 cursor-not-allowed' 
-                              : 'bg-emerald-600 text-white hover:bg-emerald-500 shadow hover:shadow-lg active:scale-95'
+                              : 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-lg'
                             }`}
                           >
-                            Pagar
+                            <Wallet size={16} />
                           </button>
                         </div>
                       </td>
@@ -1621,69 +1618,7 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
             </div>
           </div>
 
-          {agentTransactionStats.length > 0 && (
-            <div className="bg-slate-900/60 backdrop-blur-2xl border border-slate-800 rounded-3xl overflow-hidden flex flex-col shadow-2xl mb-6">
-              <div className="p-6 border-b border-slate-800">
-                <h3 className="text-lg font-bold text-white uppercase tracking-widest">Transacciones Ejecutivos Comerciales</h3>
-              </div>
-              <div className="overflow-x-auto custom-scrollbar">
-                <table className="w-full text-left border-collapse min-w-[600px]">
-                  <thead>
-                    <tr className="bg-slate-950 border-b border-slate-800">
-                      <th className="py-3 px-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center w-10">#</th>
-                      <th className="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Ejecutivo</th>
-                      <th className="py-3 px-4 text-xs font-bold text-amber-500 uppercase tracking-widest text-right">Pendientes Envío</th>
-                      <th className="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Periodo 1-15</th>
-                      <th className="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Periodo 16-31</th>
-                      <th className="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/50">
-                    {isTableLoading ? (
-                      <tr>
-                        <td colSpan={10} className="py-8">
-                          <TableLoader />
-                        </td>
-                      </tr>
-                    ) : agentTransactionStats.length === 0 ? (
-                      <tr>
-                        <td colSpan={10} className="py-12 text-center text-slate-500 font-medium">
-                          No hay estadísticas
-                        </td>
-                      </tr>
-                    ) : agentTransactionStats.map((stat, idx) => (
-                      <tr key={idx} className="hover:bg-slate-800/30 transition-colors">
-                        <td className="py-3 px-2 text-[10px] font-mono text-slate-500 text-center select-none w-10">{idx + 1}</td>
-                        <td className="py-3 px-4 text-xs text-white font-bold">{stat.name}</td>
-                        <td className="py-3 px-4 text-xs text-amber-500 font-extrabold text-right font-mono">{stat.pendientesEnvio}</td>
-                        <td className="py-3 px-4 text-xs text-slate-300 text-right">${stat.period1.toFixed(2)}</td>
-                        <td className="py-3 px-4 text-xs text-slate-300 text-right">${stat.period2.toFixed(2)}</td>
-                        <td className="py-3 px-4 text-xs text-emerald-400 font-bold text-right">${(stat.period1 + stat.period2).toFixed(2)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                  {agentTransactionStats.length > 0 && (
-                    <tfoot>
-                      <tr className="bg-slate-950/70 border-t border-slate-800 font-bold">
-                        <td className="py-4 px-2"></td>
-                        <td className="py-4 px-4 text-xs text-slate-400 uppercase tracking-widest">TOTAL ACUMULADO (ADMIN)</td>
-                        <td className="py-4 px-4 text-sm text-amber-500 font-extrabold text-right font-mono">{grandTotalPendientesEnvio}</td>
-                        <td className="py-4 px-4 text-right text-xs text-slate-300 font-mono">
-                          ${agentTransactionStats.reduce((sum, s) => sum + s.period1, 0).toFixed(2)}
-                        </td>
-                        <td className="py-4 px-4 text-right text-xs text-slate-300 font-mono">
-                          ${agentTransactionStats.reduce((sum, s) => sum + s.period2, 0).toFixed(2)}
-                        </td>
-                        <td className="py-4 px-4 text-right text-xs text-emerald-400 font-mono">
-                          ${agentTransactionStats.reduce((sum, s) => sum + (s.period1 + s.period2), 0).toFixed(2)}
-                        </td>
-                      </tr>
-                    </tfoot>
-                  )}
-                </table>
-              </div>
-            </div>
-          )}
+
 
         </div>
       </main>

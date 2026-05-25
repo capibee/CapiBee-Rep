@@ -1477,7 +1477,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
 
             <div className="flex-1 overflow-y-auto custom-scrollbar p-1 sm:p-2 mt-1 lg:mt-2">
               {/* Desktop Table View */}
-              <div className="hidden lg:block min-w-[1000px] pb-2">
+              <div className="hidden">
                 <table className="w-full text-left border-separate border-spacing-y-0.5">
                   <thead>
                     <tr className="text-slate-400 sticky top-0 bg-slate-900/95 backdrop-blur-xl z-20 shadow-sm">
