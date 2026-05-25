@@ -497,7 +497,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
         </div>
         <select className="bg-slate-900/30 border border-slate-800 rounded-lg p-2 text-slate-300 text-sm outline-none focus:ring-1 focus:ring-yellow-500/50" value={clientFilter} onChange={e => setClientFilter(e.target.value)}>
             <option value="">Todos los contactos</option>
-            {businesses.map(b => <option key={b.id} value={b.name}>{b.name}</option>)}
+            {businesses.map((b, idx) => <option key={`${b.id}-${idx}`} value={b.name}>{b.name}</option>)}
         </select>
         <select className="bg-slate-900/30 border border-slate-800 rounded-lg p-2 text-slate-300 text-sm outline-none focus:ring-1 focus:ring-yellow-500/50 min-w-[124px]" value={yearFilter} onChange={e => { setYearFilter(e.target.value); setCurrentPage(1); }}>
             <option value="">Todos los años</option>
@@ -533,7 +533,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                     </tr>
                 ) : currentItems.length > 0 ? (
                     currentItems.map((a, index) => (
-                        <tr key={a.id} className="hover:bg-slate-900/20 transition-colors">
+                        <tr key={`${a.id}-${index}`} className="hover:bg-slate-900/20 transition-colors">
                             <td className="py-2 px-4 text-center font-mono text-[10px] text-slate-500 select-none w-10">
                                 {(currentPage - 1) * itemsPerPage + index + 1}
                             </td>
@@ -611,9 +611,9 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                                   <div className="fixed inset-0 z-40" onClick={() => setIsClientDropdownOpen(false)}></div>
                                   <div className="absolute top-full left-0 w-full mt-1 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl max-h-40 overflow-y-auto z-50 py-1.5">
                                       {businesses.filter(b => b.name.toLowerCase().includes(clientSearchText.toLowerCase())).length > 0 ? (
-                                        businesses.filter(b => b.name.toLowerCase().includes(clientSearchText.toLowerCase())).map(b => (
+                                        businesses.filter(b => b.name.toLowerCase().includes(clientSearchText.toLowerCase())).map((b, idx) => (
                                           <div 
-                                            key={b.id} 
+                                            key={`${b.id}-${idx}`} 
                                             className={`px-3 py-2 hover:bg-slate-800 cursor-pointer text-xs transition-colors ${formData.businessId === b.id ? 'bg-slate-800 text-yellow-400 font-medium' : 'text-slate-300'}`}
                                             onClick={() => {
                                                 setFormData({

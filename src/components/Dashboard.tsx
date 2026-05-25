@@ -1634,7 +1634,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                         </td>
                       </tr>
                     ) : currentItems.map((business, index) => (
-                      <tr key={business.id} className="group transition-all">
+                      <tr key={`${business.id}-${index}`} className="group transition-all">
                         <td className="px-2 py-1 bg-slate-950/40 rounded-l-lg border-y border-l border-amber-500/5 group-hover:bg-slate-800/40 transition-all font-mono text-[10px] text-slate-500 text-center select-none w-10">
                           {(currentPage - 1) * itemsPerPage + index + 1}
                         </td>
@@ -1914,9 +1914,9 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
 
               {/* Mobile Card View */}
               <div className="lg:hidden space-y-3 pb-8">
-                {currentItems.map((business) => (
+                {currentItems.map((business, index) => (
                   <div
-                    key={business.id}
+                    key={`${business.id}-${index}`}
                     className="bg-slate-950/40 border border-amber-500/10 rounded-xl p-3 flex flex-col gap-3 relative overflow-hidden group"
                   >
                     <div className="absolute top-0 right-0 p-2 transform translate-x-2 -translate-y-2 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform">
@@ -3017,9 +3017,9 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                       <div className="fixed inset-0 z-40" onClick={() => setIsAsuntoClientDropdownOpen(false)}></div>
                       <div className="absolute top-full left-0 w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg shadow-2xl max-h-36 overflow-y-auto z-50 py-1">
                         {businesses.filter(b => b.name.toLowerCase().includes(asuntoClientSearch.toLowerCase())).length > 0 ? (
-                          businesses.filter(b => b.name.toLowerCase().includes(asuntoClientSearch.toLowerCase())).map(b => (
+                          businesses.filter(b => b.name.toLowerCase().includes(asuntoClientSearch.toLowerCase())).map((b, idx) => (
                             <div 
-                              key={b.id} 
+                              key={`${b.id}-${idx}`} 
                               className={`px-3 py-1.5 hover:bg-slate-900 cursor-pointer text-xs transition-all ${asuntoFormData.businessId === b.id ? 'bg-slate-900 text-blue-400 font-bold' : 'text-slate-300'}`}
                               onClick={() => {
                                 setAsuntoFormData({

@@ -1530,7 +1530,7 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
 
                     return (
                     <motion.tr 
-                      key={inv.id}
+                      key={`${inv.id}-${idx}`}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       className="hover:bg-slate-800/20 transition-colors group border-b border-slate-800/50"
@@ -1727,8 +1727,8 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
                             }}
                           >
                             <option value="">Seleccionar de mis contactos...</option>
-                            {businesses.map(b => (
-                              <option key={b.id} value={b.id}>{b.name}</option>
+                            {businesses.map((b, idx) => (
+                              <option key={`${b.id}-${idx}`} value={b.id}>{b.name}</option>
                             ))}
                           </select>
                         </div>

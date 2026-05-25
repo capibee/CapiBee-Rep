@@ -19,6 +19,7 @@ import {
   DollarSign,
   Contact,
   Target,
+  Phone,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
@@ -666,7 +667,7 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
                     </tr>
                   ) : currentItems.map((cli, index) => (
                     <motion.tr
-                      key={cli.id}
+                      key={`${cli.id}-${index}`}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       className="hover:bg-slate-800/30 transition-colors group"
@@ -895,8 +896,8 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
                             }}
                           >
                             <option value="">Seleccionar contacto...</option>
-                            {businesses.map((b) => (
-                              <option key={b.id} value={b.id}>
+                            {businesses.map((b, idx) => (
+                              <option key={`${b.id}-${idx}`} value={b.id}>
                                 {b.name}
                               </option>
                             ))}
