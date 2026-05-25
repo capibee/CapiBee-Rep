@@ -171,6 +171,46 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
     cleanNumber: string;
   } | null>(null);
 
+  const [autoDialQueue, setAutoDialQueue] = useState<Business[]>([]);
+  const [isAutoDialing, setIsAutoDialing] = useState(false);
+
+  const callNextInQueue = (queue: Business[]) => {
+    if (queue.length === 0) {
+      setIsAutoDialing(false);
+      setAutoDialQueue([]);
+      alert("La automarcación ha finalizado.");
+      return;
+    }
+    const nextContact = queue[0];
+    setAutoDialQueue(queue.slice(1));
+    
+    setNoteModal({
+      id: nextContact.id,
+      notes: nextContact.notes || [],
+    });
+
+    const clean = (nextContact.contactPhone || "").replace(/[^0-9+]/g, '');
+    setCallConfirmModal({
+      isOpen: true,
+      businessId: nextContact.id,
+      businessName: nextContact.contactName || nextContact.name || 'Contacto',
+      phoneNumber: nextContact.contactPhone || "",
+      cleanNumber: clean
+    });
+  };
+
+  const handleStartAutoDial = () => {
+    // Determine the list of remaining "Nuevo" contacts that actually have a phone number.
+    const nuevos = businesses.filter(b => b.status === "Nuevo" && b.contactPhone);
+    if (nuevos.length === 0) {
+      alert("No hay contactos con estado 'Nuevo' que tengan número de teléfono.");
+      return;
+    }
+    setIsAutoDialing(true);
+    callNextInQueue(nuevos);
+  };
+
+
   const STATUSES = {
     Contactabilidad: [
       "Nuevo",
@@ -1485,6 +1525,13 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                   />
                 </div>
                 <div className="flex gap-1 w-full sm:w-auto mt-1 sm:mt-0">
+                  <button
+                    onClick={handleStartAutoDial}
+                    className="flex-1 sm:flex-none px-3 py-1 uppercase tracking-widest rounded-md shadow-[0_1px_4px_rgba(0,0,0,0.2)] transition-all text-[9px] flex gap-1 items-center justify-center border bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 font-bold border-amber-500/20 hover:border-amber-500/40 active:scale-[0.98]"
+                  >
+                    <Phone size={10} strokeWidth={2.5} />
+                    Automarcación
+                  </button>
                   {(currentUser?.roleName?.toLowerCase() === "superadmin" || currentUser?.roleId === "ADMIN_MAESTRO" || currentUser?.roleName?.toLowerCase().includes('admin')) && (
                     <button
                       onClick={() => setIsScrapingModalOpen(true)}
@@ -2273,14 +2320,43 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                       </div>
                     )}
                   </div>
-                  <button
-                    onClick={() => setNoteModal(null)}
-                    className="text-slate-400 hover:text-white transition-colors p-1.5 hover:bg-slate-800 rounded-lg"
-                    title="Cerrar"
-                  >
-                    <X size={16} />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    {isAutoDialing && (
+                      <span className="text-[10px] font-bold text-amber-500 bg-amber-500/10 px-2 py-1 rounded-full animate-pulse border border-amber-500/20 flex flex-col sm:flex-row items-center whitespace-nowrap">
+                        <span className="mr-1">📞 Auto:</span> {autoDialQueue.length} rest.
+                      </span>
+                    )}
+                    <button
+                      onClick={() => {
+                        setNoteModal(null);
+                        if (isAutoDialing) {
+                          setIsAutoDialing(false);
+                          setAutoDialQueue([]);
+                        }
+                      }}
+                      className="text-slate-400 hover:text-white transition-colors p-1.5 hover:bg-slate-800 rounded-lg"
+                      title={isAutoDialing ? "Detener Automarcación y Cerrar" : "Cerrar"}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
                 </div>
+
+                {isAutoDialing && (
+                  <div className="py-2 px-3 bg-amber-500/10 border-b border-amber-500/20 flex items-center justify-between">
+                    <span className="text-xs text-amber-500/80 font-semibold">
+                      Automarcación en progreso
+                    </span>
+                    <button
+                      onClick={() => {
+                        callNextInQueue(autoDialQueue);
+                      }}
+                      className="bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold text-[10px] px-3 py-1.5 rounded uppercase tracking-wider transition-colors"
+                    >
+                      Siguiente Llamada
+                    </button>
+                  </div>
+                )}
 
                 {/* Scrollable Chat Area */}
                 <div className="flex-1 overflow-y-auto my-4 pr-1 custom-scrollbar space-y-3 min-h-[220px]">
