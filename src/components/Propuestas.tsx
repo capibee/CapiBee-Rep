@@ -104,9 +104,6 @@ export default function Propuestas({ onBack }: PropuestasProps) {
     setEditingPropuesta(p);
     setFormData({
       asuntoId: p.asuntoId,
-      propuestaTexto: p.propuestaTexto,
-      honorarios: String(p.honorarios),
-      gastos: String(p.gastos)
     });
     setModalPdfUrl(p.pdfUrl || "");
     setModalPdfName(p.pdfName || "");
@@ -188,9 +185,6 @@ export default function Propuestas({ onBack }: PropuestasProps) {
 
   const [formData, setFormData] = useState({
     asuntoId: "",
-    propuestaTexto: "",
-    honorarios: "",
-    gastos: "",
   });
   const [isTableLoading, setIsTableLoading] = useState(true);
 
@@ -287,8 +281,8 @@ export default function Propuestas({ onBack }: PropuestasProps) {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.asuntoId || !formData.propuestaTexto || !formData.honorarios) {
-        alert("Por favor completa los campos principales (Asunto, Propuesta, Honorarios)");
+    if (!formData.asuntoId) {
+        alert("Por favor completa el campo obligatorio (Asunto)");
         return;
     }
     
@@ -297,7 +291,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
       const updatedPropuesta: Propuesta = {
         ...editingPropuesta,
         asuntoId: formData.asuntoId,
-        propuestaTexto: formData.propuestaTexto,
+        propuestaTexto: "PDF",
         honorarios: Number(formData.honorarios) || 0,
         gastos: Number(formData.gastos) || 0,
         pdfUrl: modalPdfUrl,
@@ -334,7 +328,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
       const newPropuesta: Propuesta = {
         id: crypto.randomUUID(),
         asuntoId: formData.asuntoId,
-        propuestaTexto: formData.propuestaTexto,
+        propuestaTexto: "PDF",
         honorarios: Number(formData.honorarios) || 0,
         gastos: Number(formData.gastos) || 0,
         userId: currentUser.id || "unknown",
@@ -496,7 +490,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
     <div className="h-full bg-slate-950 p-6 flex flex-col overflow-hidden">
       <div className="flex justify-end items-center mb-6">
            <button onClick={() => setIsModalOpen(true)} className="bg-yellow-400 hover:bg-yellow-500 text-slate-950 px-5 py-2.5 rounded-xl flex items-center gap-2 font-black transition-all shadow-lg shadow-yellow-500/20">
-              <Plus size={20} /> Crear Propuesta
+              <Plus size={20} /> Subir Propuesta
            </button>
       </div>
 
@@ -658,7 +652,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                                   }}
                                   className="px-2.5 py-1.5 bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-bold text-[10px] rounded-lg transition-colors whitespace-nowrap"
                                 >
-                                  Crear Propuesta
+                                  Subir Propuesta
                                 </button>
                               ) : p.pdfUrl ? (
                                 <div className="flex items-center gap-2">
@@ -778,43 +772,6 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                            </select>
                         </div>
                         )}
-                        <div>
-                           <label className="block text-xs uppercase tracking-widest text-slate-500 font-bold mb-2">Campo de Propuesta</label>
-                           <textarea 
-                             className="w-full bg-slate-950 border border-slate-800 p-3 rounded-xl text-white outline-none focus:ring-1 focus:ring-yellow-500/50 min-h-[120px]" 
-                             placeholder="Descripción detallada de la propuesta comercial..." 
-                             value={formData.propuestaTexto}
-                             onChange={e => setFormData({...formData, propuestaTexto: e.target.value})} 
-                           />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                           <div>
-                              <label className="block text-xs uppercase tracking-widest text-slate-500 font-bold mb-2">Honorarios</label>
-                              <div className="relative">
-                                <span className="absolute left-3 top-3 text-slate-500">$</span>
-                                <input 
-                                  type="number" 
-                                  className="w-full bg-slate-950 border border-slate-800 p-3 pl-8 rounded-xl text-emerald-400 font-bold outline-none focus:ring-1 focus:ring-yellow-500/50" 
-                                  placeholder="0.00"
-                                  value={formData.honorarios}
-                                  onChange={e => setFormData({...formData, honorarios: e.target.value})}
-                                />
-                              </div>
-                           </div>
-                           <div>
-                              <label className="block text-xs uppercase tracking-widest text-slate-500 font-bold mb-2">Gastos</label>
-                              <div className="relative">
-                                <span className="absolute left-3 top-3 text-slate-500">$</span>
-                                <input 
-                                  type="number" 
-                                  className="w-full bg-slate-950 border border-slate-800 p-3 pl-8 rounded-xl text-rose-400 font-bold outline-none focus:ring-1 focus:ring-yellow-500/50" 
-                                  placeholder="0.00"
-                                  value={formData.gastos}
-                                  onChange={e => setFormData({...formData, gastos: e.target.value})}
-                                />
-                              </div>
-                           </div>
-                        </div>
                         <button type="submit" className="w-full bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black p-3 rounded-xl transition-all mt-4">
                           {editingPropuesta ? "Actualizar Propuesta" : "Guardar Propuesta"}
                         </button>
@@ -897,6 +854,19 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                           <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 text-slate-300 text-sm whitespace-pre-wrap max-h-60 overflow-y-auto custom-scrollbar">
                              {selectedPropuesta.propuestaTexto || "Sin descripción proporcionada."}
                           </div>
+                          {selectedPropuesta.pdfUrl && (
+                             <button
+                               onClick={() => {
+                                   const win = window.open();
+                                   if (win) {
+                                       win.document.write(`<iframe src="${selectedPropuesta.pdfUrl}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+                                   }
+                               }}
+                               className="mt-4 px-4 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 font-black rounded-xl text-[10px] uppercase tracking-wider transition-all flex items-center gap-1.5"
+                            >
+                                <Eye size={12} /> Ver Propuesta
+                            </button>
+                          )}
                        </div>
 
                        {isSuperAdmin && (
