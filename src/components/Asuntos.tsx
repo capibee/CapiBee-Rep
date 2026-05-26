@@ -529,7 +529,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
           <table className="w-full text-left text-slate-300">
             <thead className="bg-slate-900/80 text-slate-400 text-[10px] uppercase tracking-widest border-b border-slate-800">
                 <tr>
-                    <th className="py-2.5 px-4 font-bold text-center w-10">#</th>
+                    <th className="py-2.5 px-4 font-bold text-center w-10">ID</th>
                     <th className="py-2.5 px-4 font-bold">Fecha</th>
                     <th className="py-2.5 px-4 font-bold">Nombre asunto</th>
                     <th className="py-2.5 px-4 font-bold">Nombre Contacto</th>
@@ -554,7 +554,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                     currentItems.map((a, index) => (
                         <tr key={`${a.id}-${index}`} className="hover:bg-slate-900/20 transition-colors">
                             <td className="py-2 px-4 text-center font-mono text-[10px] text-slate-500 select-none w-10">
-                                {(currentPage - 1) * itemsPerPage + index + 1}
+                                AP{String((currentPage - 1) * itemsPerPage + index).padStart(3, '0')}
                             </td>
                             <td className="py-2 px-4 text-sm text-slate-500">{new Date(a.fecha).toLocaleDateString()}</td>
                             <td className="py-2 px-4 text-sm font-medium text-white">{a.nombreAsunto}</td>

@@ -743,7 +743,7 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
                       />
                     </th>
                     <th className="p-2 text-[8px] font-bold text-slate-500 uppercase tracking-widest text-center w-10">
-                      #
+                      ID
                     </th>
                     <th className="p-2 text-[8px] font-bold text-blue-500 uppercase tracking-widest">
                       Tipo
@@ -806,7 +806,7 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
                         />
                       </td>
                       <td className="p-2 text-center font-mono text-[10px] text-slate-500 select-none">
-                        {(currentPage - 1) * itemsPerPage + index + 1}
+                        C{String((currentPage - 1) * itemsPerPage + index).padStart(3, '0')}
                       </td>
                       <td className="p-2">
                         <span

@@ -829,7 +829,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
           <table className="w-full text-left">
             <thead className="text-slate-500 text-[10px] uppercase tracking-widest sticky top-0 bg-slate-950 z-10">
                 <tr>
-                    <th className="p-4 font-bold text-center w-10">#</th>
+                    <th className="p-4 font-bold text-center w-10">ID</th>
                     <th className="p-4 font-bold">Fecha</th>
                     <th className="p-4 font-bold">Asunto</th>
                     <th className="p-4 font-bold">Asignado a</th>
@@ -860,7 +860,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                         const contactName = asunto ? (asunto.contactName || businesses.find(b => b.id === asunto.businessId)?.contactName || "—") : "—";
                         return (
                         <tr key={p.id} className="hover:bg-slate-900/20 transition-colors">
-                            <td className="p-4 text-center font-mono text-[10px] text-slate-500 select-none w-10">{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                            <td className="p-4 text-center font-mono text-[10px] text-slate-500 select-none w-10">P{String((currentPage - 1) * itemsPerPage + index + 1).padStart(3, '0')}</td>
                             <td className="p-4 text-sm text-slate-500">{new Date(p.createdAt).toLocaleDateString()}</td>
                             <td className="p-4 text-sm font-medium text-white">{asunto?.nombreAsunto || "Asunto Desconocido"}</td>
                             <td className="p-4 text-sm text-slate-300">{asignadoName}</td>

@@ -1626,7 +1626,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                   <thead>
                     <tr className="text-slate-400 sticky top-0 bg-slate-900/95 backdrop-blur-xl z-20 shadow-sm">
                       <th className="px-2 py-1.5 text-[9px] font-bold uppercase tracking-widest text-slate-500 text-center w-10">
-                        #
+                        ID
                       </th>
                       <th className="px-2 py-1.5 text-[9px] font-bold uppercase tracking-widest text-slate-400">
                         Nombre empresa
@@ -1667,7 +1667,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                     ) : currentItems.map((business, index) => (
                       <tr key={`${business.id}-${index}`} className="group transition-all">
                         <td className="px-2 py-1 bg-slate-950/40 rounded-l-lg border-y border-l border-amber-500/5 group-hover:bg-slate-800/40 transition-all font-mono text-[10px] text-slate-500 text-center select-none w-10">
-                          {(currentPage - 1) * itemsPerPage + index + 1}
+                          EMP{String((currentPage - 1) * itemsPerPage + index).padStart(3, '0')}
                         </td>
                         <td className="px-2 py-1.5 bg-slate-950/40 border-y border-amber-500/5 group-hover:bg-slate-800/40 transition-all z-10 relative">
                           <p className="font-bold text-slate-100 text-[11px] group-hover:text-amber-400 transition-colors">
