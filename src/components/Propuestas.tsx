@@ -270,7 +270,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                   honorarios: p.honorarios || localProp?.honorarios || 0,
                   gastos: p.gastos || localProp?.gastos || 0,
                   userId: p.user_id || localProp?.userId || "",
-                  createdAt: p.created_at ? Number(p.created_at) : (localProp?.createdAt || Date.now()),
+                  createdAt: p.created_at ? (isNaN(Number(p.created_at)) ? new Date(p.created_at).getTime() : Number(p.created_at)) : (localProp?.createdAt || Date.now()),
                   status: p.status || localProp?.status || 'Enviada',
                   pdfUrl: p.pdf_url || localProp?.pdfUrl || "",
                   pdfName: p.pdf_name || localProp?.pdfName || ""
@@ -367,7 +367,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
           honorarios: newPropuesta.honorarios,
           gastos: newPropuesta.gastos,
           user_id: newPropuesta.userId,
-          created_at: newPropuesta.createdAt,
+          created_at: new Date(newPropuesta.createdAt).toISOString(),
           status: newPropuesta.status
         });
         if (error && error.code !== '42P01') {
@@ -467,7 +467,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
             honorarios: newPropuesta.honorarios,
             gastos: newPropuesta.gastos,
             user_id: newPropuesta.userId,
-            created_at: newPropuesta.createdAt,
+            created_at: new Date(newPropuesta.createdAt).toISOString(),
             status: newPropuesta.status,
             pdf_url: newPropuesta.pdfUrl,
             pdf_name: newPropuesta.pdfName
