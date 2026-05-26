@@ -138,7 +138,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
 
       const updated = propuestas.map(pr => {
         if (pr.id === propuestaId) {
-          return { ...pr, pdfUrl: pdfBase64, pdfName: pdfName };
+          return { ...pr, pdfUrl: pdfBase64, pdfName: pdfName, status: 'Enviada' };
         }
         return pr;
       });
@@ -154,7 +154,8 @@ export default function Propuestas({ onBack }: PropuestasProps) {
           .from('propuestas')
           .update({ 
             pdf_url: pdfBase64, 
-            pdf_name: pdfName 
+            pdf_name: pdfName,
+            status: 'Enviada'
           })
           .eq('id', propuestaId);
         if (error) console.error("Error updating PDF in db:", error);
