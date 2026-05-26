@@ -76,6 +76,7 @@ export default function MyBusinesses({ onLogout, onBack }: MyBusinessesProps) {
 
       const searchMatch = 
         b.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        b.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
         b.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (b.branchName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
         b.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -531,7 +532,7 @@ export default function MyBusinesses({ onLogout, onBack }: MyBusinessesProps) {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
                 <input 
                   type="text" 
-                  placeholder="Buscar establecimientos..." 
+                  placeholder="Buscar por ID o Empresa..." 
                   className="w-full pl-9 pr-3 py-2.5 sm:py-2 bg-slate-900/50 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-amber-500/50 text-slate-200 transition-all shadow-inner"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
