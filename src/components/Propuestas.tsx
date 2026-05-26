@@ -345,7 +345,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
       }
       
       const newPropuesta: Propuesta = {
-        id: 'PROP-' + Math.random().toString(36).substr(2, 6).toUpperCase(),
+        id: crypto.randomUUID(),
         asuntoId: asuntoId,
         propuestaTexto: '',
         honorarios: 0,
