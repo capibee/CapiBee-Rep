@@ -22,10 +22,10 @@ export default function SupabaseHub({ onBack }: SupabaseHubProps) {
       setStatus(res);
       if (res.connected) {
         const tableCount = Object.values(res.tables).filter(Boolean).length;
-        if (tableCount === 8) {
-          setMessage({ type: 'success', text: 'Conexión exitosa. Las 8 tablas de la plataforma están creadas y listas.' });
+        if (tableCount === 9) {
+          setMessage({ type: 'success', text: 'Conexión exitosa. Las 9 tablas de la plataforma están creadas y listas.' });
         } else {
-          setMessage({ type: 'info', text: `Conexión establecida. Se detectaron ${tableCount} de 8 tablas. Ejecuta el script SQL en el panel de Supabase para configurar las faltantes.` });
+          setMessage({ type: 'info', text: `Conexión establecida. Se detectaron ${tableCount} de 9 tablas. Ejecuta el script SQL en el panel de Supabase para configurar las faltantes.` });
         }
       } else {
         setMessage({ type: 'error', text: res.message });
@@ -252,7 +252,7 @@ export default function SupabaseHub({ onBack }: SupabaseHubProps) {
           <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 shadow-xl">
             <h3 className="text-xs font-black tracking-widest uppercase text-slate-400 mb-4 flex items-center gap-2">
               <CheckCircle2 size={14} className="text-emerald-500" />
-              Verificación de Tablas del Sistema ({Object.values(status.tables).filter(Boolean).length} / 8 Listas)
+              Verificación de Tablas del Sistema ({Object.values(status.tables).filter(Boolean).length} / 9 Listas)
             </h3>
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

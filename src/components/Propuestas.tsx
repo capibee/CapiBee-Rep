@@ -234,25 +234,38 @@ export default function Propuestas({ onBack }: PropuestasProps) {
       const localPropuestas = localStorage.getItem("capibee_propuestas");
       const parsedLocal = localPropuestas ? JSON.parse(localPropuestas) : [];
 
-      const { data: dbPropuestas } = await supabase.from('propuestas').select('*');
+      const { data: dbPropuestas, error: dbError } = await supabase.from('propuestas').select('*');
+      if (dbError && dbError.code === '42P01') {
+          // Table does not exist, use local only
+          setPropuestas(parsedLocal);
+          return;
+      }
+      
       if (dbPropuestas) {
           const mapped = dbPropuestas.map((p: any) => {
               const localProp = parsedLocal.find((lp: any) => lp.id === p.id);
               return {
                   id: p.id,
-                  asuntoId: p.asunto_id,
-                  propuestaTexto: p.propuesta_texto,
-                  honorarios: p.honorarios,
-                  gastos: p.gastos,
-                  userId: p.user_id,
-                  createdAt: Number(p.created_at),
-                  status: p.status || 'Enviada',
+                  asuntoId: p.asunto_id || localProp?.asuntoId || "",
+                  propuestaTexto: p.propuesta_texto || localProp?.propuestaTexto || "",
+                  honorarios: p.honorarios || localProp?.honorarios || 0,
+                  gastos: p.gastos || localProp?.gastos || 0,
+                  userId: p.user_id || localProp?.userId || "",
+                  createdAt: p.created_at ? Number(p.created_at) : (localProp?.createdAt || Date.now()),
+                  status: p.status || localProp?.status || 'Enviada',
                   pdfUrl: p.pdf_url || localProp?.pdfUrl || "",
                   pdfName: p.pdf_name || localProp?.pdfName || ""
               };
           });
-          setPropuestas(mapped);
-          localStorage.setItem("capibee_propuestas", JSON.stringify(mapped));
+          
+          // Retain local proposals that might have failed to save to the remote DB 
+          const localOnly = parsedLocal.filter((lp: any) => !dbPropuestas.some((dp: any) => dp.id === lp.id));
+          const combined = [...mapped, ...localOnly];
+
+          setPropuestas(combined);
+          localStorage.setItem("capibee_propuestas", JSON.stringify(combined));
+      } else {
+          setPropuestas(parsedLocal);
       }
       
       const { data: dbAsuntos } = await supabase.from('asuntos').select('id, nombre_asunto, business_id, fecha, created_at, user_id, contact_name, contact_phone');

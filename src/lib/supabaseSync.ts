@@ -20,6 +20,7 @@ export async function testSupabaseConnection(): Promise<SyncStatus> {
       agent_earnings: false,
       withdrawal_requests: false,
       solicitudes: false,
+      propuestas: false,
     },
   };
 
@@ -54,7 +55,8 @@ export async function testSupabaseConnection(): Promise<SyncStatus> {
       'invoices',
       'agent_earnings',
       'withdrawal_requests',
-      'solicitudes'
+      'solicitudes',
+      'propuestas'
     ];
 
     const results = await Promise.all(tableNames.map(checkTable));
@@ -83,6 +85,7 @@ export async function pushAllLocalDataToSupabase(): Promise<{ success: boolean; 
     const localEarnings = JSON.parse(localStorage.getItem('capibee_agent_earnings') || '[]');
     const localWithdrawals = JSON.parse(localStorage.getItem('capibee_withdrawals') || '[]');
     const localSolicitudes = JSON.parse(localStorage.getItem('capibee_solicitudes') || '[]');
+    const localPropuestas = JSON.parse(localStorage.getItem('capibee_propuestas') || '[]');
 
     // 2. Clear & insert Roles
     if (localRoles.length > 0) {
@@ -253,6 +256,25 @@ export async function pushAllLocalDataToSupabase(): Promise<{ success: boolean; 
       });
       const { error } = await supabase.from('solicitudes').upsert(mappedSolicitudes, { onConflict: 'id' });
       if (error) throw new Error(`Formularios B2B Upload failed: ${error.message}`);
+    }
+
+    // 10. Propuestas
+    if (localPropuestas.length > 0) {
+      const mappedPropuestas = localPropuestas.map((p: any) => ({
+        id: p.id,
+        asunto_id: p.asuntoId,
+        propuesta_texto: p.propuestaTexto,
+        honorarios: p.honorarios,
+        gastos: p.gastos,
+        user_id: p.userId,
+        created_at: p.createdAt || Date.now(),
+        status: p.status || 'Enviada',
+        pdf_url: p.pdfUrl || null,
+        pdf_name: p.pdfName || null
+      }));
+      // Safe to upsert? If table is missing, it will throw, but it shouldn't if we handle it
+      const { error } = await supabase.from('propuestas').upsert(mappedPropuestas, { onConflict: 'id' });
+      if (error && error.code !== '42P01') throw new Error(`Propuestas Upload failed: ${error.message}`);
     }
 
     return { success: true, detail: 'Todos los datos locales han sido guardados en la base de datos real de Supabase.' };
@@ -442,6 +464,25 @@ export async function pullAllRemoteDataFromSupabase(): Promise<{ success: boolea
         };
       });
       localStorage.setItem('capibee_solicitudes', JSON.stringify(mapped));
+    }
+
+    // 9. Pull Propuestas
+    const { data: dbPropuestas, error: propErr } = await supabase.from('propuestas').select('*');
+    if (propErr && propErr.code !== '42P01') throw propErr;
+    if (dbPropuestas) {
+      const mapped = dbPropuestas.map(p => ({
+        id: p.id,
+        asuntoId: p.asunto_id,
+        propuestaTexto: p.propuesta_texto,
+        honorarios: p.honorarios,
+        gastos: p.gastos,
+        userId: p.user_id,
+        createdAt: Number(p.created_at) || Date.now(),
+        status: p.status || 'Enviada',
+        pdfUrl: p.pdf_url || "",
+        pdfName: p.pdf_name || ""
+      }));
+      localStorage.setItem('capibee_propuestas', JSON.stringify(mapped));
     }
 
     return { success: true, detail: 'Todos los datos de la base de datos de Supabase han sido descargados en Almacenamiento Local.' };
