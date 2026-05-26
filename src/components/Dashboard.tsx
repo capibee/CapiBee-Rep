@@ -2885,7 +2885,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
 
                       <div className="space-y-1">
                         <label className="block text-xs font-bold text-slate-400">
-                          Sector Industrial
+                          Sector
                         </label>
                         <select
                           className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 cursor-pointer text-xs font-medium shadow-inner disabled:opacity-50 disabled:cursor-not-allowed"

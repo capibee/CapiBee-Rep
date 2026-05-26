@@ -530,8 +530,10 @@ export default function Asuntos({ onBack }: AsuntosProps) {
             <thead className="bg-slate-900/80 text-slate-400 text-[10px] uppercase tracking-widest border-b border-slate-800">
                 <tr>
                     <th className="py-2.5 px-4 font-bold text-center w-10">ID</th>
-                    <th className="py-2.5 px-4 font-bold">Fecha</th>
-                    <th className="py-2.5 px-4 font-bold">Nombre asunto</th>
+                    <th className="py-2.5 px-4 font-bold hidden">Fecha</th>
+                    <th className="py-2.5 px-4 font-bold">Asunto</th>
+                    <th className="py-2.5 px-4 font-bold">Empresa</th>
+                    <th className="py-2.5 px-4 font-bold">Sector</th>
                     <th className="py-2.5 px-4 font-bold">Nombre Contacto</th>
                     <th className="py-2.5 px-4 font-bold">Creado por</th>
                     <th className="py-2.5 px-4 font-bold text-right">Acciones</th>
@@ -551,14 +553,18 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                       </td>
                     </tr>
                 ) : (
-                    currentItems.map((a, index) => (
+                    currentItems.map((a, index) => {
+                        const business = businesses.find(b => b.id === a.businessId);
+                        return (
                         <tr key={`${a.id}-${index}`} className="hover:bg-slate-900/20 transition-colors">
                             <td className="py-2 px-4 text-center font-mono text-[10px] text-slate-500 select-none w-10">
                                 AP{String((currentPage - 1) * itemsPerPage + index).padStart(3, '0')}-{new Date(a.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).split('/').join('')}
                             </td>
-                            <td className="py-2 px-4 text-sm text-slate-500">{new Date(a.fecha).toLocaleDateString()}</td>
+                            <td className="py-2 px-4 text-sm text-slate-500 hidden">{new Date(a.fecha).toLocaleDateString()}</td>
                             <td className="py-2 px-4 text-sm font-medium text-white">{a.nombreAsunto}</td>
-                            <td className="py-2 px-4 text-sm text-slate-300">{a.contactName || businesses.find(b => b.id === a.businessId)?.contactName || "—"}</td>
+                            <td className="py-2 px-4 text-sm text-slate-300">{business?.name || "—"}</td>
+                            <td className="py-2 px-4 text-sm text-slate-300">{business?.category || "—"}</td>
+                            <td className="py-2 px-4 text-sm text-slate-300">{a.contactName || business?.contactName || "—"}</td>
                             <td className="py-2 px-4 text-sm text-slate-500">{platformUsers.find(u => u.id === a.userId)?.full_name || a.userId}</td>
                             <td className="py-2 px-4 text-right">
                                 <button 
@@ -573,7 +579,8 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                                 </button>
                             </td>
                         </tr>
-                    ))
+                        );
+                    })
                 )}
             </tbody>
           </table>
