@@ -149,7 +149,7 @@ export interface Propuesta {
   gastos: number;
   createdAt: number;
   userId: string;
-  status?: 'Enviada' | 'Aceptada' | 'Cancelada';
+  status?: 'Pendiente' | 'Enviada' | 'Aceptada' | 'Cancelada' | 'Rechazada';
   pdfUrl?: string;
   pdfName?: string;
 }

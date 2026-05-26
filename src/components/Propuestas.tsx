@@ -90,6 +90,12 @@ export default function Propuestas({ onBack }: PropuestasProps) {
   const [isCreatingForAsunto, setIsCreatingForAsunto] = useState(false);
   const [modalPdfUrl, setModalPdfUrl] = useState<string>("");
   const [modalPdfName, setModalPdfName] = useState<string>("");
+  const [statusChangeConfirm, setStatusChangeConfirm] = useState<{
+    id: string;
+    isAsunto: boolean;
+    newStatus: string;
+    asuntoId: string;
+  } | null>(null);
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -294,6 +300,58 @@ export default function Propuestas({ onBack }: PropuestasProps) {
     } finally {
       setIsTableLoading(false);
     }
+  };
+
+  const executeStatusChange = async () => {
+    if (!statusChangeConfirm) return;
+    const { id, isAsunto, newStatus, asuntoId } = statusChangeConfirm;
+
+    if (isAsunto) {
+      if (newStatus === "Pendiente" || newStatus === "Pendiente Envío") {
+        setStatusChangeConfirm(null);
+        return;
+      }
+      
+      const newPropuesta: Propuesta = {
+        id: 'PROP-' + Math.random().toString(36).substr(2, 6).toUpperCase(),
+        asuntoId: asuntoId,
+        propuestaTexto: '',
+        honorarios: 0,
+        gastos: 0,
+        createdAt: Date.now(),
+        status: newStatus as any,
+        userId: currentUser?.id || ""
+      };
+      
+      const updated = [newPropuesta, ...propuestas];
+      setPropuestas(updated);
+      try { localStorage.setItem("capibee_propuestas", JSON.stringify(updated)); } catch(e){}
+
+      try {
+        await supabase.from('propuestas').insert({
+          id: newPropuesta.id,
+          asunto_id: newPropuesta.asuntoId,
+          propuesta_texto: newPropuesta.propuestaTexto,
+          honorarios: newPropuesta.honorarios,
+          gastos: newPropuesta.gastos,
+          user_id: newPropuesta.userId,
+          created_at: newPropuesta.createdAt,
+          status: newPropuesta.status
+        });
+      } catch(e) { console.error(e) }
+
+    } else {
+      const updated = propuestas.map(item => item.id === id ? { ...item, status: newStatus as any } : item);
+      setPropuestas(updated);
+      try { localStorage.setItem("capibee_propuestas", JSON.stringify(updated)); } catch(e){}
+      try {
+        await supabase.from('propuestas').update({ status: newStatus }).eq('id', id);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    setStatusChangeConfirm(null);
   };
 
   const handleCreate = async (e: React.FormEvent) => {
@@ -637,37 +695,31 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                             <td className="p-4 text-sm text-slate-300">{asignadoName}</td>
                             <td className="p-4 text-sm text-slate-300">{contactName}</td>
                             <td className="p-4 text-sm">
-                              {p.isAsunto ? (
-                                <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20 whitespace-nowrap">
-                                  Pendiente Envío
-                                </span>
-                              ) : (
-                                <select
-                                  value={p.status || 'Enviada'}
-                                  onChange={async (e) => {
-                                    const newStatus = e.target.value as 'Enviada' | 'Aceptada' | 'Cancelada';
-                                    const updated = propuestas.map(item => item.id === p.id ? { ...item, status: newStatus } : item);
-                                    setPropuestas(updated);
-                                    localStorage.setItem("capibee_propuestas", JSON.stringify(updated));
-                                    try {
-                                      await supabase.from('propuestas').update({ status: newStatus }).eq('id', p.id);
-                                    } catch (err) {
-                                      console.error(err);
-                                    }
-                                  }}
-                                  className={`text-[11px] font-bold rounded-lg px-2 py-1 outline-none border transition-colors bg-slate-950 cursor-pointer ${
-                                    (p.status || 'Enviada') === 'Aceptada' 
-                                      ? 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10' 
-                                      : ((p.status || 'Enviada') === 'Cancelada' || (p.status || 'Enviada') === 'Rechazada')
-                                        ? 'border-rose-500/30 text-rose-400 bg-rose-500/10'
-                                        : 'border-blue-500/30 text-blue-400 bg-blue-500/10'
-                                  }`}
-                                >
-                                  <option value="Enviada" className="bg-slate-900 text-blue-400 font-bold">Enviada</option>
-                                  <option value="Aceptada" className="bg-slate-900 text-emerald-400 font-bold">Aceptada</option>
-                                  <option value="Cancelada" className="bg-slate-900 text-rose-400 font-bold">Cancelada</option>
-                                </select>
-                              )}
+                              <select
+                                value={(p.status === "Cancelada" ? "Rechazada" : p.status) || (p.isAsunto ? 'Pendiente' : 'Enviada')}
+                                onChange={(e) => {
+                                  setStatusChangeConfirm({
+                                    id: p.id,
+                                    isAsunto: p.isAsunto,
+                                    newStatus: e.target.value,
+                                    asuntoId: p.asuntoId
+                                  });
+                                }}
+                                className={`text-[11px] font-bold rounded-[6px] px-2 py-1 outline-none border transition-colors bg-slate-950 cursor-pointer w-[120px] ${
+                                  (p.status === "Cancelada" ? "Rechazada" : p.status) === 'Aceptada' 
+                                    ? 'border-emerald-500/30 text-emerald-400 focus:ring-1 focus:ring-emerald-500/50' 
+                                    : (p.status === "Cancelada" ? "Rechazada" : p.status) === 'Rechazada' 
+                                    ? 'border-red-500/30 text-red-400 focus:ring-1 focus:ring-red-500/50' 
+                                    : (p.status === "Cancelada" ? "Rechazada" : p.status) === 'Pendiente' || p.isAsunto
+                                    ? 'border-amber-500/30 text-amber-400 focus:ring-1 focus:ring-amber-500/50 block whitespace-nowrap overflow-hidden text-ellipsis px-0 text-center pl-1'
+                                    : 'border-blue-500/30 text-blue-400 focus:ring-1 focus:ring-blue-500/50'
+                                }`}
+                              >
+                                <option value="Pendiente" className="bg-slate-900 text-amber-400">Pendiente Envío</option>
+                                <option value="Enviada" className="bg-slate-900 text-blue-400">Enviada</option>
+                                <option value="Aceptada" className="bg-slate-900 text-emerald-400">Aceptada</option>
+                                <option value="Rechazada" className="bg-slate-900 text-red-400">Rechazada</option>
+                              </select>
                             </td>
                             <td className="p-4 text-sm">
                               {p.isAsunto ? (
@@ -952,6 +1004,44 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                     className="flex-1 py-2 bg-red-500 text-white font-bold rounded-xl hover:bg-red-400 transition-colors text-xs uppercase tracking-wider shadow-lg shadow-red-500/20"
                   >
                     Eliminar
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {statusChangeConfirm && (
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-[90]">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl relative overflow-hidden text-left"
+            >
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-amber-600" />
+              <div className="text-center">
+                <h3 className="text-lg font-bold text-white mb-2">Confirmar cambio de estado</h3>
+                <p className="text-slate-400 text-xs mb-6 leading-relaxed">
+                  ¿Estás seguro que deseas cambiar el estado de la propuesta a <span className="font-bold text-amber-500 whitespace-nowrap px-1 py-0.5 bg-amber-500/10 rounded">{statusChangeConfirm.newStatus === 'Pendiente' ? 'Pendiente Envío' : statusChangeConfirm.newStatus}</span>?
+                </p>
+                <div className="flex gap-3 w-full">
+                  <button
+                    type="button"
+                    onClick={() => setStatusChangeConfirm(null)}
+                    className="flex-1 py-3 bg-slate-800 text-slate-300 font-bold rounded-xl hover:bg-slate-700 transition-colors text-xs uppercase tracking-wider"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await executeStatusChange();
+                    }}
+                    className="flex-1 py-3 bg-amber-500 text-slate-900 font-black rounded-xl hover:bg-amber-400 transition-colors text-xs uppercase tracking-wider shadow-lg shadow-amber-500/20"
+                  >
+                    Confirmar
                   </button>
                 </div>
               </div>
