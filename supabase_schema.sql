@@ -159,6 +159,7 @@ CREATE TABLE IF NOT EXISTS asuntos (
     user_id TEXT REFERENCES platform_users(id) ON DELETE SET NULL,
     datos_asunto TEXT,
     archivo_adjunto_url TEXT,
+    sector TEXT,
     created_at BIGINT NOT NULL DEFAULT (EXTRACT(epoch FROM now()) * 1000)::BIGINT
 );
 

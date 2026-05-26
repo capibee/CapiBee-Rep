@@ -167,6 +167,7 @@ export interface Asunto {
   createdAt: number;
   contactName?: string;
   contactPhone?: string;
+  sector?: string;
 }
 
 export interface WithdrawalRequest {

@@ -131,6 +131,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
               userId: a.user_id,
               datosAsunto: a.datos_asunto,
               archivoAdjuntoUrl: a.archivo_adjunto_url,
+              sector: a.sector || "",
               createdAt: Number(a.created_at),
               contactName: a.contact_name || "",
               contactPhone: a.contact_phone || ""
@@ -160,7 +161,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
         setPlatformUsers(uniqueUsers);
       }
       
-      const { data: dbBusinesses } = await supabase.from('businesses').select('id, name, contact_name, contact_phone, phone, whatsapp, responsible_name, responsible_phone');
+      const { data: dbBusinesses } = await supabase.from('businesses').select('id, name, contact_name, contact_phone, phone, whatsapp, responsible_name, responsible_phone, category');
       if (dbBusinesses) {
          const mappedB = dbBusinesses.map((b: any) => ({
              id: b.id,
@@ -168,7 +169,8 @@ export default function Asuntos({ onBack }: AsuntosProps) {
              contactName: b.contact_name || '',
              contactPhone: b.contact_phone || b.whatsapp || '',
              phone: b.phone || '',
-             whatsapp: b.whatsapp || ''
+             whatsapp: b.whatsapp || '',
+             category: b.category || ''
          }));
          setBusinesses(mappedB);
       }
@@ -188,6 +190,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
       ...formData,
       userId: user.id || "unknown",
       createdAt: Date.now(),
+      sector: businesses.find(b => b.id === formData.businessId)?.category || "",
     };
 
     const { error } = await supabase.from('asuntos').insert({
@@ -198,6 +201,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
         user_id: newAsunto.userId,
         datos_asunto: newAsunto.datosAsunto,
         archivo_adjunto_url: newAsunto.archivoAdjuntoUrl,
+        sector: businesses.find(b => b.id === newAsunto.businessId)?.category || "",
         created_at: newAsunto.createdAt,
         contact_name: newAsunto.contactName || "",
         contact_phone: newAsunto.contactPhone || ""
@@ -563,7 +567,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                             <td className="py-2 px-4 text-sm text-slate-500 hidden">{new Date(a.fecha).toLocaleDateString()}</td>
                             <td className="py-2 px-4 text-sm font-medium text-white">{a.nombreAsunto}</td>
                             <td className="py-2 px-4 text-sm text-slate-300">{business?.name || "—"}</td>
-                            <td className="py-2 px-4 text-sm text-slate-300">{business?.category || "—"}</td>
+                            <td className="py-2 px-4 text-sm text-slate-300">{a.sector || business?.category || "—"}</td>
                             <td className="py-2 px-4 text-sm text-slate-300">{a.contactName || business?.contactName || "—"}</td>
                             <td className="py-2 px-4 text-sm text-slate-500">{platformUsers.find(u => u.id === a.userId)?.full_name || a.userId}</td>
                             <td className="py-2 px-4 text-right">
