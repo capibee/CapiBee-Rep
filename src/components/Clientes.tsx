@@ -599,8 +599,13 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
 
             <div className="flex flex-wrap gap-1">
               <button
-                disabled={true}
-                className="w-full sm:w-auto px-3 py-1 font-bold uppercase tracking-widest rounded-md transition-all text-[9px] flex items-center justify-center gap-1 group bg-slate-800 text-slate-500 cursor-not-allowed opacity-50"
+                disabled={!permissions.create}
+                onClick={() => setIsModalOpen(true)}
+                className={`w-full sm:w-auto px-3 py-1 font-bold uppercase tracking-widest rounded-md transition-all text-[9px] flex items-center justify-center gap-1 group ${
+                  permissions.create
+                    ? "bg-amber-400 text-slate-950 hover:bg-amber-500 active:scale-95 cursor-pointer shadow-md shadow-amber-400/10"
+                    : "bg-slate-800 text-slate-500 cursor-not-allowed opacity-50"
+                }`}
               >
                 <Plus size={10} strokeWidth={3} /> Nuevo Cliente
               </button>
