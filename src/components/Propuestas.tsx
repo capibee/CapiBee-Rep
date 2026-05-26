@@ -8,7 +8,8 @@ import {
   Eye,
   ChevronLeft,
   Trash2,
-  Edit
+  Edit,
+  RefreshCw
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Asunto, Propuesta, Business } from "../types";
@@ -96,6 +97,10 @@ export default function Propuestas({ onBack }: PropuestasProps) {
     newStatus: string;
     asuntoId: string;
   } | null>(null);
+  const [pdfUploadConfirm, setPdfUploadConfirm] = useState<{
+    propuestaId: string;
+    file: File;
+  } | null>(null);
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -133,9 +138,22 @@ export default function Propuestas({ onBack }: PropuestasProps) {
     setIsViewModalOpen(false);
   };
 
-  const handlePdfUpload = async (propuestaId: string, event: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePdfUploadClick = (propuestaId: string, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    // reset value so that the onChange fires even if the same file is chosen
+    event.target.value = '';
+
+    setPdfUploadConfirm({
+      propuestaId,
+      file
+    });
+  };
+
+  const executePdfUpload = async () => {
+    if (!pdfUploadConfirm) return;
+    const { propuestaId, file } = pdfUploadConfirm;
 
     const reader = new FileReader();
     reader.onloadend = async () => {
@@ -170,6 +188,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
       }
     };
     reader.readAsDataURL(file);
+    setPdfUploadConfirm(null);
   };
 
   const handleRemovePdf = async (propuestaId: string) => {
@@ -477,6 +496,8 @@ export default function Propuestas({ onBack }: PropuestasProps) {
       gastos: number;
       status: string;
       userId: string;
+      pdfUrl?: string;
+      pdfName?: string;
     }> = [];
 
     const isAdmin = isSuperAdmin;
@@ -536,7 +557,9 @@ export default function Propuestas({ onBack }: PropuestasProps) {
           honorarios: p.honorarios,
           gastos: p.gastos,
           status: status === "Cancelada" ? "Rechazada" : status,
-          userId: p.userId || ""
+          userId: p.userId || "",
+          pdfUrl: p.pdfUrl,
+          pdfName: p.pdfName
         });
       } else if (selectedYear === "all" && selectedMonth === "all") {
         // If no filter matching date, just push it
@@ -549,7 +572,9 @@ export default function Propuestas({ onBack }: PropuestasProps) {
           honorarios: p.honorarios,
           gastos: p.gastos,
           status: status === "Cancelada" ? "Rechazada" : status,
-          userId: p.userId || ""
+          userId: p.userId || "",
+          pdfUrl: p.pdfUrl,
+          pdfName: p.pdfName
         });
       }
     });
@@ -756,20 +781,28 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                                          }
                                      }}
                                      className="flex items-center gap-1.5 px-2.5 py-1 text-blue-400 border border-blue-500/20 rounded-lg hover:bg-blue-500/10 transition-colors text-[10px] font-bold"
+                                     title="Ver Propuesta"
                                   >
-                                      👌Subido
+                                      Ver PDF
                                   </button>
-                                   <button onClick={() => handleRemovePdf(p.id)} className="text-red-400 hover:text-red-300"><X size={12}/></button>
+                                  <button 
+                                    onClick={() => document.getElementById(`pdf-upload-${p.id}`)?.click()} 
+                                    className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors text-[10px] font-bold whitespace-nowrap"
+                                  >
+                                    <RefreshCw size={12} /> Reemplazar propuesta
+                                  </button>
+                                  <input type="file" id={`pdf-upload-${p.id}`} className="hidden" accept="application/pdf" onChange={(e) => handlePdfUploadClick(p.id, e)} />
+                                  <button onClick={() => handleRemovePdf(p.id)} className="text-red-400 hover:text-red-300 p-1" title="Eliminar PDF"><X size={12}/></button>
                                 </div>
                               ) : (
                                 <>
                                   <button 
                                     onClick={() => document.getElementById(`pdf-upload-${p.id}`)?.click()} 
-                                    className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors text-[10px] font-bold"
+                                    className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors text-[10px] font-bold whitespace-nowrap"
                                   >
                                     <FileText size={12} /> Subir Propuesta
                                   </button>
-                                  <input type="file" id={`pdf-upload-${p.id}`} className="hidden" accept="application/pdf" onChange={(e) => handlePdfUpload(p.id, e)} />
+                                  <input type="file" id={`pdf-upload-${p.id}`} className="hidden" accept="application/pdf" onChange={(e) => handlePdfUploadClick(p.id, e)} />
                                 </>
                               )}
                             </td>
@@ -1055,6 +1088,44 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                     className="flex-1 py-3 bg-amber-500 text-slate-900 font-black rounded-xl hover:bg-amber-400 transition-colors text-xs uppercase tracking-wider shadow-lg shadow-amber-500/20"
                   >
                     Confirmar
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {pdfUploadConfirm && (
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-[90]">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl relative overflow-hidden text-left"
+            >
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-amber-600" />
+              <div className="text-center">
+                <h3 className="text-lg font-bold text-white mb-2">Confirmar guardar propuesta</h3>
+                <p className="text-slate-400 text-xs mb-6 leading-relaxed">
+                  ¿Está seguro que desea guardar la propuesta?
+                </p>
+                <div className="flex gap-3 w-full">
+                  <button
+                    type="button"
+                    onClick={() => setPdfUploadConfirm(null)}
+                    className="flex-1 py-3 bg-slate-800 text-slate-300 font-bold rounded-xl hover:bg-slate-700 transition-colors text-xs uppercase tracking-wider"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await executePdfUpload();
+                    }}
+                    className="flex-1 py-3 bg-amber-500 text-slate-900 font-black rounded-xl hover:bg-amber-400 transition-colors text-xs uppercase tracking-wider shadow-lg shadow-amber-500/20"
+                  >
+                    Sí, guardar
                   </button>
                 </div>
               </div>
