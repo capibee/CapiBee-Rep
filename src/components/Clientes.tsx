@@ -262,33 +262,107 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
     };
   }, []);
 
-  const saveClientes = async (newClientes: Client[]) => {
+  const saveClientes = async (newClientes: Client[], clientToPersist?: Client) => {
     setClientes(newClientes);
     localStorage.setItem("capibee_clientes", JSON.stringify(newClientes));
 
-    // Persist each to Supabase live
-    for (const c of newClientes) {
-      const { error: upsertErr } = await supabase.from('clients').upsert({
-        id: c.id,
-        type: c.type || 'Particular',
-        company_name: c.companyName || '',
-        contact_name: c.contactName,
-        email: c.email && c.email.trim() !== '' ? c.email.trim() : null,
-        language: c.language || 'Español',
-        currency: c.currency || 'USD',
-        country: c.country || '',
-        address: c.address || '',
-        sector: c.sector || '',
-        phone: c.phone || '',
-        created_at: Number(c.createdAt) || Date.now(),
-        user_id: c.userId || null
-      }, { onConflict: 'id' });
+    if (!clientToPersist) return;
 
-      if (upsertErr) {
-        console.error("🔴 Supabase client upsert error:", upsertErr);
-      } else {
-        console.log("💚 Supabase client upsert successful:", c.id);
+    // Define different payload variations depending on database constraints
+    const fullPayload = {
+      id: clientToPersist.id,
+      type: clientToPersist.type || 'Particular',
+      company_name: clientToPersist.companyName || '',
+      contact_name: clientToPersist.contactName,
+      email: clientToPersist.email && clientToPersist.email.trim() !== '' ? clientToPersist.email.trim() : null,
+      language: clientToPersist.language || 'Español',
+      currency: clientToPersist.currency || 'USD',
+      country: clientToPersist.country || '',
+      address: clientToPersist.address || '',
+      city: clientToPersist.city || '',
+      contact_phone: clientToPersist.contactPhone || '',
+      sector: clientToPersist.sector || '',
+      phone: clientToPersist.phone || '',
+      created_at: Number(clientToPersist.createdAt) || Date.now(),
+      user_id: clientToPersist.userId || null
+    };
+
+    const fallbackNoColsPayload = {
+      id: clientToPersist.id,
+      type: clientToPersist.type || 'Particular',
+      company_name: clientToPersist.companyName || '',
+      contact_name: clientToPersist.contactName,
+      email: clientToPersist.email && clientToPersist.email.trim() !== '' ? clientToPersist.email.trim() : null,
+      language: clientToPersist.language || 'Español',
+      currency: clientToPersist.currency || 'USD',
+      country: clientToPersist.country || '',
+      address: clientToPersist.address || '',
+      sector: clientToPersist.sector || '',
+      phone: clientToPersist.phone || '',
+      created_at: Number(clientToPersist.createdAt) || Date.now(),
+      user_id: clientToPersist.userId || null
+    };
+
+    console.log("Iniciando guardado de cliente en Supabase:", clientToPersist.id);
+    
+    // First attempt: try with everything (full columns and assigned user_id)
+    const { error: err1 } = await supabase.from('clients').upsert(fullPayload, { onConflict: 'id' });
+
+    if (err1) {
+      console.warn("Intento principal de guardado falló, código:", err1.code, "mensaje:", err1.message);
+      
+      const isMissingColumns = err1.code === '42703' || err1.message?.toLowerCase().includes('column') || err1.message?.toLowerCase().includes('no existe la columna');
+      const isForeignKeyViolation = err1.code === '23503' || err1.message?.toLowerCase().includes('foreign key') || err1.message?.toLowerCase().includes('llave foránea') || err1.message?.toLowerCase().includes('user_id');
+
+      if (isMissingColumns && isForeignKeyViolation) {
+        console.log("Doble incompatibilidad (columnas y ID de usuario). Guardando sin columnas nuevas y sin user_id...");
+        const { error: errFinal } = await supabase.from('clients').upsert({ ...fallbackNoColsPayload, user_id: null }, { onConflict: 'id' });
+        if (errFinal) console.error("🔴 Error crítico final al guardar cliente:", errFinal);
+        else console.log("💚 Guardado con éxito sin columnas adicionales y sin user_id!");
+      } 
+      else if (isMissingColumns) {
+        console.log("Faltan las columnas de ciudad o teléfono de contacto en Supabase, reintentando sin ellas...");
+        const { error: errColRetry } = await supabase.from('clients').upsert(fallbackNoColsPayload, { onConflict: 'id' });
+        
+        if (errColRetry) {
+          console.warn("Intento sin columnas adicionales también falló:", errColRetry);
+          const isFkRetry = errColRetry.code === '23503' || errColRetry.message?.toLowerCase().includes('foreign key') || errColRetry.message?.toLowerCase().includes('user_id');
+          if (isFkRetry) {
+            console.log("Posible violación de llave foránea en user_id. Guardando sin columnas y sin user_id...");
+            const { error: errFk } = await supabase.from('clients').upsert({ ...fallbackNoColsPayload, user_id: null }, { onConflict: 'id' });
+            if (errFk) console.error("🔴 No se pudo guardar ni con reintento absoluto:", errFk);
+            else console.log("💚 Guardado con éxito sin columnas y sin user_id!");
+          }
+        } else {
+          console.log("💚 Guardado con éxito sin las columnas de ciudad y teléfono de contacto!");
+        }
+      } 
+      else if (isForeignKeyViolation) {
+        console.log("El usuario asignado no existe en platform_users de Supabase. Guardando asumiendo user_id nulo...");
+        const { error: errFkRetry } = await supabase.from('clients').upsert({ ...fullPayload, user_id: null }, { onConflict: 'id' });
+        
+        if (errFkRetry) {
+          console.warn("Intento sin user_id también falló:", errFkRetry);
+          const isColRetry = errFkRetry.code === '42703' || errFkRetry.message?.toLowerCase().includes('column');
+          if (isColRetry) {
+            console.log("Reintentando sin columnas nuevas y sin user_id...");
+            const { error: errFinal } = await supabase.from('clients').upsert({ ...fallbackNoColsPayload, user_id: null }, { onConflict: 'id' });
+            if (errFinal) console.error("🔴 Intento final falló:", errFinal);
+            else console.log("💚 Guardado con éxito sin columnas y sin user_id!");
+          }
+        } else {
+          console.log("💚 Guardado con éxito con user_id configurado en nulo!");
+        }
       }
+      else {
+        // En caso de cualquier otro problema, guardamos lo mínimo localmente viable para prevenir pérdidas
+        console.log("Error desconocido detectado. Intentando guardado con payload mínimo (compatible)...");
+        const { error: errUltimate } = await supabase.from('clients').upsert({ ...fallbackNoColsPayload, user_id: null }, { onConflict: 'id' });
+        if (errUltimate) console.error("🔴 El guardado absoluto falló:", errUltimate);
+        else console.log("💚 Guardado con éxito tras restauración mínima compatible!");
+      }
+    } else {
+      console.log("💚 Cliente guardado con éxito en Supabase (con todas las columnas de soporte)!");
     }
   };
 
@@ -303,33 +377,15 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
       c.id === clientId ? { ...c, contactName: newContactName, email: newEmail } : c
     );
     
-    // Update local state and storage
-    setClientes(updatedClientes);
-    localStorage.setItem("capibee_clientes", JSON.stringify(updatedClientes));
     setEditingClientDetails(null);
 
-    // Update single client in Supabase
     const target = updatedClientes.find(c => c.id === clientId);
     if (target) {
-       await supabase.from('clients').upsert({
-        id: target.id,
-        type: target.type || 'Particular',
-        company_name: target.companyName || '',
-        contact_name: target.contactName,
-        email: target.email && target.email.trim() !== '' ? target.email.trim() : null,
-        language: target.language || 'Español',
-        currency: target.currency || 'USD',
-        country: target.country || '',
-        address: target.address || '',
-        sector: target.sector || '',
-        phone: target.phone || '',
-        created_at: Number(target.createdAt) || Date.now(),
-        user_id: target.userId || null
-       }, { onConflict: 'id' });
+      await saveClientes(updatedClientes, target);
     }
   };
 
-  const handleCreate = (e: React.FormEvent) => {
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const newClient: Client = {
@@ -347,9 +403,10 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
       language: formData.language,
       currency: formData.currency,
       createdAt: Date.now(),
+      userId: currentUser?.id || null,
     };
 
-    saveClientes([newClient, ...clientes]);
+    await saveClientes([newClient, ...clientes], newClient);
     setIsModalOpen(false);
     setFormData({
       type: "Empresa",
@@ -404,10 +461,19 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
     } else {
       authClients = clientes.filter((cliente) => {
         const linkedBusiness = businesses.find((b) => b.id === cliente.id);
-        return (
-          linkedBusiness &&
-          linkedBusiness.responsibleName === currentUser.fullName
+        
+        // El ejecutivo comercial puede ver el cliente si:
+        // 1. Es el creador/dueño directo del cliente (cliente.userId === currentUser.id)
+        // 2. O si el cliente está vinculado a una empresa de la cual el ejecutivo es responsable o asignado
+        // 3. O bien, si es un cliente huérfano/público (no tiene userId asignado aún en la BD)
+        const isClientOwner = cliente.userId && cliente.userId === currentUser.id;
+        const isUnassigned = !cliente.userId;
+        const isBusinessResponsible = linkedBusiness && (
+          linkedBusiness.responsibleName === currentUser.fullName ||
+          linkedBusiness.userId === currentUser.id
         );
+
+        return isClientOwner || isBusinessResponsible || isUnassigned;
       });
     }
     return authClients.sort((a, b) => b.createdAt - a.createdAt);
