@@ -419,16 +419,23 @@ export default function Propuestas({ onBack }: PropuestasProps) {
         if (saved) existingClients = JSON.parse(saved);
       } catch (_) {}
 
-      // Verificación inteligente de duplicados para evitar falsos positivos
+      // Verificación inteligente de duplicados para evitar falsos positivos y encontrar registros coincidentes
       const nameLower = nameToCompare.trim().toLowerCase();
-      const alreadyExists = existingClients.some((c: Client) => {
+      const emailToCompare = (businessData?.email || "").trim().toLowerCase();
+      const existingClient = existingClients.find((c: Client) => {
         const cCompany = (c.companyName || "").trim().toLowerCase();
         const nCompany = nameLower;
         const cContact = (c.contactName || "").trim().toLowerCase();
         const nContact = (businessData?.contact_name || relatedAsunto?.contactName || "").trim().toLowerCase();
+        const cEmail = (c.email || "").trim().toLowerCase();
 
         // Si coinciden los nombres de la empresa exactamente
         if (cCompany && nCompany && cCompany === nCompany) {
+          return true;
+        }
+
+        // Si coinciden los emails (solo si no están vacíos)
+        if (emailToCompare && cEmail && emailToCompare === cEmail) {
           return true;
         }
 
@@ -441,24 +448,21 @@ export default function Propuestas({ onBack }: PropuestasProps) {
         return false;
       });
 
-      if (alreadyExists) {
-        console.log("El cliente ya existe, se omite creación automática.");
-        alert("ℹ️ El cliente \"" + nameToCompare + "\" ya se encuentra registrado en el módulo de clientes.");
-        return;
-      }
+      // El ID del cliente será el ID existente si ya existe, de lo contrario el ID de la empresa (business) para mantener la consistencia, o un nuevo UUID
+      const targetClientId = existingClient?.id || businessData?.id || relatedAsunto?.businessId || crypto.randomUUID();
 
       // Validar integridad del userId para evitar violaciones de clave foránea en la base de datos
       const potentialUserId = relatedAsunto?.userId || businessData?.user_id || currentUser?.id || null;
       const userExistsInDb = potentialUserId && platformUsers.some((u: any) => u.id === potentialUserId);
       const safeUserId = userExistsInDb ? potentialUserId : null;
 
-      // Generar el objeto de tipo Cliente
+      // Generar el objeto de tipo Cliente (mantenemos string vacío localmente para consistencia con el formulario si se desea, o null)
       const newClient: Client = {
-        id: crypto.randomUUID(),
+        id: targetClientId,
         type: 'Empresa',
         companyName: nameToCompare,
         contactName: businessData?.contact_name || relatedAsunto?.contactName || businessData?.responsible_name || "Contacto Pendiente",
-        email: businessData?.email || "",
+        email: businessData?.email && businessData.email.trim() !== "" ? businessData.email.trim() : "",
         language: 'Español',
         currency: 'USD',
         country: businessData?.country || "",
@@ -469,15 +473,39 @@ export default function Propuestas({ onBack }: PropuestasProps) {
         userId: safeUserId
       };
 
-      console.log("Guardando cliente creado:", newClient);
+      console.log("Guardando cliente creado (método upsert):", newClient);
 
-      // 1. Guardar en Supabase
-      const { error } = await supabase.from('clients').insert({
+      // Actualizar la lista local sin duplicados
+      let updatedClients: Client[];
+      const existsIndex = existingClients.findIndex((c: Client) => c.id === targetClientId);
+      if (existsIndex !== -1) {
+        updatedClients = [...existingClients];
+        updatedClients[existsIndex] = newClient;
+      } else {
+        const existsByNameOrEmail = existingClients.some((c: Client) => 
+          c.id === targetClientId || 
+          (c.companyName || "").trim().toLowerCase() === nameLower ||
+          (emailToCompare && (c.email || "").trim().toLowerCase() === emailToCompare)
+        );
+        if (existsByNameOrEmail) {
+          updatedClients = existingClients.map((c: Client) => {
+            const isMatch = c.id === targetClientId || 
+                            (c.companyName || "").trim().toLowerCase() === nameLower ||
+                            (emailToCompare && (c.email || "").trim().toLowerCase() === emailToCompare);
+            return isMatch ? { ...newClient, id: c.id } : c;
+          });
+        } else {
+          updatedClients = [newClient, ...existingClients];
+        }
+      }
+
+      // 1. Guardar/Upsertar en Supabase para evitar violaciones de clave primaria
+      const { error } = await supabase.from('clients').upsert({
         id: newClient.id,
         type: newClient.type,
         company_name: newClient.companyName,
         contact_name: newClient.contactName,
-        email: newClient.email,
+        email: newClient.email && newClient.email.trim() !== '' ? newClient.email.trim() : null,
         language: newClient.language,
         currency: newClient.currency,
         country: newClient.country,
@@ -493,23 +521,19 @@ export default function Propuestas({ onBack }: PropuestasProps) {
           console.error("La tabla 'clients' no existe en Supabase:", error);
           alert("⚠️ El cliente \"" + newClient.companyName + "\" se guardó LOCALMENTE en la memoria de tu navegador, pero no se pudo sincronizar en la nube porque falta crear la tabla 'clients' en tu base de datos de Supabase.\n\nPor favor, ejecuta el script SQL que te proporcionará el asistente en la consola de Supabase.");
           
-          // Guardar localmente
-          const updatedClients = [newClient, ...existingClients];
           localStorage.setItem("capibee_clientes", JSON.stringify(updatedClients));
         } else {
-          console.error("Error al crear cliente en Supabase:", error);
+          console.error("Error al crear/actualizar cliente en Supabase:", error);
           alert("Error al guardar cliente en Supabase: " + error.message);
           
           // Fallback guardar localmente de todas formas para no perder el dato
-          const updatedClients = [newClient, ...existingClients];
           localStorage.setItem("capibee_clientes", JSON.stringify(updatedClients));
         }
       } else {
         // 2. Guardar en LocalStorage si no hubo errores en Supabase
-        const updatedClients = [newClient, ...existingClients];
         localStorage.setItem("capibee_clientes", JSON.stringify(updatedClients));
-        console.log("Cliente creado automáticamente de forma exitosa:", newClient);
-        alert("🎉 ¡Cliente registrado exitosamente!\nSe ha creado el cliente \"" + newClient.companyName + "\" en el módulo de clientes.");
+        console.log("Cliente creado/actualizado automáticamente de forma exitosa:", newClient);
+        alert("🎉 ¡Cliente registrado exitosamente!\nSe ha creado/actualizado el cliente \"" + newClient.companyName + "\" en el módulo de clientes.");
       }
     } catch (e: any) {
       console.error("Error inesperado en handleAutoCreateClient:", e);

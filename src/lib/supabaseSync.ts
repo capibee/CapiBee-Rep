@@ -123,7 +123,7 @@ export async function pushAllLocalDataToSupabase(): Promise<{ success: boolean; 
         type: c.type || 'Particular',
         company_name: c.companyName || '',
         contact_name: c.contactName,
-        email: c.email,
+        email: c.email && c.email.trim() !== '' ? c.email.trim() : null,
         language: c.language || 'Español',
         currency: c.currency || 'USD',
         country: c.country || '',
