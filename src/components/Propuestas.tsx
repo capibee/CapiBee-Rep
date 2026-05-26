@@ -97,6 +97,12 @@ export default function Propuestas({ onBack }: PropuestasProps) {
     newStatus: string;
     asuntoId: string;
   } | null>(null);
+  const [clientCreationPrompt, setClientCreationPrompt] = useState<{
+    id: string;
+    isAsunto: boolean;
+    newStatus: string;
+    asuntoId: string;
+  } | null>(null);
   const [pdfUploadConfirm, setPdfUploadConfirm] = useState<{
     propuestaId: string;
     file: File;
@@ -417,13 +423,14 @@ export default function Propuestas({ onBack }: PropuestasProps) {
     }
   };
 
-  const executeStatusChange = async () => {
-    if (!statusChangeConfirm) return;
-    const { id, isAsunto, newStatus, asuntoId } = statusChangeConfirm;
+  const executeStatusChange = async (shouldCreateClient: boolean = false, customConfirm: any = null) => {
+    const activeConfirm = customConfirm || statusChangeConfirm;
+    if (!activeConfirm) return;
+    const { id, isAsunto, newStatus, asuntoId } = activeConfirm;
 
     if (isAsunto) {
       if (newStatus === "Pendiente" || newStatus === "Pendiente Envío") {
-        setStatusChangeConfirm(null);
+        if (!customConfirm) setStatusChangeConfirm(null);
         return;
       }
       
@@ -457,7 +464,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
           console.error("Error inserting proposal to Supabase:", error);
           alert("Error al guardar propuesta en base de datos: " + error.message);
         } else {
-          if (newStatus === 'Aceptada') {
+          if (newStatus === 'Aceptada' && shouldCreateClient) {
             await handleAutoCreateClient(asuntoId);
           }
         }
@@ -476,7 +483,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
           console.error("Error updating status in Supabase:", error);
           alert("Error al actualizar estado en base de datos: " + error.message);
         } else {
-          if (newStatus === 'Aceptada') {
+          if (newStatus === 'Aceptada' && shouldCreateClient) {
             await handleAutoCreateClient(asuntoId);
           }
         }
@@ -486,7 +493,9 @@ export default function Propuestas({ onBack }: PropuestasProps) {
       }
     }
 
-    setStatusChangeConfirm(null);
+    if (!customConfirm) {
+      setStatusChangeConfirm(null);
+    }
   };
 
   const handleCreate = async (e: React.FormEvent) => {
@@ -1186,11 +1195,58 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                   <button
                     type="button"
                     onClick={async () => {
-                      await executeStatusChange();
+                      if (statusChangeConfirm.newStatus === 'Aceptada') {
+                        setClientCreationPrompt(statusChangeConfirm);
+                        setStatusChangeConfirm(null);
+                      } else {
+                        await executeStatusChange();
+                      }
                     }}
                     className="flex-1 py-3 bg-amber-500 text-slate-900 font-black rounded-xl hover:bg-amber-400 transition-colors text-xs uppercase tracking-wider shadow-lg shadow-amber-500/20"
                   >
                     Confirmar
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {clientCreationPrompt && (
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-[90]">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl relative overflow-hidden text-left"
+            >
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-emerald-600" />
+              <div className="text-center">
+                <h3 className="text-lg font-bold text-white mb-2">¿Deseas crear el cliente?</h3>
+                <p className="text-slate-400 text-xs mb-6 leading-relaxed">
+                  ¿Deseas crear al cliente en este momento? Si presionas sobre "Sí" se guardará el registro correspondiente en el módulo de clientes.
+                </p>
+                <div className="flex gap-3 w-full">
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await executeStatusChange(false, clientCreationPrompt);
+                      setClientCreationPrompt(null);
+                    }}
+                    className="flex-1 py-3 bg-slate-800 text-slate-300 font-bold rounded-xl hover:bg-slate-700 transition-colors text-xs uppercase tracking-wider"
+                  >
+                    No
+                  </button>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await executeStatusChange(true, clientCreationPrompt);
+                      setClientCreationPrompt(null);
+                    }}
+                    className="flex-1 py-3 bg-emerald-500 text-slate-950 font-black rounded-xl hover:bg-emerald-400 transition-colors text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/20"
+                  >
+                    Sí, crear
                   </button>
                 </div>
               </div>
