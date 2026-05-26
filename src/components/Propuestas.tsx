@@ -189,14 +189,20 @@ export default function Propuestas({ onBack }: PropuestasProps) {
   const [isTableLoading, setIsTableLoading] = useState(true);
 
   useEffect(() => {
-    const saved = localStorage.getItem("capibee_propuestas");
-    if (saved) setPropuestas(JSON.parse(saved));
+    try {
+      const saved = localStorage.getItem("capibee_propuestas");
+      if (saved) setPropuestas(JSON.parse(saved));
+    } catch(e) {}
     
-    const savedA = localStorage.getItem("capibee_asuntos");
-    if (savedA) setAsuntos(JSON.parse(savedA));
+    try {
+      const savedA = localStorage.getItem("capibee_asuntos");
+      if (savedA) setAsuntos(JSON.parse(savedA));
+    } catch(e) {}
     
-    const savedB = localStorage.getItem("capibee_businesses");
-    if (savedB) setBusinesses(JSON.parse(savedB));
+    try {
+      const savedB = localStorage.getItem("capibee_businesses");
+      if (savedB) setBusinesses(JSON.parse(savedB));
+    } catch(e) {}
 
     try {
       const savedUsers = localStorage.getItem("capibee_platform_users");
@@ -204,6 +210,9 @@ export default function Propuestas({ onBack }: PropuestasProps) {
     } catch (_) {}
 
     fetchFreshData();
+
+    const timer = setTimeout(() => setIsTableLoading(false), 2000);
+    return () => clearTimeout(timer);
   }, []);
 
   const fetchFreshData = async () => {
@@ -596,7 +605,13 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                         <TableLoader />
                       </td>
                     </tr>
-                ) : currentItems.length > 0 ? (
+                ) : currentItems.length === 0 ? (
+                    <tr>
+                      <td colSpan={10} className="py-12 text-center text-slate-500 font-medium bg-slate-900/20">
+                        Tabla sin datos
+                      </td>
+                    </tr>
+                ) : (
                     currentItems.map((p, index) => {
                         const asunto = asuntos.find(a => a.id === p.asuntoId);
                         const asignadoId = asunto ? asunto.userId : p.userId;
@@ -726,10 +741,6 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                         </tr>
                         )
                     })
-                ) : (
-                    <tr>
-                         <td colSpan={7} className="p-10 text-center text-slate-500">No se encontraron propuestas.</td>
-                    </tr>
                 )}
             </tbody>
           </table>

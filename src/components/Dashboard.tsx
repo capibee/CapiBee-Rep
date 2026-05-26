@@ -276,18 +276,19 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
   useEffect(() => {
     setMounted(true);
 
-    // Speed up initial load with local storage
-    const savedBusinesses = localStorage.getItem('capibee_businesses');
-    if (savedBusinesses) setBusinesses(JSON.parse(savedBusinesses));
-    
-    // Load platform users
-    const savedUsers = localStorage.getItem('capibee_platform_users');
-    if (savedUsers) setPlatformUsers(JSON.parse(savedUsers));
+    try {
+      const savedBusinesses = localStorage.getItem('capibee_businesses');
+      if (savedBusinesses) setBusinesses(JSON.parse(savedBusinesses));
+      
+      const savedUsers = localStorage.getItem('capibee_platform_users');
+      if (savedUsers) setPlatformUsers(JSON.parse(savedUsers));
 
-    // Load current user
-    const savedUser = localStorage.getItem('capibee_user');
-    if (savedUser) setCurrentUser(JSON.parse(savedUser));
+      const savedUser = localStorage.getItem('capibee_user');
+      if (savedUser) setCurrentUser(JSON.parse(savedUser));
+    } catch(e) {}
     
+    const timer = setTimeout(() => setIsTableLoading(false), 2000);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {

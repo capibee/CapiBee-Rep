@@ -118,20 +118,29 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
   const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("capibee_user");
-    if (savedUser) {
-      setCurrentUser(JSON.parse(savedUser));
-    }
+    try {
+      const savedUser = localStorage.getItem("capibee_user");
+      if (savedUser) {
+        setCurrentUser(JSON.parse(savedUser));
+      }
+    } catch(e){}
 
-    const saved = localStorage.getItem("capibee_clientes");
-    if (saved) {
-      setClientes(JSON.parse(saved));
-    }
+    try {
+      const saved = localStorage.getItem("capibee_clientes");
+      if (saved) {
+        setClientes(JSON.parse(saved));
+      }
+    } catch(e){}
 
-    const savedBusinesses = localStorage.getItem("capibee_businesses");
-    if (savedBusinesses) {
-      setBusinesses(JSON.parse(savedBusinesses));
-    }
+    try {
+      const savedBusinesses = localStorage.getItem("capibee_businesses");
+      if (savedBusinesses) {
+        setBusinesses(JSON.parse(savedBusinesses));
+      }
+    } catch(e) {}
+    
+    const timer = setTimeout(() => setIsTableLoading(false), 2000);
+    return () => clearTimeout(timer);
   }, []);
 
   // Connect to Supabase for dynamic data and real-time subscription

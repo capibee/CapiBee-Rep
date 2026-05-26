@@ -98,14 +98,25 @@ export default function Asuntos({ onBack }: AsuntosProps) {
   const [isAsuntoDragOver, setIsAsuntoDragOver] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem("capibee_asuntos");
-    if (saved) setAsuntos(JSON.parse(saved));
-    const savedB = localStorage.getItem("capibee_businesses");
-    if (savedB) setBusinesses(JSON.parse(savedB));
-    const savedPropuestas = localStorage.getItem("capibee_propuestas");
-    if (savedPropuestas) setPropuestas(JSON.parse(savedPropuestas));
+    try {
+      const saved = localStorage.getItem("capibee_asuntos");
+      if (saved) setAsuntos(JSON.parse(saved));
+    } catch(e) {}
+    
+    try {
+      const savedB = localStorage.getItem("capibee_businesses");
+      if (savedB) setBusinesses(JSON.parse(savedB));
+    } catch(e) {}
+    
+    try {
+      const savedPropuestas = localStorage.getItem("capibee_propuestas");
+      if (savedPropuestas) setPropuestas(JSON.parse(savedPropuestas));
+    } catch(e) {}
 
     fetchFreshData();
+
+    const timer = setTimeout(() => setIsTableLoading(false), 2000);
+    return () => clearTimeout(timer);
   }, []);
 
   const fetchFreshData = async () => {
@@ -533,7 +544,13 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                         <TableLoader />
                       </td>
                     </tr>
-                ) : currentItems.length > 0 ? (
+                ) : currentItems.length === 0 ? (
+                    <tr>
+                      <td colSpan={10} className="py-12 text-center text-slate-500 font-medium bg-slate-900/20">
+                        Tabla sin datos
+                      </td>
+                    </tr>
+                ) : (
                     currentItems.map((a, index) => (
                         <tr key={`${a.id}-${index}`} className="hover:bg-slate-900/20 transition-colors">
                             <td className="py-2 px-4 text-center font-mono text-[10px] text-slate-500 select-none w-10">
@@ -557,10 +574,6 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                             </td>
                         </tr>
                     ))
-                ) : (
-                    <tr>
-                         <td colSpan={6} className="p-10 text-center text-slate-500">No se encontraron asuntos.</td>
-                    </tr>
                 )}
             </tbody>
           </table>

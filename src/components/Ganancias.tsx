@@ -197,20 +197,24 @@ export default function Ganancias({ user }: GananciasProps) {
       setAgentEarnings(earnings);
     }
     
-    const savedUsers = localStorage.getItem('capibee_platform_users');
-    if (savedUsers) setPlatformUsers(JSON.parse(savedUsers));
+    try {
+      const savedUsers = localStorage.getItem('capibee_platform_users');
+      if (savedUsers) setPlatformUsers(JSON.parse(savedUsers));
 
-    const savedBusinesses = localStorage.getItem('capibee_businesses');
-    if (savedBusinesses) setBusinesses(JSON.parse(savedBusinesses));
+      const savedBusinesses = localStorage.getItem('capibee_businesses');
+      if (savedBusinesses) setBusinesses(JSON.parse(savedBusinesses));
 
-    const savedClientes = localStorage.getItem('capibee_clientes');
-    if (savedClientes) setClientes(JSON.parse(savedClientes));
+      const savedClientes = localStorage.getItem('capibee_clientes');
+      if (savedClientes) setClientes(JSON.parse(savedClientes));
 
-    const savedAsuntos = localStorage.getItem('capibee_asuntos');
-    if (savedAsuntos) setAsuntos(JSON.parse(savedAsuntos));
+      const savedAsuntos = localStorage.getItem('capibee_asuntos');
+      if (savedAsuntos) setAsuntos(JSON.parse(savedAsuntos));
 
-    const savedPropuestas = localStorage.getItem('capibee_propuestas');
-    if (savedPropuestas) setPropuestas(JSON.parse(savedPropuestas));
+      const savedPropuestas = localStorage.getItem('capibee_propuestas');
+      if (savedPropuestas) setPropuestas(JSON.parse(savedPropuestas));
+    } catch(e) {}
+    
+    const timer = setTimeout(() => setIsTableLoading(false), 2000);
 
     // Connect to Supabase for dynamic data and real-time subscription
     const fetchFreshInvoiceData = async () => {
@@ -400,6 +404,7 @@ export default function Ganancias({ user }: GananciasProps) {
 
     return () => {
       supabase.removeChannel(invoicesChannel);
+      clearTimeout(timer);
     };
   }, []);
 

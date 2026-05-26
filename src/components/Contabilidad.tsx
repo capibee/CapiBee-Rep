@@ -78,52 +78,51 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
   const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('capibee_user');
-    if (savedUser) setCurrentUser(JSON.parse(savedUser));
-    
-    // Load businesses
-    const savedBusinesses = localStorage.getItem('capibee_businesses');
-    if (savedBusinesses) setBusinesses(JSON.parse(savedBusinesses));
+    try {
+      const savedUser = localStorage.getItem('capibee_user');
+      if (savedUser) setCurrentUser(JSON.parse(savedUser));
+      
+      const savedBusinesses = localStorage.getItem('capibee_businesses');
+      if (savedBusinesses) setBusinesses(JSON.parse(savedBusinesses));
 
-    // Load clients
-    const savedClientes = localStorage.getItem('capibee_clientes');
-    if (savedClientes) setClientes(JSON.parse(savedClientes));
+      const savedClientes = localStorage.getItem('capibee_clientes');
+      if (savedClientes) setClientes(JSON.parse(savedClientes));
 
-    // Load agent earnings
-    const savedEarnings = localStorage.getItem('capibee_agent_earnings');
-    if (savedEarnings) setAgentEarnings(JSON.parse(savedEarnings));
-    
-    // Load platform users
-    const savedUsers = localStorage.getItem('capibee_platform_users');
-    if (savedUsers) setPlatformUsers(JSON.parse(savedUsers));
+      const savedEarnings = localStorage.getItem('capibee_agent_earnings');
+      if (savedEarnings) setAgentEarnings(JSON.parse(savedEarnings));
+      
+      const savedUsers = localStorage.getItem('capibee_platform_users');
+      if (savedUsers) setPlatformUsers(JSON.parse(savedUsers));
 
-    const savedAsuntos = localStorage.getItem('capibee_asuntos');
-    if (savedAsuntos) setAsuntos(JSON.parse(savedAsuntos));
+      const savedAsuntos = localStorage.getItem('capibee_asuntos');
+      if (savedAsuntos) setAsuntos(JSON.parse(savedAsuntos));
 
-    const savedPropuestas = localStorage.getItem('capibee_propuestas');
-    if (savedPropuestas) setPropuestas(JSON.parse(savedPropuestas));
+      const savedPropuestas = localStorage.getItem('capibee_propuestas');
+      if (savedPropuestas) setPropuestas(JSON.parse(savedPropuestas));
 
-    // Load invoices
-    const savedInvoices = localStorage.getItem('capibee_invoices');
-    if (savedInvoices) {
-      const parsed = JSON.parse(savedInvoices);
-      setInvoices(parsed.map((inv: any, idx: number) => {
-        const migratedInv = {
-          ...inv,
-          invoiceNumber: inv.invoiceNumber || `INV-${(idx + 1).toString().padStart(3, '0')}`,
-          paidAmount: inv.paidAmount || 0,
-          status: inv.status || 'Pendiente'
-        };
-        if (!migratedInv.items) {
-          migratedInv.items = [{
-            description: inv.service || '',
-            quantity: inv.quantity || 0,
-            price: inv.priceUSD || 0
-          }];
-        }
-        return migratedInv;
-      }));
-    }
+      const savedInvoices = localStorage.getItem('capibee_invoices');
+      if (savedInvoices) {
+        const parsed = JSON.parse(savedInvoices);
+        setInvoices(parsed.map((inv: any, idx: number) => {
+          const migratedInv = {
+            ...inv,
+            invoiceNumber: inv.invoiceNumber || `INV-${(idx + 1).toString().padStart(3, '0')}`,
+            paidAmount: inv.paidAmount || 0,
+            status: inv.status || 'Pendiente'
+          };
+          if (!migratedInv.items) {
+            migratedInv.items = [{
+              description: inv.service || '',
+              quantity: inv.quantity || 0,
+              price: inv.priceUSD || 0
+            }];
+          }
+          return migratedInv;
+        }));
+      }
+    } catch(e) { console.error(e) }
+
+    const timer = setTimeout(() => setIsTableLoading(false), 2000);
 
     // Connect to Supabase for dynamic data and real-time subscription
     const fetchFreshInvoiceData = async () => {
@@ -295,6 +294,7 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
 
     return () => {
       supabase.removeChannel(invoicesChannel);
+      clearTimeout(timer);
     };
   }, []);
 

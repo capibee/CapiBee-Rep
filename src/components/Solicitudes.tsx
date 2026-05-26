@@ -17,10 +17,12 @@ export default function Solicitudes() {
 
   useEffect(() => {
     // 1. Load initially from localStorage for fast render
-    const saved = localStorage.getItem('capibee_solicitudes');
-    if (saved) {
-      setSolicitudes(JSON.parse(saved));
-    }
+    try {
+      const saved = localStorage.getItem('capibee_solicitudes');
+      if (saved) {
+        setSolicitudes(JSON.parse(saved));
+      }
+    } catch(e) {}
 
     // 2. Fetch fresh from Supabase
     const fetchSolicitudes = async () => {
@@ -56,6 +58,8 @@ export default function Solicitudes() {
     };
     fetchSolicitudes();
 
+    const timer = setTimeout(() => setIsTableLoading(false), 2000);
+
     // 3. Subscribe to real-time changes
     const channel = supabase.channel('schema-db-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'solicitudes' }, (payload) => {
@@ -65,6 +69,7 @@ export default function Solicitudes() {
 
     return () => {
       supabase.removeChannel(channel);
+      clearTimeout(timer);
     };
   }, []);
 

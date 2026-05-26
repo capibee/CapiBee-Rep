@@ -80,10 +80,12 @@ export default function Agentes({ onLogout, onBack }: AgentesProps) {
 
   useEffect(() => {
     setMounted(true);
-    const stored = localStorage.getItem('capibee_businesses');
-    if (stored) {
-      setBusinesses(JSON.parse(stored));
-    }
+    try {
+      const stored = localStorage.getItem('capibee_businesses');
+      if (stored) {
+        setBusinesses(JSON.parse(stored));
+      }
+    } catch(e) {}
     const timer = setTimeout(() => setIsTableLoading(false), 800);
     return () => clearTimeout(timer);
   }, []);

@@ -85,13 +85,17 @@ export default function UsuariosRoles({}: UsuariosRolesProps) {
 
   useEffect(() => {
     // 1. Load initially from localStorage for fast render
-    const savedUsers = localStorage.getItem('capibee_platform_users');
-    const savedRoles = localStorage.getItem('capibee_platform_roles');
-    const savedSolicitudes = localStorage.getItem('capibee_solicitudes');
-    
-    if (savedUsers) setUsers(JSON.parse(savedUsers));
-    if (savedRoles) setRoles(JSON.parse(savedRoles));
-    if (savedSolicitudes) setSolicitudes(JSON.parse(savedSolicitudes));
+    try {
+      const savedUsers = localStorage.getItem('capibee_platform_users');
+      const savedRoles = localStorage.getItem('capibee_platform_roles');
+      const savedSolicitudes = localStorage.getItem('capibee_solicitudes');
+      
+      if (savedUsers) setUsers(JSON.parse(savedUsers));
+      if (savedRoles) setRoles(JSON.parse(savedRoles));
+      if (savedSolicitudes) setSolicitudes(JSON.parse(savedSolicitudes));
+    } catch(e){}
+
+    const timer = setTimeout(() => setIsTableLoading(false), 2000);
 
     // 2. Fetch fresh roles from Supabase
     const fetchRoles = async () => {
@@ -202,6 +206,7 @@ export default function UsuariosRoles({}: UsuariosRolesProps) {
       supabase.removeChannel(rolesChannel);
       supabase.removeChannel(usersChannel);
       supabase.removeChannel(solsChannel);
+      clearTimeout(timer);
     };
   }, []);
 
