@@ -2712,7 +2712,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                   <div className="grid grid-cols-1 gap-6">
                     <div className="space-y-1">
                       <label className="block text-xs font-bold text-slate-400">
-                        Razón Social o Nombre Comercial
+                        Nombre empresa
                       </label>
                       <input
                         required
@@ -2726,7 +2726,163 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                         }
                       />
                     </div>
+                    
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="block text-xs font-bold text-slate-400">
+                          País
+                        </label>
+                        <select
+                          required
+                          className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 cursor-pointer text-xs font-medium shadow-inner disabled:opacity-50 disabled:cursor-not-allowed"
+                          value={formData.country}
+                          disabled={!!editingBusiness}
+                          onChange={(e) => {
+                            const selectedCountry = e.target.value;
+                            const autoPrefix = COUNTRY_PREFIXES[selectedCountry] || "";
+                            setFormData({
+                              ...formData,
+                              country: selectedCountry,
+                              city: "",
+                              prefix: autoPrefix,
+                            });
+                          }}
+                        >
+                          <option value="" disabled>Seleccionar...</option>
+                          {COUNTRIES.map((country) => (
+                            <option key={country} value={country}>
+                              {COUNTRY_FLAGS[country]} {country}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="block text-xs font-bold text-slate-400">
+                          Ciudad
+                        </label>
+                        <select
+                          required
+                          disabled={!formData.country || !!editingBusiness}
+                          className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium shadow-inner"
+                          value={formData.city || ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              city: e.target.value,
+                            })
+                          }
+                        >
+                          <option value="" disabled>
+                            {formData.country ? "Seleccionar..." : "..."}
+                          </option>
+                          {formData.country &&
+                            LOCATION_DATA[formData.country]?.map((city) => (
+                              <option key={city} value={city}>{city}</option>
+                            ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-12 gap-3">
+                      <div className="col-span-4 space-y-1">
+                        <label className="block text-xs font-bold text-slate-400">
+                          Prefijo
+                        </label>
+                        <select
+                          required
+                          className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 cursor-pointer font-mono text-[11px] shadow-inner"
+                          value={formData.prefix}
+                          onChange={(e) =>
+                            setFormData({ ...formData, prefix: e.target.value })
+                          }
+                        >
+                          <option value="" disabled>...</option>
+                          {Array.from(new Set(Object.values(COUNTRY_PREFIXES))).map((prefix) => (
+                            <option key={prefix} value={prefix}>{prefix}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="col-span-8 space-y-1">
+                        <label className="block text-xs font-bold text-slate-400">
+                          Teléfono Empresa
+                        </label>
+                        <input
+                          required
+                          type="tel"
+                          placeholder="300 000 0000"
+                          className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 font-mono text-[11px] shadow-inner"
+                          value={formData.phone}
+                          onChange={(e) =>
+                            setFormData({ ...formData, phone: e.target.value })
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="block text-xs font-bold text-slate-400">
+                          Nombre contacto
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Nombre de la persona"
+                          className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all font-medium text-xs shadow-inner"
+                          value={formData.contactName || ""}
+                          onChange={(e) =>
+                            setFormData({ ...formData, contactName: e.target.value })
+                          }
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="block text-xs font-bold text-slate-400">
+                          Teléfono contacto
+                        </label>
+                        <input
+                          type="tel"
+                          placeholder="Número del contacto..."
+                          className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 font-mono text-[11px] shadow-inner"
+                          value={formData.responsiblePhone}
+                          onChange={(e) =>
+                            setFormData({ ...formData, responsiblePhone: e.target.value })
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="block text-xs font-bold text-slate-400">
+                          Estado
+                        </label>
+                        <select
+                          className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 cursor-pointer text-xs font-medium shadow-inner"
+                          value={formData.status}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              status: e.target.value as Business["status"],
+                            })
+                          }
+                        >
+                          <optgroup label="Contactabilidad">
+                            {STATUSES["Contactabilidad"].map((s) => (
+                              <option key={s} value={s}>{s}</option>
+                            ))}
+                          </optgroup>
+                          <optgroup label="Gestión">
+                            {STATUSES["Gestión"].map((s) => (
+                              <option key={s} value={s}>{s}</option>
+                            ))}
+                          </optgroup>
+                          <optgroup label="Cierre">
+                            {STATUSES["Cierre"].map((s) => (
+                              <option key={s} value={s}>{s}</option>
+                            ))}
+                          </optgroup>
+                        </select>
+                      </div>
+
                       <div className="space-y-1">
                         <label className="block text-xs font-bold text-slate-400">
                           Sector Industrial
@@ -2749,209 +2905,35 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                           ))}
                         </select>
                       </div>
-                      <div className="space-y-1">
-                        <label className="block text-xs font-bold text-slate-400">
-                          Nombre del Contacto
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="Nombre de la persona"
-                          className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all font-medium text-xs shadow-inner"
-                          value={formData.contactName || ""}
-                          onChange={(e) =>
-                            setFormData({ ...formData, contactName: e.target.value })
-                          }
-                        />
-                      </div>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                    <div className="grid grid-cols-1 gap-3">
                       <div className="space-y-1">
                         <label className="block text-xs font-bold text-slate-400">
-                          País
+                          Nombre Asignado
                         </label>
                         <select
                           required
-                          className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 cursor-pointer text-xs font-medium shadow-inner disabled:opacity-50 disabled:cursor-not-allowed"
-                          value={formData.country}
-                          disabled={!!editingBusiness}
-                          onChange={(e) => {
-                            const selectedCountry = e.target.value;
-                            const autoPrefix = COUNTRY_PREFIXES[selectedCountry] || "";
-                            setFormData({
-                              ...formData,
-                              country: selectedCountry,
-                              city: "",
-                              prefix: autoPrefix,
-                            });
-                          }}
-                        >
-                          <option value="" disabled>
-                            Seleccionar...
-                          </option>
-                          {COUNTRIES.map((country) => (
-                            <option key={country} value={country}>
-                              {COUNTRY_FLAGS[country]} {country}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="space-y-1">
-                        <label className="block text-xs font-bold text-slate-400">
-                          Estado / Ciudad
-                        </label>
-                        <select
-                          required
-                          disabled={!formData.country || !!editingBusiness}
-                          className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium shadow-inner"
-                          value={formData.city || ""}
+                          className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 font-medium text-xs shadow-inner cursor-pointer"
+                          value={formData.responsibleName}
                           onChange={(e) =>
                             setFormData({
                               ...formData,
-                              city: e.target.value,
+                              responsibleName: e.target.value,
                             })
                           }
                         >
-                          <option value="" disabled>
-                            {formData.country ? "Seleccionar..." : "..."}
-                          </option>
-                          {formData.country &&
-                            LOCATION_DATA[formData.country]?.map((city) => (
-                              <option key={city} value={city}>
-                                {city}
+                          <option value="" disabled>Seleccionar ejecutivo...</option>
+                          {platformUsers
+                            .filter(u => u.roleName?.toLowerCase().includes('comercial') || u.roleName?.toLowerCase() === 'superadmin' || u.roleName?.toLowerCase().includes('admin'))
+                            .map(u => (
+                              <option key={u.id} value={u.fullName}>
+                                {u.fullName}
                               </option>
-                            ))}
+                            ))
+                          }
                         </select>
                       </div>
-                    </div>
-
-                    <div className="grid grid-cols-12 gap-3">
-                      <div className="col-span-4 space-y-1">
-                        <label className="block text-xs font-bold text-slate-400">
-                          Prefijo
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="+57"
-                          className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 font-mono text-[11px] shadow-inner"
-                          value={formData.prefix}
-                          onChange={(e) =>
-                            setFormData({ ...formData, prefix: e.target.value })
-                          }
-                        />
-                      </div>
-                      <div className="col-span-8 space-y-1">
-                        <label className="block text-xs font-bold text-slate-400">
-                          Teléfono Empresa
-                        </label>
-                        <input
-                          required
-                          type="tel"
-                          placeholder="300 000 0000"
-                          className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 font-mono text-[11px] shadow-inner"
-                          value={formData.phone}
-                          onChange={(e) =>
-                            setFormData({ ...formData, phone: e.target.value })
-                          }
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="space-y-1">
-                        <label className="block text-xs font-bold text-amber-500/90 flex gap-1 items-center">
-                          <UserIcon size={12} />
-                          Teléfono Contacto (Tomador)
-                        </label>
-                        <input
-                          type="tel"
-                          placeholder="Número del contacto..."
-                          className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 font-mono text-[11px] shadow-inner"
-                          value={formData.responsiblePhone}
-                          onChange={(e) =>
-                            setFormData({ ...formData, responsiblePhone: e.target.value })
-                          }
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="block text-xs font-bold text-slate-400">
-                          Whatsapp
-                        </label>
-                        <input
-                          type="tel"
-                          placeholder="Número alternativo (Opcional)..."
-                          className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 font-mono text-[11px] shadow-inner"
-                          value={formData.whatsapp}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              whatsapp: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="block text-xs font-bold text-slate-400">
-                          Estado
-                        </label>
-                        <select
-                          className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 cursor-pointer text-xs font-medium shadow-inner"
-                          value={formData.status}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              status: e.target.value as Business["status"],
-                            })
-                          }
-                        >
-                          <optgroup label="Contactabilidad">
-                            {STATUSES["Contactabilidad"].map((s) => (
-                              <option key={s} value={s}>
-                                {s}
-                              </option>
-                            ))}
-                          </optgroup>
-                          <optgroup label="Gestión">
-                            {STATUSES["Gestión"].map((s) => (
-                              <option key={s} value={s}>
-                                {s}
-                              </option>
-                            ))}
-                          </optgroup>
-                          <optgroup label="Cierre">
-                            {STATUSES["Cierre"].map((s) => (
-                              <option key={s} value={s}>
-                                {s}
-                              </option>
-                            ))}
-                          </optgroup>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="block text-xs font-bold text-slate-400">
-                      Nombre Asignado
-                    </label>
-                    <div className="relative">
-                      <UserIcon
-                        className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"
-                        size={14}
-                      />
-                      <input
-                        required
-                        type="text"
-                        placeholder="Gestor asignado..."
-                        className="w-full pl-9 pr-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 font-medium text-xs shadow-inner disabled:opacity-50 disabled:cursor-not-allowed"
-                        value={formData.responsibleName}
-                        disabled={true}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            responsibleName: e.target.value,
-                          })
-                        }
-                      />
                     </div>
                   </div>
                 </form>
