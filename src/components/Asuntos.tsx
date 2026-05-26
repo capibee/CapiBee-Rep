@@ -297,7 +297,8 @@ export default function Asuntos({ onBack }: AsuntosProps) {
       const matchesSearch = 
         a.nombreAsunto.toLowerCase().includes(searchTerm.toLowerCase()) || 
         businessName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        a.id.toLowerCase().includes(searchTerm.toLowerCase());
+        a.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        new Date(a.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).split('/').join('').includes(searchTerm.toLowerCase());
       const matchesClient = clientFilter === "" || businessName === clientFilter;
       
       if (!matchesSearch || !matchesClient) return false;

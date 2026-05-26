@@ -519,7 +519,8 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
         (c.contactName.toLowerCase().includes(searchTerm.toLowerCase()) ||
           (c.companyName || "")
             .toLowerCase()
-            .includes(searchTerm.toLowerCase())) &&
+            .includes(searchTerm.toLowerCase()) ||
+          c.id.toLowerCase().includes(searchTerm.toLowerCase())) &&
         (countryFilter === "" ||
           (c.country || "")
             .toLowerCase()
