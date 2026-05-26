@@ -342,22 +342,76 @@ export default function Propuestas({ onBack }: PropuestasProps) {
 
   const handleAutoCreateClient = async (asuntoId: string) => {
     try {
-      const relatedAsunto = asuntos.find((a: Asunto) => a.id === asuntoId);
+      console.log("Iniciando creación automática de cliente para asuntoId:", asuntoId);
+      
+      // Intentar encontrar el asunto en memoria, con fallback en base de datos remota si no está disponible
+      let relatedAsunto = asuntos.find((a: Asunto) => a.id === asuntoId);
+      if (!relatedAsunto) {
+         console.warn("Asunto no encontrado en el estado local, buscando en Supabase...");
+         try {
+           const { data, error } = await supabase.from('asuntos').select('*').eq('id', asuntoId).maybeSingle();
+           if (!error && data) {
+             relatedAsunto = {
+               id: data.id,
+               nombreAsunto: data.nombre_asunto,
+               businessId: data.business_id,
+               fecha: data.fecha || '',
+               userId: data.user_id || '',
+               datosAsunto: '',
+               createdAt: Number(data.created_at) || 0,
+               contactName: data.contact_name || '',
+               contactPhone: data.contact_phone || ''
+             };
+           }
+         } catch(err) {
+           console.warn("Error al buscar asunto en BD:", err);
+         }
+      }
+
+      console.log("Asunto obtenido:", relatedAsunto);
+
+      // Intentar encontrar los datos de la empresa (business) en memoria, con fallback en la base de datos
       let businessData: any = null;
       if (relatedAsunto?.businessId) {
-        const { data, error } = await supabase
-          .from('businesses')
-          .select('*')
-          .eq('id', relatedAsunto.businessId)
-          .maybeSingle();
-        if (!error && data) {
-          businessData = data;
+        // Fallback local primero
+        const localBus = businesses.find((b: any) => b.id === relatedAsunto.businessId);
+        if (localBus) {
+          businessData = {
+            id: localBus.id,
+            name: localBus.name,
+            contact_name: localBus.contactName,
+            email: localBus.email || "",
+            country: localBus.country || "",
+            address: localBus.address || "",
+            category: localBus.category || "",
+            phone: localBus.phone || localBus.contactPhone || "",
+            user_id: localBus.userId || null
+          };
+        }
+
+        try {
+          const { data, error } = await supabase
+            .from('businesses')
+            .select('*')
+            .eq('id', relatedAsunto.businessId)
+            .maybeSingle();
+          if (!error && data) {
+            businessData = { ...businessData, ...data };
+          }
+        } catch (err) {
+          console.warn("No se pudo obtener datos remotos de business, se usará local si existe:", err);
         }
       }
 
-      // Check if client with this name or business already exists to avoid duplicates
+      console.log("Datos de empresa obtenidos:", businessData);
+
+      // Obtener el nombre para el cliente
       const nameToCompare = businessData?.name || relatedAsunto?.nombreAsunto || "";
-      if (!nameToCompare) return;
+      if (!nameToCompare) {
+        console.warn("No se pudo determinar el nombre del cliente.");
+        alert("⚠️ No se puede registrar el cliente porque el asunto o nombre de la empresa están vacíos.");
+        return;
+      }
 
       let existingClients: Client[] = [];
       try {
@@ -365,18 +419,40 @@ export default function Propuestas({ onBack }: PropuestasProps) {
         if (saved) existingClients = JSON.parse(saved);
       } catch (_) {}
 
+      // Verificación inteligente de duplicados para evitar falsos positivos
       const nameLower = nameToCompare.trim().toLowerCase();
-      const alreadyExists = existingClients.some((c: Client) => 
-        (c.companyName || "").trim().toLowerCase() === nameLower ||
-        (c.contactName || "").trim().toLowerCase() === (businessData?.contact_name || relatedAsunto?.contactName || "").trim().toLowerCase()
-      );
+      const alreadyExists = existingClients.some((c: Client) => {
+        const cCompany = (c.companyName || "").trim().toLowerCase();
+        const nCompany = nameLower;
+        const cContact = (c.contactName || "").trim().toLowerCase();
+        const nContact = (businessData?.contact_name || relatedAsunto?.contactName || "").trim().toLowerCase();
+
+        // Si coinciden los nombres de la empresa exactamente
+        if (cCompany && nCompany && cCompany === nCompany) {
+          return true;
+        }
+
+        // Si coinciden los nombres de contacto pero sólo si NO son valores por defecto genéricos
+        const isDefault = (name: string) => !name || name === "" || name === "contacto pendiente" || name === "—" || name === "desconocido" || name === "pendiente";
+        if (!isDefault(cContact) && !isDefault(nContact) && cContact === nContact) {
+          return true;
+        }
+
+        return false;
+      });
 
       if (alreadyExists) {
-        console.log("Client already exists, skipped automatic creation.");
+        console.log("El cliente ya existe, se omite creación automática.");
+        alert("ℹ️ El cliente \"" + nameToCompare + "\" ya se encuentra registrado en el módulo de clientes.");
         return;
       }
 
-      // Generate a new Client object
+      // Validar integridad del userId para evitar violaciones de clave foránea en la base de datos
+      const potentialUserId = relatedAsunto?.userId || businessData?.user_id || currentUser?.id || null;
+      const userExistsInDb = potentialUserId && platformUsers.some((u: any) => u.id === potentialUserId);
+      const safeUserId = userExistsInDb ? potentialUserId : null;
+
+      // Generar el objeto de tipo Cliente
       const newClient: Client = {
         id: crypto.randomUUID(),
         type: 'Empresa',
@@ -390,10 +466,12 @@ export default function Propuestas({ onBack }: PropuestasProps) {
         sector: businessData?.category || "",
         phone: businessData?.phone || businessData?.contact_phone || relatedAsunto?.contactPhone || "",
         createdAt: Date.now(),
-        userId: relatedAsunto?.userId || businessData?.user_id || currentUser?.id || null
+        userId: safeUserId
       };
 
-      // 1. Save to Supabase
+      console.log("Guardando cliente creado:", newClient);
+
+      // 1. Guardar en Supabase
       const { error } = await supabase.from('clients').insert({
         id: newClient.id,
         type: newClient.type,
@@ -410,16 +488,32 @@ export default function Propuestas({ onBack }: PropuestasProps) {
         user_id: newClient.userId
       });
 
-      if (error && error.code !== '42P01') {
-        console.error("Error creating client in Supabase:", error);
+      if (error) {
+        if (error.code === '42P01') {
+          console.error("La tabla 'clients' no existe en Supabase:", error);
+          alert("⚠️ El cliente \"" + newClient.companyName + "\" se guardó LOCALMENTE en la memoria de tu navegador, pero no se pudo sincronizar en la nube porque falta crear la tabla 'clients' en tu base de datos de Supabase.\n\nPor favor, ejecuta el script SQL que te proporcionará el asistente en la consola de Supabase.");
+          
+          // Guardar localmente
+          const updatedClients = [newClient, ...existingClients];
+          localStorage.setItem("capibee_clientes", JSON.stringify(updatedClients));
+        } else {
+          console.error("Error al crear cliente en Supabase:", error);
+          alert("Error al guardar cliente en Supabase: " + error.message);
+          
+          // Fallback guardar localmente de todas formas para no perder el dato
+          const updatedClients = [newClient, ...existingClients];
+          localStorage.setItem("capibee_clientes", JSON.stringify(updatedClients));
+        }
       } else {
-        // 2. Save/update local Storage list
+        // 2. Guardar en LocalStorage si no hubo errores en Supabase
         const updatedClients = [newClient, ...existingClients];
         localStorage.setItem("capibee_clientes", JSON.stringify(updatedClients));
-        console.log("Automatically created client successfully:", newClient);
+        console.log("Cliente creado automáticamente de forma exitosa:", newClient);
+        alert("🎉 ¡Cliente registrado exitosamente!\nSe ha creado el cliente \"" + newClient.companyName + "\" en el módulo de clientes.");
       }
-    } catch (e) {
-      console.error("Failed to automatically create client from proposal acceptance:", e);
+    } catch (e: any) {
+      console.error("Error inesperado en handleAutoCreateClient:", e);
+      alert("Error inesperado al intentar crear el cliente automáticamente: " + (e.message || e));
     }
   };
 
