@@ -423,14 +423,14 @@ export default function Asuntos({ onBack }: AsuntosProps) {
           <button 
             type="button"
             onClick={() => toggleKpi("totalPotenciales")}
-            className={`p-4 rounded-xl text-left transition-all duration-200 border cursor-pointer select-none relative overflow-hidden group ${
+            className={`p-3 rounded-xl text-left transition-all duration-200 border cursor-pointer select-none relative overflow-hidden group ${
               selectedKpis.length === 0 || selectedKpis.includes("totalPotenciales")
                 ? "bg-yellow-400/10 border-yellow-400/60 shadow-lg shadow-yellow-400/5 ring-1 ring-yellow-400/30 scale-[1.02]"
                 : "bg-slate-900/30 border-slate-800/80 hover:border-slate-700/80 opacity-70 hover:opacity-100 hover:bg-slate-900/40"
             }`}
           >
-              <div className="text-xs text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">AP Total</div>
-              <div className="text-3xl text-yellow-400 font-black flex items-center justify-between">
+              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">AP Total</div>
+              <div className="text-2xl text-yellow-400 font-black flex items-center justify-between">
                 <span>{kpis.totalPotenciales}</span>
                 {(selectedKpis.length === 0 || selectedKpis.includes("totalPotenciales")) && (
                   <span className="w-2 h-2 rounded-full bg-yellow-400 block animate-pulse"></span>
@@ -441,14 +441,14 @@ export default function Asuntos({ onBack }: AsuntosProps) {
           <button 
             type="button"
             onClick={() => toggleKpi("ytd")}
-            className={`p-4 rounded-xl text-left transition-all duration-200 border cursor-pointer select-none relative overflow-hidden group ${
+            className={`p-3 rounded-xl text-left transition-all duration-200 border cursor-pointer select-none relative overflow-hidden group ${
               selectedKpis.includes("ytd")
                 ? "bg-yellow-400/10 border-yellow-400/60 shadow-lg shadow-yellow-400/5 ring-1 ring-yellow-400/30 scale-[1.02]"
                 : "bg-slate-900/30 border-slate-800/80 hover:border-slate-700/80 opacity-70 hover:opacity-100 hover:bg-slate-900/40"
             }`}
           >
-              <div className="text-xs text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">AP YTD "{yearFilter || dateBounds.currentYear}"</div>
-              <div className="text-3xl text-yellow-400 font-black flex items-center justify-between">
+              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">AP YTD "{yearFilter || dateBounds.currentYear}"</div>
+              <div className="text-2xl text-yellow-400 font-black flex items-center justify-between">
                 <span>{kpis.totalYTD}</span>
                 {selectedKpis.includes("ytd") && (
                   <span className="w-2 h-2 rounded-full bg-yellow-400 block animate-pulse"></span>
@@ -459,14 +459,14 @@ export default function Asuntos({ onBack }: AsuntosProps) {
           <button 
             type="button"
             onClick={() => toggleKpi("mes")}
-            className={`p-4 rounded-xl text-left transition-all duration-200 border cursor-pointer select-none relative overflow-hidden group ${
+            className={`p-3 rounded-xl text-left transition-all duration-200 border cursor-pointer select-none relative overflow-hidden group ${
               selectedKpis.includes("mes")
                 ? "bg-yellow-400/10 border-yellow-400/60 shadow-lg shadow-yellow-400/5 ring-1 ring-yellow-400/30 scale-[1.02]"
                 : "bg-slate-900/30 border-slate-800/80 hover:border-slate-700/80 opacity-70 hover:opacity-100 hover:bg-slate-900/40"
             }`}
           >
-              <div className="text-xs text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">AP mes</div>
-              <div className="text-3xl text-yellow-400 font-black flex items-center justify-between">
+              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">AP mes</div>
+              <div className="text-2xl text-yellow-400 font-black flex items-center justify-between">
                 <span>{kpis.totalMonth}</span>
                 {selectedKpis.includes("mes") && (
                   <span className="w-2 h-2 rounded-full bg-yellow-400 block animate-pulse"></span>
@@ -477,14 +477,14 @@ export default function Asuntos({ onBack }: AsuntosProps) {
           <button 
             type="button"
             onClick={() => toggleKpi("quincena")}
-            className={`p-4 rounded-xl text-left transition-all duration-200 border cursor-pointer select-none relative overflow-hidden group ${
+            className={`p-3 rounded-xl text-left transition-all duration-200 border cursor-pointer select-none relative overflow-hidden group ${
               selectedKpis.includes("quincena")
                 ? "bg-yellow-400/10 border-yellow-400/60 shadow-lg shadow-yellow-400/5 ring-1 ring-yellow-400/30 scale-[1.02]"
                 : "bg-slate-900/30 border-slate-800/80 hover:border-slate-700/80 opacity-70 hover:opacity-100 hover:bg-slate-900/40"
             }`}
           >
-              <div className="text-xs text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">AP Periodo ({fortnightRangeStr})</div>
-              <div className="text-3xl text-yellow-400 font-black flex items-center justify-between">
+              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">AP Periodo ({fortnightRangeStr})</div>
+              <div className="text-2xl text-yellow-400 font-black flex items-center justify-between">
                 <span>{kpis.totalFortnight}</span>
                 {selectedKpis.includes("quincena") && (
                   <span className="w-2 h-2 rounded-full bg-yellow-400 block animate-pulse"></span>
@@ -495,14 +495,14 @@ export default function Asuntos({ onBack }: AsuntosProps) {
           <button 
             type="button"
             onClick={() => toggleKpi("semanal")}
-            className={`p-4 rounded-xl text-left transition-all duration-200 border cursor-pointer select-none relative overflow-hidden group ${
+            className={`p-3 rounded-xl text-left transition-all duration-200 border cursor-pointer select-none relative overflow-hidden group ${
               selectedKpis.includes("semanal")
                 ? "bg-yellow-400/10 border-yellow-400/60 shadow-lg shadow-yellow-400/5 ring-1 ring-yellow-400/30 scale-[1.02]"
                 : "bg-slate-900/30 border-slate-800/80 hover:border-slate-700/80 opacity-70 hover:opacity-100 hover:bg-slate-900/40"
             }`}
           >
-              <div className="text-xs text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">AP Semana</div>
-              <div className="text-3xl text-yellow-400 font-black flex items-center justify-between">
+              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">AP Semana</div>
+              <div className="text-2xl text-yellow-400 font-black flex items-center justify-between">
                 <span>{kpis.totalWeek}</span>
                 {selectedKpis.includes("semanal") && (
                   <span className="w-2 h-2 rounded-full bg-yellow-400 block animate-pulse"></span>
