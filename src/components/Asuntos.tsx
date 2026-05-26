@@ -294,7 +294,10 @@ export default function Asuntos({ onBack }: AsuntosProps) {
       if (canViewAll && executiveFilter !== "" && a.userId !== executiveFilter) return false;
 
       const businessName = businesses.find(b => b.id === a.businessId)?.name || "";
-      const matchesSearch = a.nombreAsunto.toLowerCase().includes(searchTerm.toLowerCase()) || businessName.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch = 
+        a.nombreAsunto.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        businessName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        a.id.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesClient = clientFilter === "" || businessName === clientFilter;
       
       if (!matchesSearch || !matchesClient) return false;
@@ -510,7 +513,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
       <div className="flex flex-col md:flex-row gap-2 mb-2">
         <div className="relative flex-grow">
             <Search className="absolute left-3 top-2.5 text-slate-600" size={14}/>
-            <input type="text" placeholder="Buscar por nombre..." className="bg-slate-900/30 border border-slate-800 rounded-lg p-2 pl-9 text-slate-200 text-sm w-full focus:ring-1 focus:ring-yellow-500/50 outline-none transition-all placeholder:text-slate-600" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}/>
+            <input type="text" placeholder="Buscar por ID o Empresa..." className="bg-slate-900/30 border border-slate-800 rounded-lg p-2 pl-9 text-slate-200 text-sm w-full focus:ring-1 focus:ring-yellow-500/50 outline-none transition-all placeholder:text-slate-600" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}/>
         </div>
         <select className="bg-slate-900/30 border border-slate-800 rounded-lg p-2 text-slate-300 text-sm outline-none focus:ring-1 focus:ring-yellow-500/50" value={clientFilter} onChange={e => setClientFilter(e.target.value)}>
             <option value="">Todos los contactos</option>
