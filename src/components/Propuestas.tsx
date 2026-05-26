@@ -12,7 +12,7 @@ import {
   RefreshCw
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { Asunto, Propuesta, Business } from "../types";
+import { Asunto, Propuesta, Business, Client } from "../types";
 import { supabase } from "../lib/supabase";
 import { Pagination } from "./Pagination";
 import { TableLoader } from "./TableLoader";
@@ -334,6 +334,89 @@ export default function Propuestas({ onBack }: PropuestasProps) {
     }
   };
 
+  const handleAutoCreateClient = async (asuntoId: string) => {
+    try {
+      const relatedAsunto = asuntos.find((a: Asunto) => a.id === asuntoId);
+      let businessData: any = null;
+      if (relatedAsunto?.businessId) {
+        const { data, error } = await supabase
+          .from('businesses')
+          .select('*')
+          .eq('id', relatedAsunto.businessId)
+          .maybeSingle();
+        if (!error && data) {
+          businessData = data;
+        }
+      }
+
+      // Check if client with this name or business already exists to avoid duplicates
+      const nameToCompare = businessData?.name || relatedAsunto?.nombreAsunto || "";
+      if (!nameToCompare) return;
+
+      let existingClients: Client[] = [];
+      try {
+        const saved = localStorage.getItem("capibee_clientes");
+        if (saved) existingClients = JSON.parse(saved);
+      } catch (_) {}
+
+      const nameLower = nameToCompare.trim().toLowerCase();
+      const alreadyExists = existingClients.some((c: Client) => 
+        (c.companyName || "").trim().toLowerCase() === nameLower ||
+        (c.contactName || "").trim().toLowerCase() === (businessData?.contact_name || relatedAsunto?.contactName || "").trim().toLowerCase()
+      );
+
+      if (alreadyExists) {
+        console.log("Client already exists, skipped automatic creation.");
+        return;
+      }
+
+      // Generate a new Client object
+      const newClient: Client = {
+        id: crypto.randomUUID(),
+        type: 'Empresa',
+        companyName: nameToCompare,
+        contactName: businessData?.contact_name || relatedAsunto?.contactName || businessData?.responsible_name || "Contacto Pendiente",
+        email: businessData?.email || "",
+        language: 'Español',
+        currency: 'USD',
+        country: businessData?.country || "",
+        address: businessData?.address || "",
+        sector: businessData?.category || "",
+        phone: businessData?.phone || businessData?.contact_phone || relatedAsunto?.contactPhone || "",
+        createdAt: Date.now(),
+        userId: relatedAsunto?.userId || businessData?.user_id || currentUser?.id || null
+      };
+
+      // 1. Save to Supabase
+      const { error } = await supabase.from('clients').insert({
+        id: newClient.id,
+        type: newClient.type,
+        company_name: newClient.companyName,
+        contact_name: newClient.contactName,
+        email: newClient.email,
+        language: newClient.language,
+        currency: newClient.currency,
+        country: newClient.country,
+        address: newClient.address,
+        sector: newClient.sector,
+        phone: newClient.phone,
+        created_at: newClient.createdAt,
+        user_id: newClient.userId
+      });
+
+      if (error && error.code !== '42P01') {
+        console.error("Error creating client in Supabase:", error);
+      } else {
+        // 2. Save/update local Storage list
+        const updatedClients = [newClient, ...existingClients];
+        localStorage.setItem("capibee_clientes", JSON.stringify(updatedClients));
+        console.log("Automatically created client successfully:", newClient);
+      }
+    } catch (e) {
+      console.error("Failed to automatically create client from proposal acceptance:", e);
+    }
+  };
+
   const executeStatusChange = async () => {
     if (!statusChangeConfirm) return;
     const { id, isAsunto, newStatus, asuntoId } = statusChangeConfirm;
@@ -373,6 +456,10 @@ export default function Propuestas({ onBack }: PropuestasProps) {
         if (error && error.code !== '42P01') {
           console.error("Error inserting proposal to Supabase:", error);
           alert("Error al guardar propuesta en base de datos: " + error.message);
+        } else {
+          if (newStatus === 'Aceptada') {
+            await handleAutoCreateClient(asuntoId);
+          }
         }
       } catch(e: any) { 
         console.error(e);
@@ -388,6 +475,10 @@ export default function Propuestas({ onBack }: PropuestasProps) {
         if (error && error.code !== '42P01') {
           console.error("Error updating status in Supabase:", error);
           alert("Error al actualizar estado en base de datos: " + error.message);
+        } else {
+          if (newStatus === 'Aceptada') {
+            await handleAutoCreateClient(asuntoId);
+          }
         }
       } catch (err: any) {
         console.error(err);
