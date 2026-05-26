@@ -1477,7 +1477,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                 </div>
                 <div>
                   <h3 className="font-display font-black text-white text-xs leading-none uppercase tracking-widest">
-                    Directorio de Empresas
+                    Directorio
                   </h3>
                   <p className="text-[8px] text-slate-500 font-bold mt-0.5 uppercase tracking-tighter">
                     Panel Centralizado
@@ -1667,7 +1667,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                     ) : currentItems.map((business, index) => (
                       <tr key={`${business.id}-${index}`} className="group transition-all">
                         <td className="px-2 py-1 bg-slate-950/40 rounded-l-lg border-y border-l border-amber-500/5 group-hover:bg-slate-800/40 transition-all font-mono text-[10px] text-slate-500 text-center select-none w-10">
-                          EMP{String((currentPage - 1) * itemsPerPage + index).padStart(3, '0')}
+                          EMP{String((currentPage - 1) * itemsPerPage + index).padStart(3, '0')}-{new Date(business.createdAt || Date.now()).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).split('/').join('')}
                         </td>
                         <td className="px-2 py-1.5 bg-slate-950/40 border-y border-amber-500/5 group-hover:bg-slate-800/40 transition-all z-10 relative">
                           <p className="font-bold text-slate-100 text-[11px] group-hover:text-amber-400 transition-colors">

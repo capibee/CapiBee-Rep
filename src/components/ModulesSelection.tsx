@@ -17,7 +17,7 @@ interface ModulesSelectionProps {
 const MODULES = [
   {
     id: 'registro_negocios',
-    title: 'Contactos',
+    title: 'Directorio',
     description: 'Gestión y administración integral de cuentas y contactos autorizados.',
     icon: Phone,
     active: true,

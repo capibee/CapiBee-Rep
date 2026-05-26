@@ -28,7 +28,7 @@ import { usePermissions } from '../hooks/usePermissions';
 import { supabase } from '../lib/supabase';
 
 const PLATFORM_MODULES = [
-  { id: 'registro_negocios', name: 'Contactos' },
+  { id: 'registro_negocios', name: 'Directorio' },
   { id: 'asuntos', name: 'Asuntos' },
   { id: 'propuestas', name: 'Propuestas' },
   { id: 'clientes', name: 'Clientes' },

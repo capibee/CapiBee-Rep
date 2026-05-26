@@ -133,7 +133,7 @@ export default function Layout({ children, activeModule, onSelectModule, onLogou
 
   const menuItems = [
     { id: null, label: 'Panel', icon: LayoutDashboard },
-    { id: 'registro_negocios', label: 'Contactos', icon: Phone },
+    { id: 'registro_negocios', label: 'Directorio', icon: Phone },
     { id: 'asuntos', label: 'Asuntos', icon: FileText },
     { id: 'propuestas', label: 'Propuestas', icon: ClipboardList },
     { id: 'clientes', label: 'Clientes', icon: Users },
@@ -415,7 +415,7 @@ export default function Layout({ children, activeModule, onSelectModule, onLogou
                 </button>
                 <div className="h-4 w-1 bg-yellow-400 rounded-full" />
                 <h2 className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.2em] text-amber-500/80 truncate max-w-[120px] xs:max-w-[180px] sm:max-w-none">
-                  {activeModule === 'registro_negocios' ? 'Contactos' : 
+                  {activeModule === 'registro_negocios' ? 'Directorio' : 
                    activeModule === 'asuntos' ? 'Asuntos' : 
                    activeModule === 'clientes' ? 'Clientes' :
                    activeModule === 'contabilidad' ? 'Facturas' :
