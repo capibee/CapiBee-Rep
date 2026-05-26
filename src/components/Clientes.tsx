@@ -143,6 +143,25 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
     return () => clearTimeout(timer);
   }, []);
 
+  // Autofill form when navigated with a pending client prefill
+  useEffect(() => {
+    try {
+      const prefillRaw = localStorage.getItem("capibee_pending_new_client_prefill");
+      if (prefillRaw) {
+        const prefill = JSON.parse(prefillRaw);
+        console.log("Detectado prefill de cliente pendiente para el formulario:", prefill);
+        setFormData((prev) => ({
+          ...prev,
+          ...prefill,
+        }));
+        setIsModalOpen(true);
+        localStorage.removeItem("capibee_pending_new_client_prefill");
+      }
+    } catch (e) {
+      console.error("Error al procesar pre-completado de campos de cliente:", e);
+    }
+  }, []);
+
   // Connect to Supabase for dynamic data and real-time subscription
   useEffect(() => {
     const fetchFreshData = async () => {

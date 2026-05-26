@@ -342,7 +342,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
 
   const handleAutoCreateClient = async (asuntoId: string) => {
     try {
-      console.log("Iniciando creación automática de cliente para asuntoId:", asuntoId);
+      console.log("Iniciando redirección con prellenado de campos para asuntoId:", asuntoId);
       
       // Intentar encontrar el asunto en memoria, con fallback en base de datos remota si no está disponible
       let relatedAsunto = asuntos.find((a: Asunto) => a.id === asuntoId);
@@ -413,128 +413,31 @@ export default function Propuestas({ onBack }: PropuestasProps) {
         return;
       }
 
-      let existingClients: Client[] = [];
-      try {
-        const saved = localStorage.getItem("capibee_clientes");
-        if (saved) existingClients = JSON.parse(saved);
-      } catch (_) {}
+      const currencyToUse = (
+        businessData?.country?.toLowerCase().includes("españa") ||
+        businessData?.country?.toLowerCase().includes("portugal") ||
+        businessData?.country?.toLowerCase().includes("francia")
+      ) ? "EURO" : "USD";
 
-      // Verificación inteligente de duplicados para evitar falsos positivos y encontrar registros coincidentes
-      const nameLower = nameToCompare.trim().toLowerCase();
-      const emailToCompare = (businessData?.email || "").trim().toLowerCase();
-      const existingClient = existingClients.find((c: Client) => {
-        const cCompany = (c.companyName || "").trim().toLowerCase();
-        const nCompany = nameLower;
-        const cContact = (c.contactName || "").trim().toLowerCase();
-        const nContact = (businessData?.contact_name || relatedAsunto?.contactName || "").trim().toLowerCase();
-        const cEmail = (c.email || "").trim().toLowerCase();
-
-        // Si coinciden los nombres de la empresa exactamente
-        if (cCompany && nCompany && cCompany === nCompany) {
-          return true;
-        }
-
-        // Si coinciden los emails (solo si no están vacíos)
-        if (emailToCompare && cEmail && emailToCompare === cEmail) {
-          return true;
-        }
-
-        // Si coinciden los nombres de contacto pero sólo si NO son valores por defecto genéricos
-        const isDefault = (name: string) => !name || name === "" || name === "contacto pendiente" || name === "—" || name === "desconocido" || name === "pendiente";
-        if (!isDefault(cContact) && !isDefault(nContact) && cContact === nContact) {
-          return true;
-        }
-
-        return false;
-      });
-
-      // El ID del cliente será el ID existente si ya existe, de lo contrario el ID de la empresa (business) para mantener la consistencia, o un nuevo UUID
-      const targetClientId = existingClient?.id || businessData?.id || relatedAsunto?.businessId || crypto.randomUUID();
-
-      // Validar integridad del userId para evitar violaciones de clave foránea en la base de datos
-      const potentialUserId = relatedAsunto?.userId || businessData?.user_id || currentUser?.id || null;
-      const userExistsInDb = potentialUserId && platformUsers.some((u: any) => u.id === potentialUserId);
-      const safeUserId = userExistsInDb ? potentialUserId : null;
-
-      // Generar el objeto de tipo Cliente (mantenemos string vacío localmente para consistencia con el formulario si se desea, o null)
-      const newClient: Client = {
-        id: targetClientId,
-        type: 'Empresa',
+      // Crear objeto pre-completado
+      const prefillData = {
+        type: "Empresa",
         companyName: nameToCompare,
         contactName: businessData?.contact_name || relatedAsunto?.contactName || businessData?.responsible_name || "Contacto Pendiente",
-        email: businessData?.email && businessData.email.trim() !== "" ? businessData.email.trim() : "",
-        language: 'Español',
-        currency: 'USD',
+        email: businessData?.email || "",
+        phone: businessData?.phone || businessData?.contact_phone || relatedAsunto?.contactPhone || "",
+        language: "Español",
+        currency: currencyToUse,
         country: businessData?.country || "",
         address: businessData?.address || "",
         sector: businessData?.category || "",
-        phone: businessData?.phone || businessData?.contact_phone || relatedAsunto?.contactPhone || "",
-        createdAt: Date.now(),
-        userId: safeUserId
       };
 
-      console.log("Guardando cliente creado (método upsert):", newClient);
+      console.log("Guardando datos de prellenado en localStorage:", prefillData);
+      localStorage.setItem("capibee_pending_new_client_prefill", JSON.stringify(prefillData));
 
-      // Actualizar la lista local sin duplicados
-      let updatedClients: Client[];
-      const existsIndex = existingClients.findIndex((c: Client) => c.id === targetClientId);
-      if (existsIndex !== -1) {
-        updatedClients = [...existingClients];
-        updatedClients[existsIndex] = newClient;
-      } else {
-        const existsByNameOrEmail = existingClients.some((c: Client) => 
-          c.id === targetClientId || 
-          (c.companyName || "").trim().toLowerCase() === nameLower ||
-          (emailToCompare && (c.email || "").trim().toLowerCase() === emailToCompare)
-        );
-        if (existsByNameOrEmail) {
-          updatedClients = existingClients.map((c: Client) => {
-            const isMatch = c.id === targetClientId || 
-                            (c.companyName || "").trim().toLowerCase() === nameLower ||
-                            (emailToCompare && (c.email || "").trim().toLowerCase() === emailToCompare);
-            return isMatch ? { ...newClient, id: c.id } : c;
-          });
-        } else {
-          updatedClients = [newClient, ...existingClients];
-        }
-      }
-
-      // 1. Guardar/Upsertar en Supabase para evitar violaciones de clave primaria
-      const { error } = await supabase.from('clients').upsert({
-        id: newClient.id,
-        type: newClient.type,
-        company_name: newClient.companyName,
-        contact_name: newClient.contactName,
-        email: newClient.email && newClient.email.trim() !== '' ? newClient.email.trim() : null,
-        language: newClient.language,
-        currency: newClient.currency,
-        country: newClient.country,
-        address: newClient.address,
-        sector: newClient.sector,
-        phone: newClient.phone,
-        created_at: newClient.createdAt,
-        user_id: newClient.userId
-      });
-
-      if (error) {
-        if (error.code === '42P01') {
-          console.error("La tabla 'clients' no existe en Supabase:", error);
-          alert("⚠️ El cliente \"" + newClient.companyName + "\" se guardó LOCALMENTE en la memoria de tu navegador, pero no se pudo sincronizar en la nube porque falta crear la tabla 'clients' en tu base de datos de Supabase.\n\nPor favor, ejecuta el script SQL que te proporcionará el asistente en la consola de Supabase.");
-          
-          localStorage.setItem("capibee_clientes", JSON.stringify(updatedClients));
-        } else {
-          console.error("Error al crear/actualizar cliente en Supabase:", error);
-          alert("Error al guardar cliente en Supabase: " + error.message);
-          
-          // Fallback guardar localmente de todas formas para no perder el dato
-          localStorage.setItem("capibee_clientes", JSON.stringify(updatedClients));
-        }
-      } else {
-        // 2. Guardar en LocalStorage si no hubo errores en Supabase
-        localStorage.setItem("capibee_clientes", JSON.stringify(updatedClients));
-        console.log("Cliente creado/actualizado automáticamente de forma exitosa:", newClient);
-        alert("🎉 ¡Cliente registrado exitosamente!\nSe ha creado/actualizado el cliente \"" + newClient.companyName + "\" en el módulo de clientes.");
-      }
+      // Redirigir al módulo de Clientes
+      window.dispatchEvent(new CustomEvent('capibee-change-module', { detail: 'clientes' }));
     } catch (e: any) {
       console.error("Error inesperado en handleAutoCreateClient:", e);
       alert("Error inesperado al intentar crear el cliente automáticamente: " + (e.message || e));

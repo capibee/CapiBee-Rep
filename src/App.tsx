@@ -113,6 +113,17 @@ export default function App() {
   };
 
   useEffect(() => {
+    const handleCustomChange = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail) {
+        handleModuleChange(customEvent.detail);
+      }
+    };
+    window.addEventListener('capibee-change-module', handleCustomChange);
+    return () => window.removeEventListener('capibee-change-module', handleCustomChange);
+  }, [activeModule]);
+
+  useEffect(() => {
     if (!isModuleChanging) return;
 
     const timer = setTimeout(() => {
