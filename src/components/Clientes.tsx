@@ -103,16 +103,18 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
 
   // Form State
   const [formData, setFormData] = useState({
-    type: "Particular" as "Particular" | "Empresa",
+    type: "Empresa" as "Particular" | "Empresa",
     companyName: "",
+    phone: "", // Telefono empresa
+    sector: "",
+    country: "",
+    city: "", // ciudad
     contactName: "",
-    email: "",
-    phone: "",
+    contactPhone: "", // Telefono contacto
+    email: "", // Correo contacto
     language: "Español" as (typeof LANGUAGES)[number],
     currency: "USD" as (typeof CURRENCIES)[number],
-    country: "",
     address: "",
-    sector: "",
   });
 
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -152,7 +154,16 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
         console.log("Detectado prefill de cliente pendiente para el formulario:", prefill);
         setFormData((prev) => ({
           ...prev,
-          ...prefill,
+          type: (prefill.type === "Persona" ? "Particular" : prefill.type) || "Empresa",
+          companyName: prefill.companyName || "",
+          phone: prefill.phone || "",
+          sector: prefill.sector || "",
+          country: prefill.country || "",
+          city: prefill.city || "",
+          contactName: prefill.contactName || "",
+          contactPhone: prefill.contactPhone || prefill.phone || "",
+          email: prefill.email || "",
+          address: prefill.address || "",
         }));
         setIsModalOpen(true);
         localStorage.removeItem("capibee_pending_new_client_prefill");
@@ -182,7 +193,9 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
             sector: c.sector || '',
             phone: c.phone || '',
             createdAt: Number(c.created_at) || Date.now(),
-            userId: c.user_id || null
+            userId: c.user_id || null,
+            city: c.city || c.address || '',
+            contactPhone: c.contact_phone || c.phone || '',
           })).sort((a: any, b: any) => b.createdAt - a.createdAt);
           setClientes(mappedC);
           localStorage.setItem("capibee_clientes", JSON.stringify(mappedC));
@@ -321,23 +334,36 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
 
     const newClient: Client = {
       id: crypto.randomUUID(),
-      ...formData,
+      type: formData.type,
+      companyName: formData.type === "Empresa" ? formData.companyName : "",
+      phone: formData.phone,
+      sector: formData.sector,
+      country: formData.country,
+      city: formData.city,
+      address: formData.city || formData.address,
+      contactName: formData.contactName,
+      contactPhone: formData.contactPhone,
+      email: formData.email,
+      language: formData.language,
+      currency: formData.currency,
       createdAt: Date.now(),
     };
 
     saveClientes([newClient, ...clientes]);
     setIsModalOpen(false);
     setFormData({
-      type: "Particular",
+      type: "Empresa",
       companyName: "",
-      contactName: "",
-      email: "",
       phone: "",
+      sector: "",
+      country: "",
+      city: "",
+      contactName: "",
+      contactPhone: "",
+      email: "",
       language: "Español",
       currency: "USD",
-      country: "",
       address: "",
-      sector: "",
     });
   };
 
@@ -753,20 +779,36 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
                           <Globe size={9} className="text-blue-500" />{" "}
                           {cli.country || "-"}
                         </div>
+                        {cli.city && (
+                          <div className="text-[9px] text-slate-500 leading-tight mt-0.5">
+                            {cli.city}
+                          </div>
+                        )}
                       </td>
                       <td className="p-2 text-[10px] text-slate-400">
-                        {cli.phone ? (
-                          <div
-                            onClick={() => handlePhoneClick(cli.id, cli.name, cli.phone)}
-                            className="flex items-center gap-1 cursor-pointer hover:text-amber-400 transition-colors"
-                            title="Llamar número"
-                          >
-                            <Phone size={10} />
-                            <span>{cli.phone}</span>
-                          </div>
-                        ) : (
-                          "-"
-                        )}
+                        <div className="space-y-1">
+                          {cli.phone && (
+                            <div
+                              onClick={() => handlePhoneClick(cli.id, cli.companyName || cli.contactName, cli.phone || "")}
+                              className="flex items-center gap-1 cursor-pointer hover:text-amber-400 transition-colors"
+                              title="Llamar teléfono empresa"
+                            >
+                              <Phone size={10} className="text-slate-500" />
+                              <span className="text-[10px]">{cli.phone}</span>
+                            </div>
+                          )}
+                          {cli.contactPhone && cli.contactPhone !== cli.phone && (
+                            <div
+                              onClick={() => handlePhoneClick(cli.id, cli.contactName, cli.contactPhone || "")}
+                              className="flex items-center gap-1 cursor-pointer hover:text-blue-400 transition-colors"
+                              title="Llamar teléfono contacto"
+                            >
+                              <Phone size={10} className="text-blue-400/70" />
+                              <span className="text-[9px] text-slate-400">{cli.contactPhone}</span>
+                            </div>
+                          )}
+                          {!cli.phone && !cli.contactPhone && <span>-</span>}
+                        </div>
                       </td>
                       <td className="p-2 text-[10px] text-slate-400">
                         <button 
@@ -855,139 +897,229 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
                 </button>
               </div>
 
-              <form onSubmit={handleCreate} className="p-6 sm:p-8 space-y-6">
+              <form onSubmit={handleCreate} className="p-6 sm:p-8 space-y-6 max-h-[75vh] overflow-y-auto custom-scrollbar">
                 <div className="space-y-4">
+                  {/* Tipo de Cliente (Persona, Empresa) */}
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                      Tipo de Cliente
+                      Tipo
                     </label>
                     <div className="flex gap-4">
-                      {["Particular", "Empresa"].map((t) => (
+                      {[
+                        { label: "Persona", value: "Particular" },
+                        { label: "Empresa", value: "Empresa" }
+                      ].map((opt) => (
                         <button
-                          key={t}
+                          key={opt.value}
                           type="button"
                           onClick={() =>
                             setFormData({
                               ...formData,
-                              type: t as "Particular" | "Empresa",
+                              type: opt.value as "Particular" | "Empresa",
                             })
                           }
                           className={`flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest border transition-all ${
-                            formData.type === t
+                            formData.type === opt.value
                               ? "bg-blue-500 text-white border-blue-400 shadow-lg shadow-blue-500/20"
                               : "bg-slate-950 text-slate-500 border-slate-800 hover:border-slate-700"
                           }`}
                         >
-                          {t}
+                          {opt.label}
                         </button>
                       ))}
                     </div>
                   </div>
 
+                  {/* Directorio de Empresas (Asistente de auto-completado) */}
                   {formData.type === "Empresa" && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-                    >
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                          Seleccionar de Directorio de Empresas
-                        </label>
-                        <div className="relative">
-                          <Contact
-                            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"
-                            size={14}
-                          />
-                          <select
-                            className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs focus:border-blue-500 transition-all outline-none appearance-none"
-                            onChange={(e) => {
-                              const b = businesses.find(
-                                (item) => item.id === e.target.value,
-                              );
-                              if (b) {
-                                // Map country to currency
-                                let autoCurrency: "USD" | "EURO" = "USD";
-                                if (
-                                  b.country?.toLowerCase().includes("españa") ||
-                                  b.country?.toLowerCase().includes("portugal") ||
-                                  b.country?.toLowerCase().includes("francia")
-                                )
-                                  autoCurrency = "EURO";
+                    <div className="space-y-2 pb-1">
+                      <label className="text-[10px] font-black text-blue-400 uppercase tracking-widest flex items-center gap-1">
+                        <Building size={10} /> Auto-completar desde leads registrados
+                      </label>
+                      <div className="relative">
+                        <Contact
+                          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"
+                          size={14}
+                        />
+                        <select
+                          className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs focus:border-blue-500 transition-all outline-none appearance-none cursor-pointer"
+                          onChange={(e) => {
+                            const b = businesses.find(
+                              (item) => item.id === e.target.value,
+                            );
+                            if (b) {
+                              const autoCurrency = (
+                                b.country?.toLowerCase().includes("españa") ||
+                                b.country?.toLowerCase().includes("portugal") ||
+                                b.country?.toLowerCase().includes("francia")
+                              ) ? "EURO" : "USD";
 
-                                setFormData({
-                                  ...formData,
-                                  companyName: b.name,
-                                  contactName: b.contactName || "",
-                                  country: b.country || "",
-                                  address: b.address || "",
-                                  currency: autoCurrency,
-                                  sector: b.category || "",
-                                  email: b.email || "",
-                                });
-                              }
-                            }}
-                          >
-                            <option value="">Seleccionar contacto...</option>
-                            {businesses.map((b, idx) => (
-                              <option key={`${b.id}-${idx}`} value={b.id}>
-                                {b.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                          Nombre de la Empresa
-                        </label>
-                        <div className="relative">
-                          <Briefcase
-                            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"
-                            size={14}
-                          />
-                          <input
-                            type="text"
-                            required
-                            className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs focus:border-blue-500 transition-all outline-none"
-                            value={formData.companyName}
-                            onChange={(e) =>
                               setFormData({
                                 ...formData,
-                                companyName: e.target.value,
-                              })
+                                companyName: b.name,
+                                phone: b.phone || "",
+                                sector: b.category || "",
+                                country: b.country || "",
+                                city: b.city || "",
+                                contactName: b.contactName || b.responsibleName || "",
+                                contactPhone: b.contactPhone || b.responsiblePhone || "",
+                                email: b.email || "",
+                                currency: autoCurrency,
+                              });
                             }
-                          />
-                        </div>
+                          }}
+                        >
+                          <option value="">Seleccionar empresa registrada...</option>
+                          {businesses.map((b, idx) => (
+                            <option key={`${b.id}-${idx}`} value={b.id}>
+                              {b.name}
+                            </option>
+                          ))}
+                        </select>
                       </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                          Sector / Razón Social
-                        </label>
-                        <div className="relative">
-                          <Target
-                            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"
-                            size={14}
-                          />
-                          <input
-                            type="text"
-                            className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs focus:border-blue-500 transition-all outline-none"
-                            value={formData.sector}
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                sector: e.target.value,
-                              })
-                            }
-                          />
-                        </div>
-                      </div>
-                    </motion.div>
+                    </div>
                   )}
 
+                  {/* Nombre Empresa */}
+                  {formData.type === "Empresa" && (
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                        Nombre Empresa
+                      </label>
+                      <div className="relative">
+                        <Briefcase
+                          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"
+                          size={14}
+                        />
+                        <input
+                          type="text"
+                          required={formData.type === "Empresa"}
+                          className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs focus:border-blue-500 transition-all outline-none"
+                          value={formData.companyName}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              companyName: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Teléfono Empresa & Sector */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                        Teléfono Empresa
+                      </label>
+                      <div className="relative">
+                        <Phone
+                          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"
+                          size={14}
+                        />
+                        <input
+                          type="tel"
+                          className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs focus:border-blue-500 transition-all outline-none"
+                          value={formData.phone}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              phone: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                        Sector
+                      </label>
+                      <div className="relative">
+                        <Target
+                          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"
+                          size={14}
+                        />
+                        <input
+                          type="text"
+                          className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs focus:border-blue-500 transition-all outline-none"
+                          value={formData.sector}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              sector: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* País & Ciudad */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                        País
+                      </label>
+                      <div className="relative">
+                        <Globe2
+                          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"
+                          size={14}
+                        />
+                        <input
+                          type="text"
+                          placeholder="Ej: España"
+                          className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs focus:border-blue-500 transition-all outline-none"
+                          value={formData.country}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              country: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                        Ciudad
+                      </label>
+                      <div className="relative">
+                        <Globe2
+                          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"
+                          size={14}
+                        />
+                        <input
+                          type="text"
+                          placeholder="Ej: Madrid"
+                          className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs focus:border-blue-500 transition-all outline-none"
+                          value={formData.city}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              city: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Separador e Información de Contacto */}
+                  <div className="py-2 flex items-center justify-center gap-3">
+                    <div className="h-[1px] bg-slate-800 flex-1" />
+                    <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">
+                      Información de contacto
+                    </span>
+                    <div className="h-[1px] bg-slate-800 flex-1" />
+                  </div>
+
+                  {/* Nombre Contacto */}
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                      Nombre del Contacto
+                      Nombre Contacto
                     </label>
                     <div className="relative">
                       <User
@@ -1009,56 +1141,11 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
                     </div>
                   </div>
 
+                  {/* Teléfono Contacto & Correo Contacto */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                        País
-                      </label>
-                      <div className="relative">
-                        <Globe2
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"
-                          size={14}
-                        />
-                        <input
-                          type="text"
-                          placeholder="Ej: Colombia"
-                          className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs focus:border-blue-500 transition-all outline-none"
-                          value={formData.country}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              country: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                        Dirección
-                      </label>
-                      <div className="relative">
-                        <Globe2
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"
-                          size={14}
-                        />
-                        <input
-                          type="text"
-                          placeholder="Calle, Número..."
-                          className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs focus:border-blue-500 transition-all outline-none"
-                          value={formData.address}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              address: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                        Teléfono
+                        Teléfono Contacto
                       </label>
                       <div className="relative">
                         <Contact
@@ -1068,16 +1155,20 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
                         <input
                           type="tel"
                           className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs focus:border-blue-500 transition-all outline-none"
-                          value={formData.phone}
+                          value={formData.contactPhone}
                           onChange={(e) =>
-                            setFormData({ ...formData, phone: e.target.value })
+                            setFormData({
+                              ...formData,
+                              contactPhone: e.target.value,
+                            })
                           }
                         />
                       </div>
                     </div>
+
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                        Correo Electrónico
+                        Correo Contacto
                       </label>
                       <div className="relative">
                         <Mail
@@ -1090,13 +1181,17 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
                           className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs focus:border-blue-500 transition-all outline-none"
                           value={formData.email}
                           onChange={(e) =>
-                            setFormData({ ...formData, email: e.target.value })
+                            setFormData({
+                              ...formData,
+                              email: e.target.value,
+                            })
                           }
                         />
                       </div>
                     </div>
                   </div>
 
+                  {/* Idioma & Divisa */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
@@ -1108,13 +1203,12 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
                           size={14}
                         />
                         <select
-                          className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs focus:border-blue-500 transition-all outline-none appearance-none"
+                          className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs focus:border-blue-500 transition-all outline-none appearance-none cursor-pointer"
                           value={formData.language}
                           onChange={(e) =>
                             setFormData({
                               ...formData,
-                              language: e.target
-                                .value as (typeof LANGUAGES)[number],
+                              language: e.target.value as (typeof LANGUAGES)[number],
                             })
                           }
                         >
@@ -1136,13 +1230,12 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
                           size={14}
                         />
                         <select
-                          className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs focus:border-blue-500 transition-all outline-none appearance-none"
+                          className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs focus:border-blue-500 transition-all outline-none appearance-none cursor-pointer"
                           value={formData.currency}
                           onChange={(e) =>
                             setFormData({
                               ...formData,
-                              currency: e.target
-                                .value as (typeof CURRENCIES)[number],
+                              currency: e.target.value as (typeof CURRENCIES)[number],
                             })
                           }
                         >

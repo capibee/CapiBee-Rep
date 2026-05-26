@@ -128,6 +128,8 @@ export interface Client {
   phone?: string;
   createdAt: number;
   userId?: string; // Assigned Vendedor
+  city?: string;
+  contactPhone?: string;
 }
 
 export interface AgentEarning {
