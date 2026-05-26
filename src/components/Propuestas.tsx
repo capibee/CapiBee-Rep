@@ -738,12 +738,6 @@ export default function Propuestas({ onBack }: PropuestasProps) {
 
   return (
     <div className="h-full bg-slate-950 p-6 flex flex-col overflow-hidden">
-      <div className="flex justify-end items-center mb-6">
-           <button onClick={() => setIsModalOpen(true)} className="bg-yellow-400 hover:bg-yellow-500 text-slate-950 px-5 py-2.5 rounded-xl flex items-center gap-2 font-black transition-all shadow-lg shadow-yellow-500/20">
-              <Plus size={20} /> Subir Propuesta
-           </button>
-      </div>
-
       {/* Panel de KPIs Mensuales */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div 
@@ -822,6 +816,9 @@ export default function Propuestas({ onBack }: PropuestasProps) {
               <option key={y.value} value={y.value} className="bg-slate-950 text-slate-300">{y.label}</option>
             ))}
           </select>
+          <button onClick={() => setIsModalOpen(true)} className="bg-yellow-400 hover:bg-yellow-500 text-slate-950 px-5 py-3 rounded-xl flex items-center gap-2 font-black transition-all shadow-lg shadow-yellow-500/20 whitespace-nowrap text-sm">
+              <Plus size={16} /> Subir Propuesta
+           </button>
         </div>
       </div>
 
