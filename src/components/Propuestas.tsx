@@ -360,7 +360,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
       try { localStorage.setItem("capibee_propuestas", JSON.stringify(updated)); } catch(e){}
 
       try {
-        await supabase.from('propuestas').insert({
+        const { error } = await supabase.from('propuestas').insert({
           id: newPropuesta.id,
           asunto_id: newPropuesta.asuntoId,
           propuesta_texto: newPropuesta.propuestaTexto,
@@ -370,16 +370,28 @@ export default function Propuestas({ onBack }: PropuestasProps) {
           created_at: newPropuesta.createdAt,
           status: newPropuesta.status
         });
-      } catch(e) { console.error(e) }
+        if (error && error.code !== '42P01') {
+          console.error("Error inserting proposal to Supabase:", error);
+          alert("Error al guardar propuesta en base de datos: " + error.message);
+        }
+      } catch(e: any) { 
+        console.error(e);
+        alert("Fallo de conexión al guardar propuesta: " + (e.message || "Error desconocido"));
+      }
 
     } else {
       const updated = propuestas.map(item => item.id === id ? { ...item, status: newStatus as any } : item);
       setPropuestas(updated);
       try { localStorage.setItem("capibee_propuestas", JSON.stringify(updated)); } catch(e){}
       try {
-        await supabase.from('propuestas').update({ status: newStatus }).eq('id', id);
-      } catch (err) {
+        const { error } = await supabase.from('propuestas').update({ status: newStatus }).eq('id', id);
+        if (error && error.code !== '42P01') {
+          console.error("Error updating status in Supabase:", error);
+          alert("Error al actualizar estado en base de datos: " + error.message);
+        }
+      } catch (err: any) {
         console.error(err);
+        alert("Fallo de conexión al actualizar estado: " + (err.message || "Error desconocido"));
       }
     }
 

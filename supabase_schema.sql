@@ -162,6 +162,20 @@ CREATE TABLE IF NOT EXISTS asuntos (
     created_at BIGINT NOT NULL DEFAULT (EXTRACT(epoch FROM now()) * 1000)::BIGINT
 );
 
+-- 11. PROPUESTAS TABLE
+CREATE TABLE IF NOT EXISTS propuestas (
+    id TEXT PRIMARY KEY,
+    asunto_id TEXT REFERENCES asuntos(id) ON DELETE CASCADE,
+    propuesta_texto TEXT,
+    honorarios NUMERIC DEFAULT 0,
+    gastos NUMERIC DEFAULT 0,
+    user_id TEXT REFERENCES platform_users(id) ON DELETE SET NULL,
+    created_at BIGINT NOT NULL DEFAULT (EXTRACT(epoch FROM now()) * 1000)::BIGINT,
+    status TEXT NOT NULL DEFAULT 'Enviada',
+    pdf_url TEXT,
+    pdf_name TEXT
+);
+
 -- Add to Realtime Publication safely (enables live sync in frontend)
 -- We use an idempotent PL/pgSQL block to only add tables that are not already in the publication.
 DO $$
@@ -235,6 +249,16 @@ BEGIN
   ) THEN
     ALTER PUBLICATION supabase_realtime ADD TABLE asuntos;
   END IF;
+
+  -- add propuestas
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_rel pr 
+    JOIN pg_class c ON pr.prrelid = c.oid 
+    JOIN pg_publication p ON pr.prpubid = p.oid 
+    WHERE p.pubname = 'supabase_realtime' AND c.relname = 'propuestas'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE propuestas;
+  END IF;
 END $$;
 
 -- Enable Row Level Security (RLS) on all live tables
@@ -248,6 +272,7 @@ ALTER TABLE agent_earnings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE withdrawal_requests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comisiones_ejecutivos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE asuntos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE propuestas ENABLE ROW LEVEL SECURITY;
 
 -- 1. SOLICITUDES POLICIES
 DROP POLICY IF EXISTS "Allow anon insert on solicitudes" ON solicitudes;
@@ -363,6 +388,18 @@ CREATE POLICY "Allow select on asuntos" ON asuntos FOR SELECT TO public USING (t
 CREATE POLICY "Allow insert on asuntos" ON asuntos FOR INSERT TO public WITH CHECK (true);
 CREATE POLICY "Allow update on asuntos" ON asuntos FOR UPDATE TO public USING (true) WITH CHECK (true);
 CREATE POLICY "Allow delete on asuntos" ON asuntos FOR DELETE TO public USING (true);
+
+
+-- 11. PROPUESTAS POLICIES (Propuestas de Asuntos)
+DROP POLICY IF EXISTS "Allow select on propuestas" ON propuestas;
+DROP POLICY IF EXISTS "Allow insert on propuestas" ON propuestas;
+DROP POLICY IF EXISTS "Allow update on propuestas" ON propuestas;
+DROP POLICY IF EXISTS "Allow delete on propuestas" ON propuestas;
+
+CREATE POLICY "Allow select on propuestas" ON propuestas FOR SELECT TO public USING (true);
+CREATE POLICY "Allow insert on propuestas" ON propuestas FOR INSERT TO public WITH CHECK (true);
+CREATE POLICY "Allow update on propuestas" ON propuestas FOR UPDATE TO public USING (true) WITH CHECK (true);
+CREATE POLICY "Allow delete on propuestas" ON propuestas FOR DELETE TO public USING (true);
 
 
 -- INITIAL SEED DATA FOR ADMIN_MAESTRO ROLE (Super Administrador)
