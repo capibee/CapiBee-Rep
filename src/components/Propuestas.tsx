@@ -143,16 +143,21 @@ export default function Propuestas({ onBack }: PropuestasProps) {
         return pr;
       });
       setPropuestas(updated);
-      localStorage.setItem("capibee_propuestas", JSON.stringify(updated));
+      try {
+        localStorage.setItem("capibee_propuestas", JSON.stringify(updated));
+      } catch (err) {
+        console.warn("localstorage quota exceeded", err);
+      }
 
       try {
-        await supabase
+        const { error } = await supabase
           .from('propuestas')
           .update({ 
             pdf_url: pdfBase64, 
             pdf_name: pdfName 
           })
           .eq('id', propuestaId);
+        if (error) console.error("Error updating PDF in db:", error);
       } catch (err) {
         console.warn("Failed to sync pdf_url to database:", err);
       }
@@ -168,10 +173,12 @@ export default function Propuestas({ onBack }: PropuestasProps) {
       return pr;
     });
     setPropuestas(updated);
-    localStorage.setItem("capibee_propuestas", JSON.stringify(updated));
+    try {
+      localStorage.setItem("capibee_propuestas", JSON.stringify(updated));
+    } catch(e) {}
 
     try {
-      await supabase
+      const { error } = await supabase
         .from('propuestas')
         .update({ 
           pdf_url: null, 
@@ -326,7 +333,9 @@ export default function Propuestas({ onBack }: PropuestasProps) {
 
       const updated = propuestas.map(p => p.id === editingPropuesta.id ? updatedPropuesta : p);
       setPropuestas(updated);
-      localStorage.setItem("capibee_propuestas", JSON.stringify(updated));
+      try {
+        localStorage.setItem("capibee_propuestas", JSON.stringify(updated));
+      } catch(e) { console.warn("Quota exceeded localStorage"); }
       setIsModalOpen(false);
       setEditingPropuesta(null);
       setFormData({ asuntoId: "", propuestaTexto: "", honorarios: "", gastos: "" });
@@ -371,7 +380,9 @@ export default function Propuestas({ onBack }: PropuestasProps) {
 
       const updated = [newPropuesta, ...propuestas];
       setPropuestas(updated);
-      localStorage.setItem("capibee_propuestas", JSON.stringify(updated));
+      try {
+        localStorage.setItem("capibee_propuestas", JSON.stringify(updated));
+      } catch(e) { console.warn("Quota exceeded localStorage"); }
       setIsModalOpen(false);
       setFormData({ asuntoId: "", propuestaTexto: "", honorarios: "", gastos: "" });
       setModalPdfUrl("");
