@@ -554,7 +554,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                     currentItems.map((a, index) => (
                         <tr key={`${a.id}-${index}`} className="hover:bg-slate-900/20 transition-colors">
                             <td className="py-2 px-4 text-center font-mono text-[10px] text-slate-500 select-none w-10">
-                                AP{String((currentPage - 1) * itemsPerPage + index).padStart(3, '0')}
+                                AP{String((currentPage - 1) * itemsPerPage + index).padStart(3, '0')}-{new Date(a.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).split('/').join('')}
                             </td>
                             <td className="py-2 px-4 text-sm text-slate-500">{new Date(a.fecha).toLocaleDateString()}</td>
                             <td className="py-2 px-4 text-sm font-medium text-white">{a.nombreAsunto}</td>

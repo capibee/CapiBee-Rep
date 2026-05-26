@@ -448,7 +448,7 @@ export default function Agentes({ onLogout, onBack }: AgentesProps) {
                   ) : (
                     currentAgents.map((ag, index) => (
                       <tr key={ag.id} className="hover:bg-slate-800/30 transition-colors group">
-                        <td className="px-2 py-4 text-center font-mono text-[10px] text-slate-500 select-none w-10">AG{String((currentPage - 1) * itemsPerPage + index).padStart(3, '0')}</td>
+                        <td className="px-2 py-4 text-center font-mono text-[10px] text-slate-500 select-none w-10">AG{String((currentPage - 1) * itemsPerPage + index).padStart(3, '0')}-{new Date(ag.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).split('/').join('')}</td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center shrink-0">

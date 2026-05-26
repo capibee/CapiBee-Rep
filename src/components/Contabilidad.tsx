@@ -1536,7 +1536,7 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
                       className="hover:bg-slate-800/20 transition-colors group border-b border-slate-800/50"
                     >
                       <td className="py-4 px-2 text-[10px] font-mono text-slate-500 text-center select-none w-10">{(currentPage - 1) * itemsPerPage + idx + 1}</td>
-                      <td className="py-4 px-4 text-xs font-mono text-slate-500 text-center">{inv.invoiceNumber}</td>
+                      <td className="py-4 px-4 text-xs font-mono text-slate-500 text-center">{inv.invoiceNumber}-{new Date(inv.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).split('/').join('')}</td>
                       <td className="py-4 px-4">
                         <div className="font-bold text-slate-100 text-sm">{inv.businessName}</div>
                       </td>

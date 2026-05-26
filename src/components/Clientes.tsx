@@ -806,7 +806,7 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
                         />
                       </td>
                       <td className="p-2 text-center font-mono text-[10px] text-slate-500 select-none">
-                        C{String((currentPage - 1) * itemsPerPage + index).padStart(3, '0')}
+                        CL{String((currentPage - 1) * itemsPerPage + index).padStart(3, '0')}-{new Date(cli.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).split('/').join('')}
                       </td>
                       <td className="p-2">
                         <span
