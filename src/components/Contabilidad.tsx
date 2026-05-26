@@ -106,7 +106,7 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
         setInvoices(parsed.map((inv: any, idx: number) => {
           const migratedInv = {
             ...inv,
-            invoiceNumber: inv.invoiceNumber || `INV-${(idx + 1).toString().padStart(3, '0')}`,
+            invoiceNumber: inv.invoiceNumber || `FAC-${(idx + 1).toString().padStart(3, '0')}`,
             paidAmount: inv.paidAmount || 0,
             status: inv.status || 'Pendiente'
           };
@@ -504,13 +504,13 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
       if (invoices.length === 0) return 'INV-001';
       let max = 0;
       invoices.forEach(inv => {
-        const match = inv.invoiceNumber?.match(/INV-(\d+)/);
+        const match = inv.invoiceNumber?.match(/FAC-(\d+)/);
         if (match) {
           const num = parseInt(match[1], 10);
           if (num > max) max = num;
         }
       });
-      return `INV-${(max + 1).toString().padStart(3, '0')}`;
+      return `FAC-${(max + 1).toString().padStart(3, '0')}`;
     };
 
     const newInvoice: Invoice = {
