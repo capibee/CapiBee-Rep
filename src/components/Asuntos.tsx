@@ -66,7 +66,13 @@ export default function Asuntos({ onBack }: AsuntosProps) {
   const propuestasPorEnviarCount = useMemo(() => {
     let count = 0;
     asuntos.forEach((a) => {
-      if (!canViewAll && a.userId !== currentUser.id) return;
+      if (!isAdmin) {
+        if (isDesarrollo) {
+          if (a.sector !== "Área de Desarrollo" && a.userId !== currentUser.id) return;
+        } else {
+          if (a.userId !== currentUser.id) return;
+        }
+      }
       
       const hasPropuesta = propuestas.some((p) => p.asuntoId === a.id);
       if (!hasPropuesta) {
@@ -92,7 +98,8 @@ export default function Asuntos({ onBack }: AsuntosProps) {
     datosAsunto: "",
     archivoAdjuntoUrl: "",
     contactName: "",
-    contactPhone: ""
+    contactPhone: "",
+    sector: ""
   });
   const [asuntoFileName, setAsuntoFileName] = useState("");
   const [isAsuntoDragOver, setIsAsuntoDragOver] = useState(false);
@@ -190,7 +197,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
       ...formData,
       userId: user.id || "unknown",
       createdAt: Date.now(),
-      sector: businesses.find(b => b.id === formData.businessId)?.category || "",
+      sector: formData.sector || businesses.find(b => b.id === formData.businessId)?.category || "",
     };
 
     const { error } = await supabase.from('Asuntos').insert({
@@ -201,7 +208,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
         user_id: newAsunto.userId,
         datos_asunto: newAsunto.datosAsunto,
         archivo_adjunto_url: newAsunto.archivoAdjuntoUrl,
-        sector: businesses.find(b => b.id === newAsunto.businessId)?.category || "",
+        sector: newAsunto.sector,
         created_at: newAsunto.createdAt,
         contact_name: newAsunto.contactName || "",
         contact_phone: newAsunto.contactPhone || ""
@@ -214,7 +221,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
         setAsuntos([newAsunto, ...asuntos]);
         localStorage.setItem("capibee_asuntos", JSON.stringify([newAsunto, ...asuntos]));
         setIsModalOpen(false);
-        setFormData({ nombreAsunto: "", businessId: "", datosAsunto: "", archivoAdjuntoUrl: "", contactName: "", contactPhone: "" });
+        setFormData({ nombreAsunto: "", businessId: "", datosAsunto: "", archivoAdjuntoUrl: "", contactName: "", contactPhone: "", sector: "" });
         setAsuntoFileName("");
     }
   };
@@ -290,8 +297,15 @@ export default function Asuntos({ onBack }: AsuntosProps) {
   const filteredAsuntos = useMemo(() => {
     return asuntos.filter((a) => {
       // Role logic:
-      if (!canViewAll && a.userId !== currentUser.id) return false;
-      if (canViewAll && executiveFilter !== "" && a.userId !== executiveFilter) return false;
+      if (!isAdmin) {
+        if (isDesarrollo) {
+          if (a.sector !== "Área de Desarrollo" && a.userId !== currentUser.id) return false;
+        } else {
+          if (a.userId !== currentUser.id) return false;
+        }
+      }
+      const canFilterByExecutive = isAdmin || isDesarrollo;
+      if (canFilterByExecutive && executiveFilter !== "" && a.userId !== executiveFilter) return false;
 
       const businessName = businesses.find(b => b.id === a.businessId)?.name || "";
       const matchesSearch = 
@@ -370,10 +384,17 @@ export default function Asuntos({ onBack }: AsuntosProps) {
     let totalWeek = 0;
     let totalToday = 0;
 
-    // Filter asuntos list based on rule (Superadmin/Desarrollo views all or executive, commercial views only their own)
+    // Filter asuntos list based on rule (Superadmin views all, Desarrollo views area/own, commercial views only their own)
     const listForKpis = asuntos.filter(a => {
-      if (!canViewAll && a.userId !== currentUser.id) return false;
-      if (canViewAll && executiveFilter !== "" && a.userId !== executiveFilter) return false;
+      if (!isAdmin) {
+        if (isDesarrollo) {
+          if (a.sector !== "Área de Desarrollo" && a.userId !== currentUser.id) return false;
+        } else {
+          if (a.userId !== currentUser.id) return false;
+        }
+      }
+      const canFilterByExecutive = isAdmin || isDesarrollo;
+      if (canFilterByExecutive && executiveFilter !== "" && a.userId !== executiveFilter) return false;
       
       // Filter KPIs by selected year if it's set
       if (yearFilter !== "") {
@@ -545,7 +566,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                     <th className="py-2.5 px-4 font-bold hidden">Fecha</th>
                     <th className="py-2.5 px-4 font-bold">Asunto</th>
                     <th className="py-2.5 px-4 font-bold">Empresa</th>
-                    <th className="py-2.5 px-4 font-bold">Sector</th>
+                    <th className="py-2.5 px-4 font-bold">Destinatario (Área)</th>
                     <th className="py-2.5 px-4 font-bold">Nombre Contacto</th>
                     <th className="py-2.5 px-4 font-bold">Creado por</th>
                     <th className="py-2.5 px-4 font-bold text-right">Acciones</th>
@@ -575,7 +596,15 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                             <td className="py-2 px-4 text-sm text-slate-500 hidden">{new Date(a.fecha).toLocaleDateString()}</td>
                             <td className="py-2 px-4 text-sm font-medium text-white">{a.nombreAsunto}</td>
                             <td className="py-2 px-4 text-sm text-slate-300">{business?.name || "—"}</td>
-                            <td className="py-2 px-4 text-sm text-slate-300">{a.sector || business?.category || "—"}</td>
+                            <td className="py-2 px-4 text-sm text-slate-300">
+                                {a.sector === "Área de Desarrollo" ? (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-500/15 text-indigo-400 border border-indigo-500/20">
+                                        Área de Desarrollo
+                                    </span>
+                                ) : (
+                                    a.sector || business?.category || "—"
+                                )}
+                            </td>
                             <td className="py-2 px-4 text-sm text-slate-300">{a.contactName || business?.contactName || "—"}</td>
                             <td className="py-2 px-4 text-sm text-slate-500">{platformUsers.find(u => u.id === a.userId)?.full_name || a.userId}</td>
                             <td className="py-2 px-4 text-right">
@@ -693,6 +722,19 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                         </div>
 
                         <input className="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-white outline-none focus:ring-1 focus:ring-yellow-500/50 text-xs placeholder:text-slate-600" placeholder="Nombre del asunto" value={formData.nombreAsunto} onChange={e => setFormData({...formData, nombreAsunto: e.target.value})} />
+                        
+                        <div>
+                            <label className="block text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1 font-sans">Destinatario del Asunto (Área)</label>
+                            <select 
+                                className="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-slate-300 outline-none focus:ring-1 focus:ring-yellow-500/50 text-xs"
+                                value={formData.sector} 
+                                onChange={e => setFormData({...formData, sector: e.target.value})}
+                            >
+                                <option value="">Seleccionar área de destino (Opcional)</option>
+                                <option value="Área de Desarrollo">Área de Desarrollo</option>
+                            </select>
+                        </div>
+
                         <textarea className="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-white outline-none focus:ring-1 focus:ring-yellow-500/50 min-h-[70px] text-xs placeholder:text-slate-600 resize-none" placeholder="Detalles o datos adicionales del asunto..." value={formData.datosAsunto} onChange={e => setFormData({...formData, datosAsunto: e.target.value})} />
                         <div className="space-y-1.5">
                             <label className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Adjuntar Archivo:</label>
@@ -829,6 +871,18 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                            <div>
                               <p className="text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-1">Número de Contacto</p>
                               <p className="text-sm text-slate-300 font-mono text-xs">{selectedAsunto.contactPhone || "—"}</p>
+                            </div>
+                            <div>
+                              <p className="text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-1">Destinatario (Área)</p>
+                              <p className="text-sm text-slate-300 font-sans font-medium">
+                                {selectedAsunto.sector === "Área de Desarrollo" ? (
+                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-indigo-500/15 text-indigo-400 border border-indigo-500/20">
+                                        Área de Desarrollo
+                                    </span>
+                                ) : (
+                                    selectedAsunto.sector || "—"
+                                )}
+                              </p>
                            </div>
                        </div>
 

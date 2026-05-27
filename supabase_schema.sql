@@ -160,6 +160,7 @@ CREATE TABLE IF NOT EXISTS asuntos (
     datos_asunto TEXT,
     archivo_adjunto_url TEXT,
     sector TEXT,
+    destinatario TEXT,
     created_at BIGINT NOT NULL DEFAULT (EXTRACT(epoch FROM now()) * 1000)::BIGINT
 );
 

@@ -239,7 +239,8 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
     meetingDate: "",
     contactName: "",
     contactPhone: "",
-    sector: ""
+    sector: "",
+    destinatario: ""
   });
   const [asuntoFileName, setAsuntoFileName] = useState("");
   const [isAsuntoDragOver, setIsAsuntoDragOver] = useState(false);
@@ -1190,7 +1191,8 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
       createdAt: Date.now(),
       contactName: asuntoFormData.contactName || "",
       contactPhone: asuntoFormData.contactPhone || "",
-      sector: asuntoFormData.sector || ""
+      sector: asuntoFormData.sector || "",
+      destinatario: asuntoFormData.destinatario || ""
     };
 
     const { error } = await supabase.from('Asuntos').insert({
@@ -1204,7 +1206,8 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
         created_at: newAsunto.createdAt,
         contact_name: newAsunto.contactName,
         contact_phone: newAsunto.contactPhone,
-        sector: newAsunto.sector
+        sector: newAsunto.sector,
+        destinatario: newAsunto.destinatario
     });
 
     if (error) {
@@ -3046,7 +3049,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                 {/* Cliente / Lead Select Autocomplete */}
                 <div className="relative">
                   <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
-                    Cliente / Establecimiento *
+                    Contacto del directorio *
                   </label>
                   
                   {asuntoFormData.businessId ? (
@@ -3125,11 +3128,11 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                   <select
                     required
                     className="w-full px-3 py-1.5 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 font-medium text-xs shadow-inner appearance-none"
-                    value={asuntoFormData.sector}
+                    value={asuntoFormData.destinatario}
                     onChange={(e) =>
                       setAsuntoFormData({
                         ...asuntoFormData,
-                        sector: e.target.value,
+                        destinatario: e.target.value,
                       })
                     }
                   >
