@@ -2364,6 +2364,34 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                     )}
                   </div>
                   <div className="flex items-center gap-2">
+                    {canCreateAsunto && (
+                      <button
+                        onClick={() => {
+                          if (businessObj) {
+                            setAsuntoFormData({
+                              nombreAsunto: "",
+                              businessId: businessObj.id,
+                              datosAsunto: "",
+                              archivoAdjuntoUrl: "",
+                              clientEmail: businessObj.email || "",
+                              meetingDate: "",
+                              contactName: businessObj.contactName || "",
+                              contactPhone: businessObj.phone || ""
+                            });
+                            setAsuntoFileName("");
+                            setIsAsuntoDragOver(false);
+                            setAsuntoClientSearch("");
+                            setIsAsuntoClientDropdownOpen(false);
+                            setIsAsuntoModalOpen(true);
+                          }
+                        }}
+                        className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-3 py-1.5 rounded-lg transition-colors text-[10px] uppercase tracking-wider flex items-center gap-1 shadow-md"
+                        title="Crear Asunto desde este contacto"
+                      >
+                        <Plus size={12} strokeWidth={3} />
+                        Crear Asunto
+                      </button>
+                    )}
                     {isAutoDialing && (
                       <span className="text-[11px] font-bold text-amber-500 bg-amber-500/10 px-3 py-1.5 rounded-full animate-pulse border border-amber-500/20 flex items-center whitespace-nowrap shadow-sm">
                         <span className="mr-1">📞 Auto:</span> {autoDialQueue.length + 1} restante(s)
