@@ -238,7 +238,8 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
     clientEmail: "",
     meetingDate: "",
     contactName: "",
-    contactPhone: ""
+    contactPhone: "",
+    sector: ""
   });
   const [asuntoFileName, setAsuntoFileName] = useState("");
   const [isAsuntoDragOver, setIsAsuntoDragOver] = useState(false);
@@ -1188,7 +1189,8 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
       userId: user.id || "unknown",
       createdAt: Date.now(),
       contactName: asuntoFormData.contactName || "",
-      contactPhone: asuntoFormData.contactPhone || ""
+      contactPhone: asuntoFormData.contactPhone || "",
+      sector: asuntoFormData.sector || ""
     };
 
     const { error } = await supabase.from('Asuntos').insert({
@@ -1201,7 +1203,8 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
         archivo_adjunto_url: newAsunto.archivoAdjuntoUrl,
         created_at: newAsunto.createdAt,
         contact_name: newAsunto.contactName,
-        contact_phone: newAsunto.contactPhone
+        contact_phone: newAsunto.contactPhone,
+        sector: newAsunto.sector
     });
 
     if (error) {
@@ -2004,7 +2007,8 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                                 clientEmail: business.email || "",
                                 meetingDate: "",
                                 contactName: business.contactName || "",
-                                contactPhone: ""
+                                contactPhone: "",
+                                sector: ""
                               });
                               setAsuntoFileName("");
                               setIsAsuntoDragOver(false);
@@ -2376,7 +2380,8 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                               clientEmail: businessObj.email || "",
                               meetingDate: "",
                               contactName: businessObj.contactName || "",
-                              contactPhone: businessObj.phone || ""
+                              contactPhone: businessObj.phone || "",
+                              sector: ""
                             });
                             setAsuntoFileName("");
                             setIsAsuntoDragOver(false);
@@ -3093,7 +3098,8 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                                   businessId: b.id, 
                                   clientEmail: b.email || "",
                                   contactName: b.contactName || "",
-                                  contactPhone: ""
+                                  contactPhone: "",
+                                  sector: ""
                                 });
                                 setAsuntoClientSearch("");
                                 setIsAsuntoClientDropdownOpen(false);
@@ -3109,6 +3115,27 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                       </div>
                     </>
                   )}
+                </div>
+
+                {/* Destinatario del asunto (Área) */}
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                    Destinatario del Asunto (Área) *
+                  </label>
+                  <select
+                    required
+                    className="w-full px-3 py-1.5 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 font-medium text-xs shadow-inner appearance-none"
+                    value={asuntoFormData.sector}
+                    onChange={(e) =>
+                      setAsuntoFormData({
+                        ...asuntoFormData,
+                        sector: e.target.value,
+                      })
+                    }
+                  >
+                    <option value="" disabled hidden>Selecciona un área</option>
+                    <option value="Área de Desarrollo">Área de Desarrollo</option>
+                  </select>
                 </div>
 
                 {/* Datos Asunto / Notas */}
