@@ -52,11 +52,11 @@ export function calculateUserRank(userId: string, userFullName: string): UserRan
 
     if (monthlySales >= 16000) {
         rankLetter = 'M';
-        rankName = 'Senior';
+        rankName = 'Master';
         commissionRate = 0.15;
     } else if (monthlySales >= 8000) {
         rankLetter = 'S';
-        rankName = 'Master';
+        rankName = 'Senior';
         commissionRate = 0.12;
     } else if (monthlySales >= 2000) {
         rankLetter = 'J';

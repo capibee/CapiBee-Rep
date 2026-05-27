@@ -30,7 +30,8 @@ import {
   Download,
   Phone,
   Banknote,
-  Trash2
+  Trash2,
+  Star
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import jsPDF from 'jspdf';
@@ -1124,18 +1125,43 @@ export default function Ganancias({ user }: GananciasProps) {
 
             <div className="flex flex-col xl:flex-row gap-3 items-stretch">
               {user?.roleId !== 'ADMIN_MAESTRO' && user?.roleName?.toUpperCase() !== 'SUPER ADMINISTRADOR' && user?.roleName?.toUpperCase() !== 'SUPERADMIN' && (
-                  <div className="bg-slate-900/40 border border-slate-800 rounded-lg p-3 flex flex-row items-center gap-4 xl:w-[35%]">
-                      <div className="w-10 h-10 rounded-full border border-amber-500/30 flex items-center justify-center bg-amber-500/10 text-amber-500 font-black text-xl shrink-0">
+                  <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-4 flex flex-row items-center gap-4 xl:w-[35%] relative group shadow-sm transition-all hover:bg-slate-900/60 cursor-help">
+                      <div className="absolute left-1/2 -translate-x-1/2 -bottom-2 translate-y-full w-[280px] sm:w-[320px] bg-slate-800 border border-slate-700 p-5 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 duration-200">
+                        <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-slate-800 border-t border-l border-slate-700 rotate-45"></div>
+                        <p className="text-xs text-white font-black mb-2 uppercase tracking-widest text-center">Plan de Carrera</p>
+                        <p className="text-[10px] text-slate-400 font-medium leading-relaxed text-center mb-5">
+                          Tu Nivel y comisiones se actualizan mes a mes basándose en el total de facturación procesado. Conquista tus metas comerciales para desbloquear márgenes de hasta el 15%.
+                        </p>
+                        <div className="space-y-3">
+                           <div className="flex items-center justify-between text-[10px] border-b border-slate-700/50 pb-2">
+                              <span className="text-slate-300 font-bold uppercase tracking-widest">Aprendiz / Junior</span>
+                              <span className="text-white font-black font-mono">&lt; $8k <span className="text-slate-500 font-sans font-medium">(10%)</span></span>
+                           </div>
+                           <div className="flex items-center justify-between text-[10px] border-b border-slate-700/50 pb-2">
+                              <span className="text-indigo-400 font-bold uppercase tracking-widest">Senior</span>
+                              <span className="text-white font-black font-mono">$8k - $16k <span className="text-slate-500 font-sans font-medium">(12%)</span></span>
+                           </div>
+                           <div className="flex items-center justify-between text-[10px]">
+                              <span className="text-amber-500 font-bold uppercase tracking-widest drop-shadow-md flex items-center gap-1.5"><Star size={10} className="fill-amber-500"/> Master</span>
+                              <span className="text-amber-100 font-black font-mono">&gt; $16k <span className="text-amber-500/50 font-sans font-medium">(15%)</span></span>
+                           </div>
+                        </div>
+                      </div>
+
+                      <div className="w-12 h-12 rounded-full border border-amber-500/30 flex items-center justify-center bg-gradient-to-br from-amber-500/10 to-amber-500/5 text-amber-500 font-black text-2xl shrink-0 shadow-[0_0_15px_rgba(245,158,11,0.1)]">
                           {userRank?.rankLetter || 'A'}
                       </div>
                       <div className="flex-1 flex flex-col justify-center">
-                          <div className="text-[9px] text-slate-500 font-bold uppercase tracking-widest leading-tight">Rango: <span className="text-amber-500">{userRank?.rankName || 'Aprendiz'}</span></div>
-                          <div className="text-xl font-display font-black text-white leading-tight mt-0.5">{userRank?.commissionRate ? Math.round(userRank.commissionRate * 100) : 10}% <span className="text-[8px] font-sans text-slate-400 font-normal uppercase tracking-widest">Com.</span></div>
-                      </div>
-                      <div className="text-[8px] text-slate-500 font-medium uppercase tracking-wider flex justify-between flex-col gap-1.5 sm:border-l border-slate-800/80 sm:pl-3 w-[150px]">
-                          <div className="flex justify-between items-center"><span className={`${userRank?.rankLetter === 'J' ? 'text-white font-bold' : 'text-slate-400'}`}>J:</span> <span>2k-6k (10%)</span></div>
-                          <div className="flex justify-between items-center"><span className={`${userRank?.rankLetter === 'S' ? 'text-white font-bold' : 'text-slate-400'}`}>S:</span> <span>8k-14k (12%)</span></div>
-                          <div className="flex justify-between items-center"><span className={`${userRank?.rankLetter === 'M' ? 'text-amber-500 font-bold' : 'text-amber-500/60'}`}>M:</span> <span className={userRank?.rankLetter === 'M' ? 'text-amber-500' : ''}>16k+ (15%)</span></div>
+                          <div className="text-[9px] text-slate-500 font-bold uppercase tracking-widest leading-tight mb-1 flex items-center gap-1.5">
+                              Proyección Actual
+                              <Info size={10} className="text-slate-500 group-hover:text-amber-500 transition-colors" />
+                          </div>
+                          <div className="text-lg font-bold text-white flex items-baseline gap-2">
+                              <span className="text-amber-500 text-sm uppercase font-black tracking-widest">{userRank?.rankName || 'Aprendiz'}</span>
+                              <span className="text-slate-700 font-medium">|</span>
+                              <span className="text-xl font-display">{userRank?.commissionRate ? Math.round(userRank.commissionRate * 100) : 10}%</span>
+                              <span className="text-[9px] text-slate-500 font-medium uppercase tracking-widest">Com.</span>
+                          </div>
                       </div>
                   </div>
               )}
@@ -1360,6 +1386,148 @@ export default function Ganancias({ user }: GananciasProps) {
               </div>
             </div>
           )}
+
+          {/* User Earnings Detailed Table */}
+          <div className="bg-slate-900/60 backdrop-blur-2xl border border-slate-800 rounded-3xl overflow-hidden flex flex-col shadow-2xl mb-6">
+            <div className="p-6 border-b border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <h3 className="text-lg font-bold text-white uppercase tracking-widest">Detalle de Movimientos</h3>
+                <div className="relative group cursor-pointer">
+                  <Info size={16} className="text-slate-500 hover:text-amber-500 transition-colors" />
+                  <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-72 bg-slate-800 border border-slate-700/50 p-4 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20">
+                    <p className="text-xs text-white font-bold mb-2 uppercase tracking-widest text-center">Estados del Movimiento</p>
+                    <div className="space-y-2 text-[10px]">
+                      <p><span className="text-amber-500 font-bold">En proceso:</span> Cuando una transacción no ha sido validada aún.</p>
+                      <p><span className="text-blue-500 font-bold">Procesado:</span> La transacción fue validada con éxito.</p>
+                      <p><span className="text-emerald-500 font-bold">Pagado:</span> Los fondos te han sido enviados.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {user?.roleId === 'ADMIN_MAESTRO' && selectedEarnings.length > 0 && (
+                <button
+                  onClick={requestBulkPay}
+                  className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500/50 shadow-lg"
+                >
+                  Pagar Seleccionados ({selectedEarnings.length})
+                </button>
+              )}
+            </div>
+            <div className="overflow-x-auto custom-scrollbar">
+              <table className="w-full text-left border-collapse min-w-[800px]">
+                <thead>
+                  <tr className="bg-slate-950 border-b border-slate-800">
+                    {user?.roleId === 'ADMIN_MAESTRO' && (
+                      <th className="py-3 px-4 w-12 text-center">
+                        <input 
+                          type="checkbox"
+                          checked={selectedEarnings.length > 0 && selectedEarnings.length === filteredEarnings.filter(e => e.status !== 'Pagado').length}
+                          onChange={toggleAllEarnings}
+                          className="w-4 h-4 rounded border-slate-700 bg-slate-900/50 checked:bg-amber-500 checked:border-amber-500 focus:ring-amber-500/50 focus:ring-offset-slate-950 cursor-pointer"
+                        />
+                      </th>
+                    )}
+                    <th className="py-3 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">ID Comision</th>
+                    <th className="py-3 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">ID Factura</th>
+                    <th className="py-3 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Concepto</th>
+                    <th className="py-3 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Comercial</th>
+                    <th className="py-3 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-right">Monto</th>
+                    <th className="py-3 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center">Estado</th>
+                    <th className="py-3 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-right">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/50">
+                  {currentItems.length === 0 ? (
+                    <tr>
+                      <td colSpan={user?.roleId === 'ADMIN_MAESTRO' ? 8 : 7} className="py-8 text-center text-slate-500 italic text-sm">
+                        No hay movimientos registrados para los filtros seleccionados.
+                      </td>
+                    </tr>
+                  ) : (
+                    currentItems.map(earning => {
+                      const inv = invoices.find(i => i.id === earning.invoiceId);
+                      const cli = clientes.find(c => c.id === inv?.businessId);
+                      const currency = cli?.currency || 'USD';
+                      const seller = platformUsers.find(u => u.id === earning.userId)?.fullName || 'Desconocido';
+                      const dateStr = new Date(earning.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' }).replace(/\//g, '');
+                      const idComision = earning.id.startsWith('COM-') ? earning.id : `COM${earning.id.substring(earning.id.length - 3).toUpperCase()}-${dateStr}`;
+
+                      return (
+                        <tr key={earning.id} className="hover:bg-slate-800/30 transition-colors">
+                          {user?.roleId === 'ADMIN_MAESTRO' && (
+                            <td className="py-3 px-4 text-center">
+                              {earning.status !== 'Pagado' && (
+                                <input 
+                                  type="checkbox"
+                                  checked={selectedEarnings.includes(earning.id)}
+                                  onChange={() => toggleEarningSelection(earning.id)}
+                                  className="w-4 h-4 rounded border-slate-700 bg-slate-900/50 checked:bg-amber-500 checked:border-amber-500 focus:ring-amber-500/50 focus:ring-offset-slate-950 cursor-pointer"
+                                />
+                              )}
+                            </td>
+                          )}
+                          <td className="py-3 px-4 text-xs font-mono text-slate-400">{idComision}</td>
+                          <td className="py-3 px-4 text-xs font-mono text-slate-400">{inv?.invoiceNumber || '-'}</td>
+                          <td className="py-3 px-4 text-xs text-slate-300">Ganancia por comisión</td>
+                          <td className="py-3 px-4 text-xs text-white font-bold">{seller}</td>
+                          <td className="py-3 px-4 text-xs font-bold text-emerald-400 text-right">
+                            {currency === 'EURO' ? '€' : '$'}{safeToLocaleString(earning.amount)}
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest border ${
+                               earning.status === 'Pagado' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                               earning.status === 'Procesado' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
+                               'bg-amber-500/10 text-amber-500 border-amber-500/20'
+                            }`}>
+                              {earning.status}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-right space-x-2">
+                             {user?.roleId === 'ADMIN_MAESTRO' ? (
+                                <div className="flex items-center justify-end gap-2">
+                                  {earning.status === 'En proceso' && (
+                                    <button 
+                                      onClick={() => requestSingleProcess(earning.id)}
+                                      className="text-xs text-blue-400 hover:text-blue-300 font-bold transition-colors"
+                                    >
+                                      Procesar
+                                    </button>
+                                  )}
+                                  {earning.status === 'Procesado' && (
+                                    <button 
+                                      onClick={() => requestSinglePay(earning.id)}
+                                      className="text-xs text-emerald-400 hover:text-emerald-300 font-bold transition-colors"
+                                    >
+                                      Pagar
+                                    </button>
+                                  )}
+                                  <button onClick={() => handleDeleteEarning(earning.id)} className="text-slate-500 hover:text-red-400 transition-colors ml-2">
+                                    <Trash2 size={16} />
+                                  </button>
+                                </div>
+                             ) : (
+                                <span className="text-[10px] text-slate-600">-</span>
+                             )}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+            
+            {totalPages > 1 && (
+              <div className="p-4 border-t border-slate-800 bg-slate-950/30">
+                 <Pagination 
+                   currentPage={currentPage}
+                   totalPages={totalPages}
+                   onPageChange={setCurrentPage}
+                 />
+              </div>
+            )}
+          </div>
         </div>
       </main>
 

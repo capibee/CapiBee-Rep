@@ -66,7 +66,7 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
   const [isStatementModalOpen, setIsStatementModalOpen] = useState(false);
   const [selectedStatementClient, setSelectedStatementClient] = useState('');
-  const [kpiFilter, setKpiFilter] = useState({ type: 'all' as 'all' | 'month' | 'year', month: new Date().getMonth() + 1, year: new Date().getFullYear() });
+  const [kpiFilter, setKpiFilter] = useState({ type: 'all' as 'all' | 'month' | 'year' | 'period' | 'week' | 'day', month: new Date().getMonth() + 1, year: new Date().getFullYear(), period: new Date().getDate() <= 15 ? 1 : 2 });
   const [selectedKpis, setSelectedKpis] = useState<string[]>([]);
 
   const toggleKpiFilter = (id: string) => {
@@ -349,14 +349,39 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
         paid: { USD: 0, EURO: 0 }
     };
 
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
+    const currentDay = now.getDate();
+    const currentFortnight = currentDay <= 15 ? 1 : 2;
+
+    const currentDayOfWeek = now.getDay() || 7;
+    const startOfWeek = new Date(now);
+    startOfWeek.setHours(0, 0, 0, 0);
+    startOfWeek.setDate(now.getDate() - currentDayOfWeek + 1);
+    
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+
     invoices.forEach(inv => {
-        const [invYear, invMonth] = inv.emissionDate.split('-').map(Number);
+        const invDateObj = new Date(inv.emissionDate + 'T12:00:00Z');
+        const invYear = invDateObj.getFullYear();
+        const invMonth = invDateObj.getMonth() + 1;
+        const invDay = invDateObj.getDate();
+        const invFortnight = invDay <= 15 ? 1 : 2;
         
         let shouldInclude = true;
         if (kpiFilter.type === 'month') {
             shouldInclude = invMonth === kpiFilter.month && invYear === kpiFilter.year;
         } else if (kpiFilter.type === 'year') {
             shouldInclude = invYear === kpiFilter.year;
+        } else if (kpiFilter.type === 'period') {
+            shouldInclude = invYear === kpiFilter.year && invMonth === kpiFilter.month && invFortnight === kpiFilter.period;
+        } else if (kpiFilter.type === 'week') {
+            shouldInclude = invDateObj >= startOfWeek && invDateObj <= endOfWeek;
+        } else if (kpiFilter.type === 'day') {
+            shouldInclude = invYear === currentYear && invMonth === currentMonth && invDay === currentDay;
         }
         
         if (!shouldInclude) return;
@@ -1367,16 +1392,25 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
               <span className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Filtrar:</span>
               <div className="flex bg-slate-950 p-1 rounded-lg">
                 <button onClick={() => setKpiFilter(f => ({...f, type: 'all'}))} className={`px-3 py-1.5 rounded-md text-[10px] font-black uppercase transition-colors ${kpiFilter.type === 'all' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>Todos</button>
-                <button onClick={() => setKpiFilter(f => ({...f, type: 'month'}))} className={`px-3 py-1.5 rounded-md text-[10px] font-black uppercase transition-colors ${kpiFilter.type === 'month' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>Mes</button>
                 <button onClick={() => setKpiFilter(f => ({...f, type: 'year'}))} className={`px-3 py-1.5 rounded-md text-[10px] font-black uppercase transition-colors ${kpiFilter.type === 'year' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>Año</button>
+                <button onClick={() => setKpiFilter(f => ({...f, type: 'month'}))} className={`px-3 py-1.5 rounded-md text-[10px] font-black uppercase transition-colors ${kpiFilter.type === 'month' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>Mes</button>
+                <button onClick={() => setKpiFilter(f => ({...f, type: 'period'}))} className={`px-3 py-1.5 rounded-md text-[10px] font-black uppercase transition-colors ${kpiFilter.type === 'period' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>Periodo</button>
+                <button onClick={() => setKpiFilter(f => ({...f, type: 'week'}))} className={`px-3 py-1.5 rounded-md text-[10px] font-black uppercase transition-colors ${kpiFilter.type === 'week' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>Semana</button>
+                <button onClick={() => setKpiFilter(f => ({...f, type: 'day'}))} className={`px-3 py-1.5 rounded-md text-[10px] font-black uppercase transition-colors ${kpiFilter.type === 'day' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>Día</button>
               </div>
             </div>
             
-            {kpiFilter.type !== 'all' && (
+            {kpiFilter.type !== 'all' && kpiFilter.type !== 'week' && kpiFilter.type !== 'day' && (
                 <div className="flex gap-2">
-                  {kpiFilter.type === 'month' && (
+                  {(kpiFilter.type === 'month' || kpiFilter.type === 'period') && (
                     <select value={kpiFilter.month} onChange={e => setKpiFilter(f => ({...f, month: parseInt(e.target.value)}))} className="bg-slate-950 text-[10px] p-1.5 px-2 rounded-lg font-bold text-slate-300 border border-slate-800 outline-none focus:border-emerald-500 shadow-inner" style={{ colorScheme: 'dark' }}>
-                      {Array.from({length: 12}, (_, i) => i + 1).map(m => <option key={m} value={m} className="bg-slate-950 text-slate-300">{m}</option>)}
+                      {Array.from({length: 12}, (_, i) => i + 1).map(m => <option key={m} value={m} className="bg-slate-950 text-slate-300">Mes {m}</option>)}
+                    </select>
+                  )}
+                  {kpiFilter.type === 'period' && (
+                    <select value={kpiFilter.period} onChange={e => setKpiFilter(f => ({...f, period: parseInt(e.target.value)}))} className="bg-slate-950 text-[10px] p-1.5 px-2 rounded-lg font-bold text-slate-300 border border-slate-800 outline-none focus:border-emerald-500 shadow-inner" style={{ colorScheme: 'dark' }}>
+                      <option value={1} className="bg-slate-950 text-slate-300">Q1 (1-15)</option>
+                      <option value={2} className="bg-slate-950 text-slate-300">Q2 (16-31)</option>
                     </select>
                   )}
                   <select value={kpiFilter.year} onChange={e => setKpiFilter(f => ({...f, year: parseInt(e.target.value)}))} className="bg-slate-950 text-[10px] p-1.5 px-2 rounded-lg font-bold text-slate-300 border border-slate-800 outline-none focus:border-emerald-500 shadow-inner" style={{ colorScheme: 'dark' }}>
@@ -1495,8 +1529,7 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
               <table className="w-full text-left border-collapse min-w-[1000px]">
                 <thead>
                   <tr className="bg-slate-950 border-b border-slate-800">
-                    <th className="py-3 px-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center w-10">#</th>
-                    <th className="py-3 px-4 text-xs font-bold text-emerald-500 uppercase tracking-widest text-center flex items-center justify-center"><Hash size={14} className="mr-1" /> FACTURA</th>
+                    <th className="py-3 px-4 text-xs font-bold text-emerald-500 uppercase tracking-widest text-center">ID</th>
                     <th className="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-widest">NOMBRE EMPRESA</th>
                     <th className="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-center"><Calendar size={14} className="inline mr-1" /> EMISIÓN</th>
                     <th className="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-center">TOTAL FACTURA</th>
@@ -1509,13 +1542,13 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
                 <tbody className="divide-y divide-slate-800/50">
                   {isTableLoading ? (
                     <tr>
-                      <td colSpan={10} className="py-8">
+                      <td colSpan={9} className="py-8">
                         <TableLoader />
                       </td>
                     </tr>
                   ) : currentInvoices.length === 0 ? (
                     <tr>
-                      <td colSpan={10} className="py-12 text-center text-slate-500 font-medium bg-slate-900/20">
+                      <td colSpan={9} className="py-12 text-center text-slate-500 font-medium bg-slate-900/20">
                         No hay registros contabilizados en esta vista.
                       </td>
                     </tr>
@@ -1535,8 +1568,7 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
                       animate={{ opacity: 1 }}
                       className="hover:bg-slate-800/20 transition-colors group border-b border-slate-800/50"
                     >
-                      <td className="py-4 px-2 text-[10px] font-mono text-slate-500 text-center select-none w-10">{(currentPage - 1) * itemsPerPage + idx + 1}</td>
-                      <td className="py-4 px-4 text-xs font-mono text-slate-500 text-center">{inv.invoiceNumber}-{new Date(inv.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).split('/').join('')}</td>
+                      <td className="py-4 px-4 text-xs font-mono text-slate-500 text-center select-none">{inv.invoiceNumber}-{new Date(inv.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).split('/').join('')}</td>
                       <td className="py-4 px-4">
                         <div className="font-bold text-slate-100 text-sm">{inv.businessName}</div>
                       </td>

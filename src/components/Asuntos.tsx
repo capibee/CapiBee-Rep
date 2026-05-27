@@ -310,9 +310,16 @@ export default function Asuntos({ onBack }: AsuntosProps) {
       }
 
       // Filter by dynamic selected KPIs (one or several or all)
-      if (selectedKpis.length > 0 && !selectedKpis.includes("totalPotenciales")) {
+      if (selectedKpis.length > 0) {
         const itemDate = new Date(a.fecha);
         const matchesAnyKpi = selectedKpis.some(kpiId => {
+          if (kpiId === "hoy") {
+            return (
+              itemDate.getFullYear() === dateBounds.currentYear &&
+              itemDate.getMonth() === dateBounds.currentMonth &&
+              itemDate.getDate() === dateBounds.currentDay
+            );
+          }
           if (kpiId === "semanal") {
             return itemDate >= dateBounds.startOfWeek && itemDate <= dateBounds.endOfWeek;
           }
@@ -345,27 +352,23 @@ export default function Asuntos({ onBack }: AsuntosProps) {
 
   const toggleKpi = (kpiId: string) => {
     setCurrentPage(1);
-    if (kpiId === "totalPotenciales") {
-      setSelectedKpis([]);
-      return;
-    }
     setSelectedKpis((prev) => {
-      const filtered = prev.filter(id => id !== "totalPotenciales");
-      if (filtered.includes(kpiId)) {
-        return filtered.filter(id => id !== kpiId);
+      if (prev.includes(kpiId)) {
+        return prev.filter(id => id !== kpiId);
       } else {
-        return [...filtered, kpiId];
+        return [...prev, kpiId];
       }
     });
   };
 
   const kpis = useMemo(() => {
-    const { currentYear, currentMonth, currentFortnight, startOfWeek, endOfWeek } = dateBounds;
+    const { currentYear, currentMonth, currentFortnight, currentDay, startOfWeek, endOfWeek } = dateBounds;
 
     let totalYTD = 0;
     let totalMonth = 0;
     let totalFortnight = 0;
     let totalWeek = 0;
+    let totalToday = 0;
 
     // Filter asuntos list based on rule (Superadmin/Desarrollo views all or executive, commercial views only their own)
     const listForKpis = asuntos.filter(a => {
@@ -387,6 +390,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
       if (date.getFullYear() === currentYear && date.getMonth() === currentMonth) {
         totalMonth++;
         const day = date.getDate();
+        if (day === currentDay) totalToday++;
         const fortnight = day <= 15 ? 1 : 2;
         if (fortnight === currentFortnight) totalFortnight++;
       }
@@ -395,7 +399,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
       }
     });
 
-    return { totalYTD, totalMonth, totalFortnight, totalWeek, totalPotenciales: listForKpis.length };
+    return { totalYTD, totalMonth, totalFortnight, totalWeek, totalToday };
   }, [asuntos, canViewAll, currentUser.id, executiveFilter, yearFilter, dateBounds]);
 
   const totalPages = Math.ceil(filteredAsuntos.length / itemsPerPage);
@@ -422,24 +426,6 @@ export default function Asuntos({ onBack }: AsuntosProps) {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2 mb-2">
           <button 
             type="button"
-            onClick={() => toggleKpi("totalPotenciales")}
-            className={`p-3 rounded-xl text-left transition-all duration-200 border cursor-pointer select-none relative overflow-hidden group ${
-              selectedKpis.length === 0 || selectedKpis.includes("totalPotenciales")
-                ? "bg-yellow-400/10 border-yellow-400/60 shadow-lg shadow-yellow-400/5 ring-1 ring-yellow-400/30 scale-[1.02]"
-                : "bg-slate-900/30 border-slate-800/80 hover:border-slate-700/80 opacity-70 hover:opacity-100 hover:bg-slate-900/40"
-            }`}
-          >
-              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">AP Total</div>
-              <div className="text-2xl text-yellow-400 font-black flex items-center justify-between">
-                <span>{kpis.totalPotenciales}</span>
-                {(selectedKpis.length === 0 || selectedKpis.includes("totalPotenciales")) && (
-                  <span className="w-2 h-2 rounded-full bg-yellow-400 block animate-pulse"></span>
-                )}
-              </div>
-          </button>
-
-          <button 
-            type="button"
             onClick={() => toggleKpi("ytd")}
             className={`p-3 rounded-xl text-left transition-all duration-200 border cursor-pointer select-none relative overflow-hidden group ${
               selectedKpis.includes("ytd")
@@ -447,7 +433,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                 : "bg-slate-900/30 border-slate-800/80 hover:border-slate-700/80 opacity-70 hover:opacity-100 hover:bg-slate-900/40"
             }`}
           >
-              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">AP YTD "{yearFilter || dateBounds.currentYear}"</div>
+              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">AP YTD</div>
               <div className="text-2xl text-yellow-400 font-black flex items-center justify-between">
                 <span>{kpis.totalYTD}</span>
                 {selectedKpis.includes("ytd") && (
@@ -465,7 +451,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                 : "bg-slate-900/30 border-slate-800/80 hover:border-slate-700/80 opacity-70 hover:opacity-100 hover:bg-slate-900/40"
             }`}
           >
-              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">AP mes</div>
+              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">AP MES</div>
               <div className="text-2xl text-yellow-400 font-black flex items-center justify-between">
                 <span>{kpis.totalMonth}</span>
                 {selectedKpis.includes("mes") && (
@@ -505,6 +491,24 @@ export default function Asuntos({ onBack }: AsuntosProps) {
               <div className="text-2xl text-yellow-400 font-black flex items-center justify-between">
                 <span>{kpis.totalWeek}</span>
                 {selectedKpis.includes("semanal") && (
+                  <span className="w-2 h-2 rounded-full bg-yellow-400 block animate-pulse"></span>
+                )}
+              </div>
+          </button>
+
+          <button 
+            type="button"
+            onClick={() => toggleKpi("hoy")}
+            className={`p-3 rounded-xl text-left transition-all duration-200 border cursor-pointer select-none relative overflow-hidden group ${
+              selectedKpis.includes("hoy")
+                ? "bg-yellow-400/10 border-yellow-400/60 shadow-lg shadow-yellow-400/5 ring-1 ring-yellow-400/30 scale-[1.02]"
+                : "bg-slate-900/30 border-slate-800/80 hover:border-slate-700/80 opacity-70 hover:opacity-100 hover:bg-slate-900/40"
+            }`}
+          >
+              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">AP Hoy</div>
+              <div className="text-2xl text-yellow-400 font-black flex items-center justify-between">
+                <span>{kpis.totalToday}</span>
+                {selectedKpis.includes("hoy") && (
                   <span className="w-2 h-2 rounded-full bg-yellow-400 block animate-pulse"></span>
                 )}
               </div>

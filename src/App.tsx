@@ -13,7 +13,7 @@ import ModuleLoader from './components/ModuleLoader';
 import ZadarmaWidget from './components/ZadarmaWidget';
 import { Role, ModulePermission } from './types';
 
-const Dashboard = lazy(() => import('./components/Dashboard'));
+import Dashboard from './components/Dashboard';
 const Contabilidad = lazy(() => import('./components/Contabilidad'));
 const Clientes = lazy(() => import('./components/Clientes'));
 const MyBusinesses = lazy(() => import('./components/MyBusinesses'));
