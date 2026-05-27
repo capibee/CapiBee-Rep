@@ -2337,14 +2337,14 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                   <div className="flex flex-col gap-1">
                     <span className="text-[10px] uppercase tracking-widest text-amber-500 font-extrabold flex items-center gap-1">
                       <Zap size={10} className="text-amber-500" />
-                      Gestión de Lead
+                      Gestión del contacto
                     </span>
                     <h3 className="font-extrabold text-white text-lg tracking-tight leading-snug">
                       {businessObj?.name || "Empresa"}
                     </h3>
                     {businessObj && (
                       <div className="mt-1 flex items-center gap-2">
-                        <span className="text-[10px] uppercase tracking-wider font-bold text-slate-500">Estado Celda:</span>
+                        <span className="text-[10px] uppercase tracking-wider font-bold text-slate-500">Estado:</span>
                         <select
                           value={businessObj.status || "Nuevo"}
                           onChange={(e) => handleSaveInline(businessObj.id, "status", e.target.value)}
@@ -2527,7 +2527,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                           </span>
                         </div>
                         <div>
-                          <span className="text-slate-500 block text-[9px] uppercase font-bold">Asesor Responsable</span>
+                          <span className="text-slate-500 block text-[9px] uppercase font-bold">Asignado a</span>
                           <span className="text-slate-300 truncate block">{businessObj?.responsibleName || "No Asignado"}</span>
                         </div>
                       </div>
@@ -2539,7 +2539,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                   <div className="col-span-12 md:col-span-7 flex flex-col h-full min-h-[30vh] md:min-h-0 md:border-l md:border-slate-800/80 md:pl-6 overflow-hidden">
                     
                     <span className="text-[10px] uppercase tracking-wider font-extrabold text-slate-400 mb-2 block">
-                      Bitácora de Comentarios / Historial de Gestión
+                      Historial de notas
                     </span>
 
                     {/* Scrollable Chat Area */}
