@@ -29,15 +29,15 @@ import { supabase } from '../lib/supabase';
 
 const PLATFORM_MODULES = [
   { id: 'registro_negocios', name: 'Directorio' },
-  { id: 'Asuntos', name: 'Asuntos' },
-  { id: 'Propuestas', name: 'Propuestas' },
+  { id: 'asuntos', name: 'Asuntos' },
+  { id: 'propuestas', name: 'Propuestas' },
   { id: 'clientes', name: 'Clientes' },
   { id: 'contabilidad', name: 'Facturas' },
   { id: 'mis_negocios', name: 'Establecimientos' },
   { id: 'agentes', name: 'Agentes CapiBee' },
   { id: 'ganancias', name: 'Transacciones' },
   { id: 'usuarios_roles', name: 'Usuarios y Roles' },
-  { id: 'Solicitudes', name: 'Formularios' },
+  { id: 'solicitudes', name: 'Formularios' },
   { id: 'supabase', name: 'Backoffice' },
   { id: 'finanzas', name: 'KPI\'s' },
 ];
@@ -144,7 +144,7 @@ export default function UsuariosRoles({}: UsuariosRolesProps) {
     // 4. Fetch fresh solicitudes from Supabase
     const fetchSolicitudes = async () => {
       try {
-        const { data, error } = await supabase.from('Solicitudes').select('*');
+        const { data, error } = await supabase.from('solicitudes').select('*');
         if (!error && data) {
           const mapped = data.map((s: any) => {
             let dateStr = new Date().toISOString();
@@ -197,7 +197,7 @@ export default function UsuariosRoles({}: UsuariosRolesProps) {
       .subscribe();
 
     const solsChannel = supabase.channel('solicitudes-users-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'Solicitudes' }, () => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'solicitudes' }, () => {
         fetchSolicitudes();
       })
       .subscribe();

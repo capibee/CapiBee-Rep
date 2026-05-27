@@ -483,34 +483,36 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
     const now = new Date();
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth();
+    const currentDay = now.getDate();
+    const currentFortnight = currentDay <= 15 ? 1 : 2;
 
     const startOfYear = new Date(currentYear, 0, 1).getTime();
     const startOfMonth = new Date(currentYear, currentMonth, 1).getTime();
+    
+    // Period / Fortnight start logic
+    const startOfPeriod = currentFortnight === 1 
+      ? new Date(currentYear, currentMonth, 1).getTime() 
+      : new Date(currentYear, currentMonth, 16).getTime();
 
-    const startOfWeekDate = new Date(now);
-    const day = startOfWeekDate.getDay();
-    const diff = startOfWeekDate.getDate() - day + (day === 0 ? -6 : 1);
-    startOfWeekDate.setDate(diff);
-    startOfWeekDate.setHours(0, 0, 0, 0);
-    const startOfWeek = startOfWeekDate.getTime();
+    const startOfDay = new Date(currentYear, currentMonth, currentDay, 0, 0, 0, 0).getTime();
 
     let totalYtd = 0;
     let totalMes = 0;
-    let totalSemana = 0;
+    let totalPeriodo = 0;
+    let totalHoy = 0;
 
     authorizedClientes.forEach((c) => {
       const createdAt = c.createdAt || 0;
       if (createdAt >= startOfYear) totalYtd++;
       if (createdAt >= startOfMonth) totalMes++;
-      if (createdAt >= startOfWeek) totalSemana++;
+      if (createdAt >= startOfPeriod) totalPeriodo++;
+      if (createdAt >= startOfDay) totalHoy++;
     });
 
     const monthName = now.toLocaleString('es-ES', { month: 'long' });
-    const endOfWeekDate = new Date(startOfWeekDate);
-    endOfWeekDate.setDate(startOfWeekDate.getDate() + 6);
-    const weekRange = `${startOfWeekDate.getDate()} al ${endOfWeekDate.getDate()}`;
+    const periodName = currentFortnight === 1 ? '1ra Quincena' : '2da Quincena';
 
-    return { totalYtd, totalMes, totalSemana, monthName, weekRange, currentYear };
+    return { totalYtd, totalMes, totalPeriodo, totalHoy, monthName, periodName, currentYear };
   }, [authorizedClientes]);
 
   const filteredClientes = useMemo(() => {
@@ -539,21 +541,23 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
         const now = new Date();
         const currentYear = now.getFullYear();
         const currentMonth = now.getMonth();
+        const currentDay = now.getDate();
+        const currentFortnight = currentDay <= 15 ? 1 : 2;
+
         const startOfYear = new Date(currentYear, 0, 1).getTime();
         const startOfMonth = new Date(currentYear, currentMonth, 1).getTime();
-        const startOfWeekDate = new Date(now);
-        const day = startOfWeekDate.getDay();
-        const diff = startOfWeekDate.getDate() - day + (day === 0 ? -6 : 1);
-        startOfWeekDate.setDate(diff);
-        startOfWeekDate.setHours(0, 0, 0, 0);
-        const startOfWeek = startOfWeekDate.getTime();
+        const startOfPeriod = currentFortnight === 1 
+            ? new Date(currentYear, currentMonth, 1).getTime() 
+            : new Date(currentYear, currentMonth, 16).getTime();
+        const startOfDay = new Date(currentYear, currentMonth, currentDay, 0, 0, 0, 0).getTime();
 
         const createdAt = c.createdAt || 0;
 
         let matchesKpi = false;
         if (selectedKpis.includes("ytd") && createdAt >= startOfYear) matchesKpi = true;
         if (selectedKpis.includes("month") && createdAt >= startOfMonth) matchesKpi = true;
-        if (selectedKpis.includes("week") && createdAt >= startOfWeek) matchesKpi = true;
+        if (selectedKpis.includes("period") && createdAt >= startOfPeriod) matchesKpi = true;
+        if (selectedKpis.includes("today") && createdAt >= startOfDay) matchesKpi = true;
 
         if (!matchesKpi) return false;
       }
@@ -571,7 +575,7 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
     <div className="h-full bg-transparent flex flex-col font-sans overflow-hidden text-slate-200">
       <main className="flex-1 p-4 sm:p-6 lg:p-10 overflow-y-auto relative custom-scrollbar min-h-0">
         <div className="max-w-[1400px] mx-auto relative z-10">
-          <div className="mb-2 grid grid-cols-2 md:grid-cols-4 gap-2">
+          <div className="mb-2 grid grid-cols-2 md:grid-cols-5 gap-2">
             <motion.div
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
@@ -602,7 +606,7 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
               <div
                 className={`text-[8px] font-bold uppercase tracking-widest mb-0.5 ${selectedKpis.includes("ytd") ? "text-blue-400" : "text-blue-500"}`}
               >
-                Total clientes {kpis.currentYear}
+                Clientes {kpis.currentYear}
               </div>
               <div className="text-xl font-display font-black text-white">
                 {kpis.totalYtd}
@@ -630,20 +634,39 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
             <motion.div
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
-              onClick={() => toggleKpiFilter("week")}
+              onClick={() => toggleKpiFilter("period")}
               className={`cursor-pointer p-2 rounded-lg border shadow-sm transition-all duration-300 ${
-                selectedKpis.includes("week")
+                selectedKpis.includes("period")
                   ? "bg-emerald-500/10 border-emerald-500/50"
                   : "bg-slate-900/60 border-slate-800"
               }`}
             >
               <div
-                className={`text-[8px] font-bold uppercase tracking-widest mb-0.5 ${selectedKpis.includes("week") ? "text-emerald-400" : "text-emerald-500"}`}
+                className={`text-[8px] font-bold uppercase tracking-widest mb-0.5 ${selectedKpis.includes("period") ? "text-emerald-400" : "text-emerald-500"}`}
               >
-                Clientes Semana ({kpis.weekRange})
+                Clientes Periodo ({kpis.periodName})
               </div>
               <div className="text-xl font-display font-black text-white">
-                {kpis.totalSemana}
+                {kpis.totalPeriodo}
+              </div>
+            </motion.div>
+            <motion.div
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+              onClick={() => toggleKpiFilter("today")}
+              className={`cursor-pointer p-2 rounded-lg border shadow-sm transition-all duration-300 ${
+                selectedKpis.includes("today")
+                  ? "bg-amber-500/10 border-amber-500/50"
+                  : "bg-slate-900/60 border-slate-800"
+              }`}
+            >
+              <div
+                className={`text-[8px] font-bold uppercase tracking-widest mb-0.5 ${selectedKpis.includes("today") ? "text-amber-400" : "text-amber-500"}`}
+              >
+                Clientes Hoy
+              </div>
+              <div className="text-xl font-display font-black text-white">
+                {kpis.totalHoy}
               </div>
             </motion.div>
           </div>
