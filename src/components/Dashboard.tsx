@@ -1183,8 +1183,8 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
       fecha: new Date().toISOString(),
       nombreAsunto: asuntoFormData.nombreAsunto,
       businessId: asuntoFormData.businessId,
-      datosAsunto: asuntoFormData.datosAsunto + extraDatos,
-      archivoAdjuntoUrl: asuntoFormData.archivoAdjuntoUrl,
+      datosAsunto: asuntoFormData.datosAsunto,
+      archivoAdjuntoUrl: "",
       userId: user.id || "unknown",
       createdAt: Date.now(),
       contactName: asuntoFormData.contactName || "",
@@ -2993,7 +2993,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 overflow-y-auto"
+            className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[110] flex items-center justify-center p-4 overflow-y-auto"
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
@@ -3111,128 +3111,14 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                   )}
                 </div>
 
-                {/* Nombre de Contacto y Teléfono autocompletados */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 font-sans">
-                      Nombre del Contacto
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Nombre del contacto"
-                      className="w-full px-3 py-1.5 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 font-medium text-xs shadow-inner"
-                      value={asuntoFormData.contactName || ""}
-                      onChange={(e) =>
-                        setAsuntoFormData({
-                          ...asuntoFormData,
-                          contactName: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 font-sans">
-                      Teléfono de Contacto
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Número o WhatsApp"
-                      className="w-full px-3 py-1.5 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 font-medium text-xs shadow-inner"
-                      value={asuntoFormData.contactPhone || ""}
-                      onChange={(e) =>
-                        setAsuntoFormData({
-                          ...asuntoFormData,
-                          contactPhone: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  {/* Correo Electrónico del Cliente */}
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
-                      Correo Contacto
-                    </label>
-                    <input
-                      type="email"
-                      placeholder="Correo electrónico del cliente"
-                      className="w-full px-3 py-1.5 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 font-medium text-xs shadow-inner"
-                      value={asuntoFormData.clientEmail}
-                      onChange={(e) =>
-                        setAsuntoFormData({
-                          ...asuntoFormData,
-                          clientEmail: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-
-                  {/* Fecha de google meet */}
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
-                      Programar reunión
-                    </label>
-                    <input
-                      type="date"
-                      min={new Date().toISOString().split("T")[0]}
-                      className="w-full px-3 py-1.5 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 font-medium text-xs shadow-inner [color-scheme:dark]"
-                      value={asuntoParts.date}
-                      onChange={(e) => handleDateSelect(e.target.value, (val) => setAsuntoFormData({ ...asuntoFormData, meetingDate: val }), asuntoFormData.meetingDate)}
-                    />
-                  </div>
-
-                  {asuntoParts.date && (
-                    <div className="col-span-2 bg-slate-950/40 p-3 rounded-lg border border-slate-800/60 font-sans text-left">
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center justify-between">
-                        <span>Horas de Disponibilidad (L-V)</span>
-                        <span className="text-[8px] text-blue-400 bg-blue-500/10 px-1 border border-blue-500/20 rounded font-black">8 AM - 12 PM / 2 PM - 6 PM</span>
-                      </label>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5">🌅 Mañana</span>
-                          <div className="grid grid-cols-4 gap-1">
-                            {TIMESLOTS.slice(0, 8).map((slot) => (
-                              <button
-                                key={slot.value}
-                                type="button"
-                                onClick={() => setAsuntoFormData({ ...asuntoFormData, meetingDate: `${asuntoParts.date}T${slot.value}` })}
-                                className={`py-1 text-[10px] rounded border transition-all text-center font-semibold ${asuntoParts.time === slot.value ? 'bg-blue-500 text-white border-blue-500 shadow-md shadow-blue-500/10' : 'bg-slate-950/50 text-slate-300 border-slate-800/80 hover:border-slate-700'}`}
-                              >
-                                {slot.label.replace(" AM", "")}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                        <div>
-                          <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5">🌇 Tarde</span>
-                          <div className="grid grid-cols-4 gap-1">
-                            {TIMESLOTS.slice(8).map((slot) => (
-                              <button
-                                key={slot.value}
-                                type="button"
-                                onClick={() => setAsuntoFormData({ ...asuntoFormData, meetingDate: `${asuntoParts.date}T${slot.value}` })}
-                                className={`py-1 text-[10px] rounded border transition-all text-center font-semibold ${asuntoParts.time === slot.value ? 'bg-blue-500 text-white border-blue-500 shadow-md shadow-blue-500/10' : 'bg-slate-950/50 text-slate-300 border-slate-800/80 hover:border-slate-700'}`}
-                              >
-                                {slot.label.replace(" PM", "")}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
                 {/* Datos Asunto / Notas */}
                 <div>
                   <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
-                    Descripción y Notas del Asunto
+                    Descripción del Asunto
                   </label>
                   <textarea
-                    rows={2.5}
-                    placeholder="Detalles sobre el caso o necesidades planteadas..."
+                    rows={4}
+                    placeholder="Detalles sobre la oportunidad comercial o necesidades planteadas..."
                     className="w-full px-3 py-1.5 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 font-medium text-xs shadow-inner resize-none"
                     value={asuntoFormData.datosAsunto}
                     onChange={(e) =>
@@ -3242,99 +3128,6 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                       })
                     }
                   />
-                </div>
-
-                {/* Archivo Adjunto */}
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
-                    Archivo Adjunto (Opcional)
-                  </label>
-                  
-                  {asuntoFormData.archivoAdjuntoUrl ? (
-                    <div className="flex items-center justify-between p-2 bg-slate-950/80 border border-slate-800 rounded-lg shadow-inner">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <div className="p-1.5 bg-blue-500/10 text-blue-400 rounded-md border border-blue-500/20 flex items-center justify-center">
-                          <Paperclip size={12} />
-                        </div>
-                        <div className="truncate text-left">
-                          <p className="text-[11px] font-semibold text-slate-200 truncate">
-                            {asuntoFileName || "Archivo Adjunto"}
-                          </p>
-                          <p className="text-[8px] font-mono text-emerald-400 font-bold uppercase tracking-wider">
-                            Listo para guardar
-                          </p>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setAsuntoFormData({
-                            ...asuntoFormData,
-                            archivoAdjuntoUrl: "",
-                          });
-                          setAsuntoFileName("");
-                        }}
-                        className="text-slate-500 hover:text-rose-400 p-1 hover:bg-rose-500/10 rounded-md transition-colors border border-transparent hover:border-rose-500/10"
-                        title="Eliminar archivo"
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                    </div>
-                  ) : (
-                    <div
-                      onDragOver={(e) => {
-                        e.preventDefault();
-                        setIsAsuntoDragOver(true);
-                      }}
-                      onDragLeave={() => setIsAsuntoDragOver(false)}
-                      onDrop={(e) => {
-                        e.preventDefault();
-                        setIsAsuntoDragOver(false);
-                        const file = e.dataTransfer.files[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onloadend = () => {
-                            setAsuntoFormData({
-                              ...asuntoFormData,
-                              archivoAdjuntoUrl: reader.result as string,
-                            });
-                            setAsuntoFileName(file.name);
-                          };
-                          reader.readAsDataURL(file);
-                        }
-                      }}
-                      className={`relative border-2 border-dashed rounded-lg p-2.5 flex flex-col items-center justify-center transition-all cursor-pointer ${
-                        isAsuntoDragOver
-                          ? "border-blue-500 bg-blue-500/5 text-blue-400"
-                          : "border-slate-800 bg-slate-950/40 hover:bg-slate-950/80 hover:border-slate-700 text-slate-400"
-                      }`}
-                    >
-                      <input
-                        type="file"
-                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            const reader = new FileReader();
-                            reader.onloadend = () => {
-                              setAsuntoFormData({
-                                ...asuntoFormData,
-                                archivoAdjuntoUrl: reader.result as string,
-                              });
-                              setAsuntoFileName(file.name);
-                            };
-                            reader.readAsDataURL(file);
-                          }
-                        }}
-                      />
-                      <div className="flex items-center gap-2 text-slate-400 hover:text-blue-400 transition-colors">
-                        <Upload size={12} />
-                        <span className="text-[10px] font-medium text-slate-300">
-                          Suelte su archivo o haga clic para buscar
-                        </span>
-                      </div>
-                    </div>
-                  )}
                 </div>
 
                 {/* Botones */}
