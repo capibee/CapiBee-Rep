@@ -14,6 +14,40 @@ export default function Solicitudes() {
   const [editingApp, setEditingApp] = useState<any>(null);
   const [statusToConfirm, setStatusToConfirm] = useState<{id: string, newStatus: string} | null>(null);
   const [isTableLoading, setIsTableLoading] = useState(true);
+  const [rolesList, setRolesList] = useState<{ id: string, name: string }[]>([]);
+
+  useEffect(() => {
+    const fetchPlatformRoles = async () => {
+      try {
+        const { data, error } = await supabase.from('Roles').select('id, name');
+        if (!error && data && data.length > 0) {
+          const mapped = data.map((r: any) => ({
+            id: r.id,
+            name: r.name
+          }));
+          setRolesList(mapped);
+        } else {
+          setRolesList([
+            { id: 'EJECUTIVO', name: 'Ejecutivo Comercial' },
+            { id: 'LIDER_COMERCIAL', name: 'Líder comercial' },
+            { id: 'DESARROLLADOR', name: 'Desarrollador' },
+            { id: 'LIDER_DESARROLLO', name: 'Lider de desarrollo' },
+            { id: 'CONTABILIDAD', name: 'Contabilidad' }
+          ]);
+        }
+      } catch (err) {
+        console.warn("Could not fetch roles from Supabase, using defaults:", err);
+        setRolesList([
+          { id: 'EJECUTIVO', name: 'Ejecutivo Comercial' },
+          { id: 'LIDER_COMERCIAL', name: 'Líder comercial' },
+          { id: 'DESARROLLADOR', name: 'Desarrollador' },
+          { id: 'LIDER_DESARROLLO', name: 'Lider de desarrollo' },
+          { id: 'CONTABILIDAD', name: 'Contabilidad' }
+        ]);
+      }
+    };
+    fetchPlatformRoles();
+  }, []);
 
   useEffect(() => {
     // 1. Load initially from localStorage for fast render
@@ -46,6 +80,7 @@ export default function Solicitudes() {
             pais: s.type || '',
             ciudad: s.company_name || '',
             idiomas: s.channel ? s.channel.split(',').map((x: any) => x.trim()).filter(Boolean) : [],
+            cargo: s.cargo || s.prompt || '',
             otroIdioma: s.prompt || '',
             status: s.status || 'En revisión',
             createdAt: dateStr
@@ -151,7 +186,8 @@ export default function Solicitudes() {
           phone: editingApp.whatsapp,
           channel: editingApp.idiomas ? editingApp.idiomas.join(', ') : '',
           type: editingApp.pais,
-          prompt: editingApp.otroIdioma || '',
+          cargo: editingApp.cargo || '',
+          prompt: editingApp.cargo || editingApp.otroIdioma || '',
           status: editingApp.status,
           created_at: editingApp.createdAt ? new Date(editingApp.createdAt).getTime() : Date.now()
         }, { onConflict: 'id' });
@@ -323,7 +359,14 @@ export default function Solicitudes() {
                         <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 border border-slate-700">
                            <User size={14} />
                         </div>
-                        <span className="font-bold text-slate-200 group-hover:text-amber-400 transition-colors">{app.nombre}</span>
+                        <div className="flex flex-col">
+                          <span className="font-bold text-slate-200 group-hover:text-amber-400 transition-colors">{app.nombre}</span>
+                          {app.cargo && (
+                            <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest mt-0.5">
+                              {app.cargo}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </td>
                     <td className="py-2 px-4">
@@ -489,6 +532,22 @@ export default function Solicitudes() {
                     onChange={e => setEditingApp({ ...editingApp, whatsapp: e.target.value })}
                     className="w-full bg-slate-950 border border-slate-800 focus:border-amber-500 rounded-xl px-4 py-3 outline-none text-sm text-slate-200 transition-all font-medium"
                   />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5 px-1 font-sans">Cargo / Rol a aplicar</label>
+                  <select
+                    value={editingApp.cargo || ""}
+                    onChange={e => setEditingApp({ ...editingApp, cargo: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800 focus:border-amber-500 rounded-xl px-4 py-3 outline-none text-sm text-slate-200 transition-all font-medium appearance-none cursor-pointer"
+                    style={{ backgroundRepeat: 'no-repeat', backgroundSize: '1rem', backgroundPosition: 'right 1rem center', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")` }}
+                  >
+                    <option value="" disabled>Seleccione el cargo</option>
+                    {rolesList.map(role => (
+                      <option key={role.id} value={role.name} className="bg-slate-900 text-slate-200">
+                        {role.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>

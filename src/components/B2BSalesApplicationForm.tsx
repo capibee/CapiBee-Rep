@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CheckCircle, Send, User, Mail, Phone, Briefcase, Sparkles, BrainCircuit, ArrowRight, ArrowLeft } from 'lucide-react';
 import BackgroundPattern from './BackgroundPattern';
@@ -40,6 +40,7 @@ export default function B2BSalesApplicationForm({ onClose }: Props) {
     ciudad: '',
     correo: '',
     whatsapp: '',
+    cargo: '',
     idiomas: [] as string[],
     otroIdioma: '',
     aceptaDatos: false,
@@ -47,15 +48,50 @@ export default function B2BSalesApplicationForm({ onClose }: Props) {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [direction, setDirection] = useState(0);
+  const [rolesList, setRolesList] = useState<{ id: string, name: string }[]>([]);
   
-  const totalSteps = 6;
+  const totalSteps = 7;
+
+  useEffect(() => {
+    const fetchPlatformRoles = async () => {
+      try {
+        const { data, error } = await supabase.from('Roles').select('id, name');
+        if (!error && data && data.length > 0) {
+          const mapped = data.map((r: any) => ({
+            id: r.id,
+            name: r.name
+          }));
+          setRolesList(mapped);
+        } else {
+          setRolesList([
+            { id: 'EJECUTIVO', name: 'Ejecutivo Comercial' },
+            { id: 'LIDER_COMERCIAL', name: 'Líder comercial' },
+            { id: 'DESARROLLADOR', name: 'Desarrollador' },
+            { id: 'LIDER_DESARROLLO', name: 'Lider de desarrollo' },
+            { id: 'CONTABILIDAD', name: 'Contabilidad' }
+          ]);
+        }
+      } catch (err) {
+        console.warn("Could not fetch roles from Supabase, using defaults:", err);
+        setRolesList([
+          { id: 'EJECUTIVO', name: 'Ejecutivo Comercial' },
+          { id: 'LIDER_COMERCIAL', name: 'Líder comercial' },
+          { id: 'DESARROLLADOR', name: 'Desarrollador' },
+          { id: 'LIDER_DESARROLLO', name: 'Lider de desarrollo' },
+          { id: 'CONTABILIDAD', name: 'Contabilidad' }
+        ]);
+      }
+    };
+    fetchPlatformRoles();
+  }, []);
 
   const nextStep = () => {
     if (currentStep === 0 && !formData.nombre.trim()) return;
     if (currentStep === 1 && (!formData.pais || !formData.ciudad)) return;
     if (currentStep === 2 && !formData.correo.includes('@')) return;
     if (currentStep === 3 && !formData.whatsapp.trim()) return;
-    if (currentStep === 4 && formData.idiomas.length === 0) return;
+    if (currentStep === 4 && !formData.cargo) return;
+    if (currentStep === 5 && formData.idiomas.length === 0) return;
     
     setDirection(1);
     setCurrentStep((prev) => prev + 1);
@@ -98,7 +134,8 @@ export default function B2BSalesApplicationForm({ onClose }: Props) {
         phone: newSolicitud.whatsapp,
         channel: newSolicitud.idiomas ? newSolicitud.idiomas.join(', ') : '',
         type: newSolicitud.pais,
-        prompt: newSolicitud.otroIdioma || '',
+        cargo: newSolicitud.cargo, // If there's a cargo field in DB
+        prompt: newSolicitud.cargo || newSolicitud.otroIdioma || '', // Fallback to prompt so it's loaded safely as s.prompt
         status: newSolicitud.status,
         created_at: Date.now()
       }, { onConflict: 'id' });
@@ -351,6 +388,40 @@ export default function B2BSalesApplicationForm({ onClose }: Props) {
                                 transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                                 className="w-full"
                             >
+                                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 px-1 text-center">Cargo / Rol a aplicar</label>
+                                <p className="text-xs text-slate-500 text-center mb-6 px-4">Selecciona el rol o puesto de trabajo al que deseas postularte.</p>
+                                <div className="relative">
+                                    <Briefcase className="absolute left-4 top-4 text-slate-600 pointer-events-none" size={20} />
+                                    <select 
+                                        autoFocus
+                                        required 
+                                        value={formData.cargo} 
+                                        onChange={(e) => setFormData({...formData, cargo: e.target.value})} 
+                                        className="w-full pl-12 pr-10 py-3.5 bg-[#111] border border-slate-800 rounded-xl text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-all text-sm font-medium appearance-none cursor-pointer"
+                                        style={{ backgroundRepeat: 'no-repeat', backgroundSize: '1rem', backgroundPosition: 'right 1rem center', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")` }}
+                                    >
+                                        <option value="" disabled>Selecciona un cargo disponible</option>
+                                        {rolesList.map(role => (
+                                            <option key={role.id} value={role.name} className="bg-slate-900 text-slate-200">
+                                                {role.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {currentStep === 5 && (
+                            <motion.div
+                                key="step-5"
+                                custom={direction}
+                                variants={variants}
+                                initial="enter"
+                                animate="center"
+                                exit="exit"
+                                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                                className="w-full"
+                            >
                                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 px-1 text-center">Idiomas de dominio profesional</label>
                                 <p className="text-xs text-slate-500 text-center mb-6 px-4">Selecciona los idiomas en los que tienes fluidez profesional o nativa.</p>
                                 <div className="grid grid-cols-2 gap-4 px-1">
@@ -401,9 +472,9 @@ export default function B2BSalesApplicationForm({ onClose }: Props) {
                             </motion.div>
                         )}
 
-                        {currentStep === 5 && (
+                        {currentStep === 6 && (
                             <motion.div
-                                key="step-5"
+                                key="step-6"
                                 custom={direction}
                                 variants={variants}
                                 initial="enter"

@@ -606,7 +606,7 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
               <div
                 className={`text-[8px] font-bold uppercase tracking-widest mb-0.5 ${selectedKpis.includes("ytd") ? "text-blue-400" : "text-blue-500"}`}
               >
-                Clientes {kpis.currentYear}
+                Clientes YDT
               </div>
               <div className="text-xl font-display font-black text-white">
                 {kpis.totalYtd}
@@ -625,7 +625,7 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
               <div
                 className={`text-[8px] font-bold uppercase tracking-widest mb-0.5 ${selectedKpis.includes("month") ? "text-indigo-400" : "text-indigo-500"}`}
               >
-                Clientes {kpis.monthName}
+                Clientes Mes
               </div>
               <div className="text-xl font-display font-black text-white">
                 {kpis.totalMes}
@@ -644,7 +644,7 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
               <div
                 className={`text-[8px] font-bold uppercase tracking-widest mb-0.5 ${selectedKpis.includes("period") ? "text-emerald-400" : "text-emerald-500"}`}
               >
-                Clientes Periodo ({kpis.periodName})
+                Clientes Periodo 16 al 30 de Mayo
               </div>
               <div className="text-xl font-display font-black text-white">
                 {kpis.totalPeriodo}

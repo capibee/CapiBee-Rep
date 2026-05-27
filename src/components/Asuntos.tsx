@@ -454,7 +454,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                 : "bg-slate-900/30 border-slate-800/80 hover:border-slate-700/80 opacity-70 hover:opacity-100 hover:bg-slate-900/40"
             }`}
           >
-              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">AP YTD</div>
+              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">Total Clientes</div>
               <div className="text-2xl text-yellow-400 font-black flex items-center justify-between">
                 <span>{kpis.totalYTD}</span>
                 {selectedKpis.includes("ytd") && (
@@ -472,7 +472,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                 : "bg-slate-900/30 border-slate-800/80 hover:border-slate-700/80 opacity-70 hover:opacity-100 hover:bg-slate-900/40"
             }`}
           >
-              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">AP MES</div>
+              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">Clientes YDT</div>
               <div className="text-2xl text-yellow-400 font-black flex items-center justify-between">
                 <span>{kpis.totalMonth}</span>
                 {selectedKpis.includes("mes") && (
@@ -490,7 +490,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                 : "bg-slate-900/30 border-slate-800/80 hover:border-slate-700/80 opacity-70 hover:opacity-100 hover:bg-slate-900/40"
             }`}
           >
-              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">AP Periodo ({fortnightRangeStr})</div>
+              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">Clientes Mes</div>
               <div className="text-2xl text-yellow-400 font-black flex items-center justify-between">
                 <span>{kpis.totalFortnight}</span>
                 {selectedKpis.includes("quincena") && (
@@ -508,7 +508,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                 : "bg-slate-900/30 border-slate-800/80 hover:border-slate-700/80 opacity-70 hover:opacity-100 hover:bg-slate-900/40"
             }`}
           >
-              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">AP Semana</div>
+              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">Clientes Periodo 16 al 30 de Mayo</div>
               <div className="text-2xl text-yellow-400 font-black flex items-center justify-between">
                 <span>{kpis.totalWeek}</span>
                 {selectedKpis.includes("semanal") && (
@@ -526,7 +526,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                 : "bg-slate-900/30 border-slate-800/80 hover:border-slate-700/80 opacity-70 hover:opacity-100 hover:bg-slate-900/40"
             }`}
           >
-              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">AP Hoy</div>
+              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">Clientes Hoy</div>
               <div className="text-2xl text-yellow-400 font-black flex items-center justify-between">
                 <span>{kpis.totalToday}</span>
                 {selectedKpis.includes("hoy") && (
