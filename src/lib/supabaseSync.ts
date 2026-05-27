@@ -12,25 +12,27 @@ export async function testSupabaseConnection(): Promise<SyncStatus> {
     connected: false,
     message: 'No conectado',
     tables: {
-      roles: false,
-      platform_users: false,
-      clients: false,
-      businesses: false,
-      invoices: false,
-      agent_earnings: false,
-      withdrawal_requests: false,
-      solicitudes: false,
-      propuestas: false,
+      Roles: false,
+      Usuarios: false,
+      Clientes: false,
+      Directorio: false,
+      Facturas: false,
+      Comisiones: false,
+      Withdrawal_requests: false,
+      Solicitudes: false,
+      Propuestas: false,
+      Asuntos: false,
+      Agentes: false,
     },
   };
 
   try {
     // 1. Try a basic fetch to check API heartbeat
-    const { data: dbTest, error: dbError } = await supabase.from('roles').select('id').limit(1);
+    const { data: dbTest, error: dbError } = await supabase.from('Roles').select('id').limit(1);
     
     if (dbError) {
       if (dbError.code === 'PGRST116' || dbError.code === '42P01') {
-        // Connected but table 'roles' does not exist yet (requires running schema)
+        // Connected but table 'Roles' does not exist yet (requires running schema)
         status.connected = true;
         status.message = 'Conectado a la API de Supabase, pero falta añadir las tablas. Ejecute la pestaña de "Crear Tablas" o el script SQL.';
         return status;
@@ -39,7 +41,7 @@ export async function testSupabaseConnection(): Promise<SyncStatus> {
     }
 
     status.connected = true;
-    status.tables.roles = true;
+    status.tables.Roles = true;
     status.message = 'Conexión totalmente exitosa y operativa.';
 
     // Check availability of other tables
@@ -49,14 +51,16 @@ export async function testSupabaseConnection(): Promise<SyncStatus> {
     };
 
     const tableNames = [
-      'platform_users',
-      'clients',
-      'businesses',
-      'invoices',
-      'agent_earnings',
-      'withdrawal_requests',
-      'solicitudes',
-      'propuestas'
+      'Usuarios',
+      'Clientes',
+      'Directorio',
+      'Facturas',
+      'Comisiones',
+      'Withdrawal_requests',
+      'Solicitudes',
+      'Propuestas',
+      'Asuntos',
+      'Agentes'
     ];
 
     const results = await Promise.all(tableNames.map(checkTable));
@@ -96,7 +100,7 @@ export async function pushAllLocalDataToSupabase(): Promise<{ success: boolean; 
         permissions: r.permissions || {},
         created_at: r.createdAt || Date.now()
       }));
-      const { error } = await supabase.from('roles').upsert(mappedRoles, { onConflict: 'id' });
+      const { error } = await supabase.from('Roles').upsert(mappedRoles, { onConflict: 'id' });
       if (error) throw new Error(`Roles Upload failed: ${error.message}`);
     }
 
@@ -112,7 +116,7 @@ export async function pushAllLocalDataToSupabase(): Promise<{ success: boolean; 
         avatar: u.avatar || '',
         created_at: u.createdAt || Date.now()
       }));
-      const { error } = await supabase.from('platform_users').upsert(mappedUsers, { onConflict: 'id' });
+      const { error } = await supabase.from('Usuarios').upsert(mappedUsers, { onConflict: 'id' });
       if (error) throw new Error(`Platform Users Upload failed: ${error.message}`);
     }
 
@@ -133,7 +137,7 @@ export async function pushAllLocalDataToSupabase(): Promise<{ success: boolean; 
         created_at: c.createdAt || Date.now(),
         user_id: c.userId || null
       }));
-      const { error } = await supabase.from('clients').upsert(mappedClients, { onConflict: 'id' });
+      const { error } = await supabase.from('Clientes').upsert(mappedClients, { onConflict: 'id' });
       if (error) throw new Error(`Clients Upload failed: ${error.message}`);
     }
 
@@ -167,7 +171,7 @@ export async function pushAllLocalDataToSupabase(): Promise<{ success: boolean; 
         memory_files: b.memoryFiles || [],
         created_at: b.createdAt || Date.now()
       }));
-      const { error } = await supabase.from('businesses').upsert(mappedBusinesses, { onConflict: 'id' });
+      const { error } = await supabase.from('Directorio').upsert(mappedBusinesses, { onConflict: 'id' });
       if (error) throw new Error(`Businesses Upload failed: ${error.message}`);
     }
 
@@ -192,7 +196,7 @@ export async function pushAllLocalDataToSupabase(): Promise<{ success: boolean; 
         status: inv.status || 'PENDIENTE',
         created_at: inv.createdAt || Date.now()
       }));
-      const { error } = await supabase.from('invoices').upsert(mappedInvoices, { onConflict: 'id' });
+      const { error } = await supabase.from('Facturas').upsert(mappedInvoices, { onConflict: 'id' });
       if (error) throw new Error(`Invoices Upload failed: ${error.message}`);
     }
 
@@ -208,7 +212,7 @@ export async function pushAllLocalDataToSupabase(): Promise<{ success: boolean; 
         status: e.status || 'En proceso',
         user_id: e.userId || null
       }));
-      const { error } = await supabase.from('agent_earnings').upsert(mappedEarnings, { onConflict: 'id' });
+      const { error } = await supabase.from('Comisiones').upsert(mappedEarnings, { onConflict: 'id' });
       if (error) throw new Error(`Comisiones Upload failed: ${error.message}`);
     }
 
@@ -224,7 +228,7 @@ export async function pushAllLocalDataToSupabase(): Promise<{ success: boolean; 
         user_email: w.userEmail,
         note: w.note || ''
       }));
-      const { error } = await supabase.from('withdrawal_requests').upsert(mappedWithdrawals, { onConflict: 'id' });
+      const { error } = await supabase.from('Withdrawal_requests').upsert(mappedWithdrawals, { onConflict: 'id' });
       if (error) throw new Error(`Retiros Upload failed: ${error.message}`);
     }
 
@@ -254,7 +258,7 @@ export async function pushAllLocalDataToSupabase(): Promise<{ success: boolean; 
           created_at: ts
         };
       });
-      const { error } = await supabase.from('solicitudes').upsert(mappedSolicitudes, { onConflict: 'id' });
+      const { error } = await supabase.from('Solicitudes').upsert(mappedSolicitudes, { onConflict: 'id' });
       if (error) throw new Error(`Formularios B2B Upload failed: ${error.message}`);
     }
 
@@ -273,7 +277,7 @@ export async function pushAllLocalDataToSupabase(): Promise<{ success: boolean; 
         pdf_name: p.pdfName || null
       }));
       // Safe to upsert? If table is missing, it will throw, but it shouldn't if we handle it
-      const { error } = await supabase.from('propuestas').upsert(mappedPropuestas, { onConflict: 'id' });
+      const { error } = await supabase.from('Propuestas').upsert(mappedPropuestas, { onConflict: 'id' });
       if (error && error.code !== '42P01') throw new Error(`Propuestas Upload failed: ${error.message}`);
     }
 
@@ -288,7 +292,7 @@ export async function pushAllLocalDataToSupabase(): Promise<{ success: boolean; 
 export async function pullAllRemoteDataFromSupabase(): Promise<{ success: boolean; detail: string }> {
   try {
     // 1. Pull Roles
-    const { data: dbRoles, error: rolesErr } = await supabase.from('roles').select('*');
+    const { data: dbRoles, error: rolesErr } = await supabase.from('Roles').select('*');
     if (rolesErr) throw rolesErr;
     if (dbRoles) {
       const mapped = dbRoles.map(r => ({
@@ -302,7 +306,7 @@ export async function pullAllRemoteDataFromSupabase(): Promise<{ success: boolea
     }
 
     // 2. Pull Users
-    const { data: dbUsers, error: usersErr } = await supabase.from('platform_users').select('*');
+    const { data: dbUsers, error: usersErr } = await supabase.from('Usuarios').select('*');
     if (usersErr) throw usersErr;
     if (dbUsers) {
       const mapped = dbUsers.map(u => ({
@@ -319,7 +323,7 @@ export async function pullAllRemoteDataFromSupabase(): Promise<{ success: boolea
     }
 
     // 3. Pull Clients
-    const { data: dbClients, error: clientsErr } = await supabase.from('clients').select('*');
+    const { data: dbClients, error: clientsErr } = await supabase.from('Clientes').select('*');
     if (clientsErr) throw clientsErr;
     if (dbClients) {
       const mapped = dbClients.map(c => ({
@@ -341,7 +345,7 @@ export async function pullAllRemoteDataFromSupabase(): Promise<{ success: boolea
     }
 
     // 4. Pull Businesses
-    const { data: dbBusinesses, error: busErr } = await supabase.from('businesses').select('*');
+    const { data: dbBusinesses, error: busErr } = await supabase.from('Directorio').select('*');
     if (busErr) throw busErr;
     if (dbBusinesses) {
       const mapped = dbBusinesses.map(b => ({
@@ -376,7 +380,7 @@ export async function pullAllRemoteDataFromSupabase(): Promise<{ success: boolea
     }
 
     // 5. Pull Invoices
-    const { data: dbInvs, error: invsErr } = await supabase.from('invoices').select('*');
+    const { data: dbInvs, error: invsErr } = await supabase.from('Facturas').select('*');
     if (invsErr) throw invsErr;
     if (dbInvs) {
       const mapped = dbInvs.map(i => ({
@@ -402,7 +406,7 @@ export async function pullAllRemoteDataFromSupabase(): Promise<{ success: boolea
     }
 
     // 6. Pull Earnings
-    const { data: dbEarnings, error: earnErr } = await supabase.from('agent_earnings').select('*');
+    const { data: dbEarnings, error: earnErr } = await supabase.from('Comisiones').select('*');
     if (earnErr) throw earnErr;
     if (dbEarnings) {
       const mapped = dbEarnings.map(e => ({
@@ -419,7 +423,7 @@ export async function pullAllRemoteDataFromSupabase(): Promise<{ success: boolea
     }
 
     // 7. Pull Withdrawals
-    const { data: dbWithdrawals, error: withErr } = await supabase.from('withdrawal_requests').select('*');
+    const { data: dbWithdrawals, error: withErr } = await supabase.from('Withdrawal_requests').select('*');
     if (withErr) throw withErr;
     if (dbWithdrawals) {
       const mapped = dbWithdrawals.map(w => ({
@@ -436,7 +440,7 @@ export async function pullAllRemoteDataFromSupabase(): Promise<{ success: boolea
     }
 
     // 8. Pull Solicitudes
-    const { data: dbSols, error: solErr } = await supabase.from('solicitudes').select('*');
+    const { data: dbSols, error: solErr } = await supabase.from('Solicitudes').select('*');
     if (solErr) throw solErr;
     if (dbSols) {
       const mapped = dbSols.map(s => {
@@ -467,7 +471,7 @@ export async function pullAllRemoteDataFromSupabase(): Promise<{ success: boolea
     }
 
     // 9. Pull Propuestas
-    const { data: dbPropuestas, error: propErr } = await supabase.from('propuestas').select('*');
+    const { data: dbPropuestas, error: propErr } = await supabase.from('Propuestas').select('*');
     if (propErr && propErr.code !== '42P01') throw propErr;
     if (dbPropuestas) {
       const mapped = dbPropuestas.map(p => ({

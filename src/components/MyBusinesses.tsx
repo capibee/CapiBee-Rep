@@ -126,7 +126,7 @@ export default function MyBusinesses({ onLogout, onBack }: MyBusinessesProps) {
 
     const fetchBusinesses = async () => {
       try {
-        let query = supabase.from('businesses').select('*');
+        let query = supabase.from('Directorio').select('*');
         
         const isSuperAdmin = currentUser?.roleName?.toLowerCase().includes('admin') || currentUser?.roleId === 'ADMIN_MAESTRO';
         if (!isSuperAdmin) {
@@ -175,7 +175,7 @@ export default function MyBusinesses({ onLogout, onBack }: MyBusinessesProps) {
 
     // Subscribe to real-time changes
     const channel = supabase.channel('mybusinesses-realtime-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'businesses' }, () => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'Directorio' }, () => {
         fetchBusinesses();
       })
       .subscribe();
@@ -253,9 +253,9 @@ export default function MyBusinesses({ onLogout, onBack }: MyBusinessesProps) {
         localStorage.setItem("capibee_clientes", JSON.stringify(currentClients));
       }
 
-      // Sync deletes in Supabase 'clients' table
+      // Sync deletes in Supabase 'Clientes' table
       for (const id of clientsToDelete) {
-        const { error: deleteErr } = await supabase.from('clients').delete().eq('id', id);
+        const { error: deleteErr } = await supabase.from('Clientes').delete().eq('id', id);
         if (deleteErr) {
           console.error("🔴 Supabase clients delete error:", deleteErr);
         } else {
@@ -263,9 +263,9 @@ export default function MyBusinesses({ onLogout, onBack }: MyBusinessesProps) {
         }
       }
 
-      // Upsert to Supabase table 'clients'
+      // Upsert to Supabase table 'Clientes'
       for (const c of clientsToUpsert) {
-        const { error: upsertErr } = await supabase.from('clients').upsert({
+        const { error: upsertErr } = await supabase.from('Clientes').upsert({
           id: c.id,
           type: c.type || 'Particular',
           company_name: c.companyName || '',
@@ -343,7 +343,7 @@ export default function MyBusinesses({ onLogout, onBack }: MyBusinessesProps) {
     // A. Persist ONLY changed rows to Supabase FIRST so the database has the new state immediately
     let anyError = false;
     for (const b of toUpsert) {
-      const { error: upsertErr } = await supabase.from('businesses').upsert({
+      const { error: upsertErr } = await supabase.from('Directorio').upsert({
         id: b.id,
         name: b.name,
         category: b.category,
@@ -479,7 +479,7 @@ export default function MyBusinesses({ onLogout, onBack }: MyBusinessesProps) {
 
       // Clean in Supabase live
       try {
-        await supabase.from('businesses').delete().eq('id', id);
+        await supabase.from('Directorio').delete().eq('id', id);
       } catch (err) {
         console.error("Supabase delete business error:", err);
       }

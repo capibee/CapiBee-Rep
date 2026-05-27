@@ -26,7 +26,7 @@ export default function Solicitudes() {
 
     // 2. Fetch fresh from Supabase
     const fetchSolicitudes = async () => {
-      const { data, error } = await supabase.from('solicitudes').select('*');
+      const { data, error } = await supabase.from('Solicitudes').select('*');
       if (!error && data) {
         const mapped = data.map(s => {
           let dateStr = new Date().toISOString();
@@ -62,7 +62,7 @@ export default function Solicitudes() {
 
     // 3. Subscribe to real-time changes
     const channel = supabase.channel('schema-db-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'solicitudes' }, (payload) => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'Solicitudes' }, (payload) => {
         fetchSolicitudes();
       })
       .subscribe();
@@ -109,7 +109,7 @@ export default function Solicitudes() {
 
     try {
       await supabase
-        .from('solicitudes')
+        .from('Solicitudes')
         .update({ status: newStatus })
         .eq('id', id);
     } catch (e) {
@@ -125,7 +125,7 @@ export default function Solicitudes() {
 
       try {
         await supabase
-          .from('solicitudes')
+          .from('Solicitudes')
           .delete()
           .eq('id', id);
       } catch (e) {
@@ -142,7 +142,7 @@ export default function Solicitudes() {
 
     try {
       await supabase
-        .from('solicitudes')
+        .from('Solicitudes')
         .upsert({
           id: editingApp.id,
           company_name: editingApp.ciudad || '',

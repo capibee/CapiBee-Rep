@@ -29,15 +29,15 @@ import { supabase } from '../lib/supabase';
 
 const PLATFORM_MODULES = [
   { id: 'registro_negocios', name: 'Directorio' },
-  { id: 'asuntos', name: 'Asuntos' },
-  { id: 'propuestas', name: 'Propuestas' },
+  { id: 'Asuntos', name: 'Asuntos' },
+  { id: 'Propuestas', name: 'Propuestas' },
   { id: 'clientes', name: 'Clientes' },
   { id: 'contabilidad', name: 'Facturas' },
   { id: 'mis_negocios', name: 'Establecimientos' },
   { id: 'agentes', name: 'Agentes CapiBee' },
   { id: 'ganancias', name: 'Transacciones' },
   { id: 'usuarios_roles', name: 'Usuarios y Roles' },
-  { id: 'solicitudes', name: 'Formularios' },
+  { id: 'Solicitudes', name: 'Formularios' },
   { id: 'supabase', name: 'Backoffice' },
   { id: 'finanzas', name: 'KPI\'s' },
 ];
@@ -100,7 +100,7 @@ export default function UsuariosRoles({}: UsuariosRolesProps) {
     // 2. Fetch fresh roles from Supabase
     const fetchRoles = async () => {
       try {
-        const { data, error } = await supabase.from('roles').select('*');
+        const { data, error } = await supabase.from('Roles').select('*');
         if (!error && data) {
           const mapped = data.map((r: any) => ({
             id: r.id,
@@ -120,7 +120,7 @@ export default function UsuariosRoles({}: UsuariosRolesProps) {
     // 3. Fetch fresh users from Supabase
     const fetchUsers = async () => {
       try {
-        const { data, error } = await supabase.from('platform_users').select('*');
+        const { data, error } = await supabase.from('Usuarios').select('*');
         if (!error && data) {
           const mapped = data.map((u: any) => ({
             id: u.id,
@@ -144,7 +144,7 @@ export default function UsuariosRoles({}: UsuariosRolesProps) {
     // 4. Fetch fresh solicitudes from Supabase
     const fetchSolicitudes = async () => {
       try {
-        const { data, error } = await supabase.from('solicitudes').select('*');
+        const { data, error } = await supabase.from('Solicitudes').select('*');
         if (!error && data) {
           const mapped = data.map((s: any) => {
             let dateStr = new Date().toISOString();
@@ -185,19 +185,19 @@ export default function UsuariosRoles({}: UsuariosRolesProps) {
 
     // 5. Subscribe to real-time changes
     const rolesChannel = supabase.channel('roles-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'roles' }, () => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'Roles' }, () => {
         fetchRoles();
       })
       .subscribe();
 
     const usersChannel = supabase.channel('users-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'platform_users' }, () => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'Usuarios' }, () => {
         fetchUsers();
       })
       .subscribe();
 
     const solsChannel = supabase.channel('solicitudes-users-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'solicitudes' }, () => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'Solicitudes' }, () => {
         fetchSolicitudes();
       })
       .subscribe();
@@ -254,7 +254,7 @@ export default function UsuariosRoles({}: UsuariosRolesProps) {
 
     // Save to Supabase DB Live
     try {
-      const { error } = await supabase.from('roles').upsert({
+      const { error } = await supabase.from('Roles').upsert({
         id: newRoleObj.id,
         name: newRoleObj.name,
         description: newRoleObj.description,
@@ -315,7 +315,7 @@ export default function UsuariosRoles({}: UsuariosRolesProps) {
 
     // Delete from Supabase DB Live
     try {
-      const { error } = await supabase.from('roles').delete().eq('id', id);
+      const { error } = await supabase.from('Roles').delete().eq('id', id);
       if (error) {
         console.error("Error deleting role from Supabase:", error);
       }
@@ -346,7 +346,7 @@ export default function UsuariosRoles({}: UsuariosRolesProps) {
 
     // Save to Supabase DB Live
     try {
-      const { error } = await supabase.from('platform_users').upsert({
+      const { error } = await supabase.from('Usuarios').upsert({
         id: newUser.id,
         full_name: newUser.fullName,
         role_id: newUser.roleId,
@@ -360,7 +360,7 @@ export default function UsuariosRoles({}: UsuariosRolesProps) {
         console.error("Error saving user to Supabase:", error);
         setConfirmAction({
           type: 'error',
-          message: `Error de Supabase al guardar personal: ${error.message}. Asegúrate de tener la tabla 'platform_users' listada con políticas RLS.`
+          message: `Error de Supabase al guardar personal: ${error.message}. Asegúrate de tener la tabla 'Usuarios' listada con políticas RLS.`
         });
         return;
       }
@@ -389,7 +389,7 @@ export default function UsuariosRoles({}: UsuariosRolesProps) {
 
     // Delete from Supabase DB Live
     try {
-      const { error } = await supabase.from('platform_users').delete().eq('id', id);
+      const { error } = await supabase.from('Usuarios').delete().eq('id', id);
       if (error) {
         console.error("Error deleting user from Supabase:", error);
         setConfirmAction({

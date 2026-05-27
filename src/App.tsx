@@ -176,15 +176,15 @@ export default function App() {
     if (isModuleChanging) {
       const moduleNames: Record<string, string> = {
         'registro_negocios': 'Contactos',
-        'asuntos': 'Asuntos',
-        'propuestas': 'Propuestas',
+        'Asuntos': 'Asuntos',
+        'Propuestas': 'Propuestas',
         'clientes': 'Clientes',
         'contabilidad': 'Facturas',
         'mis_negocios': 'Establecimientos',
         'agentes': 'Agentes CapiBee',
         'ganancias': 'Transacciones',
         'usuarios_roles': 'Usuarios y Roles',
-        'solicitudes': 'Formularios',
+        'Solicitudes': 'Formularios',
         'supabase': 'Backoffice',
         'finanzas': "KPI's",
         'panel': 'Panel de Control'
@@ -227,11 +227,11 @@ export default function App() {
       );
     }
 
-    if (activeModule === 'asuntos' && userPermissions['asuntos']?.active) {
+    if (activeModule === 'Asuntos' && userPermissions['Asuntos']?.active) {
       return <Asuntos onBack={() => handleModuleChange(null)} />;
     }
 
-    if (activeModule === 'propuestas' && userPermissions['propuestas']?.active) {
+    if (activeModule === 'Propuestas' && userPermissions['Propuestas']?.active) {
       return <Propuestas onBack={() => handleModuleChange(null)} />;
     }
 
@@ -239,7 +239,7 @@ export default function App() {
       return <UsuariosRoles onLogout={handleLogout} onBack={() => handleModuleChange(null)} />;
     }
 
-    if (activeModule === 'solicitudes' && (user?.roleId === 'ADMIN_MAESTRO' || userPermissions['solicitudes']?.active)) {
+    if (activeModule === 'Solicitudes' && (user?.roleId === 'ADMIN_MAESTRO' || userPermissions['Solicitudes']?.active)) {
       return <Solicitudes />;
     }
 

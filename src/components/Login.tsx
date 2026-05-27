@@ -109,7 +109,7 @@ export default function Login({ onLogin }: LoginProps) {
     // 2. Fetch fresh roles from Supabase
     const fetchRoles = async () => {
       try {
-        const { data, error } = await supabase.from('roles').select('*');
+        const { data, error } = await supabase.from('Roles').select('*');
         if (!error && data) {
           const mapped = data.map((r: any) => ({
             id: r.id,
@@ -130,7 +130,7 @@ export default function Login({ onLogin }: LoginProps) {
 
     // 3. Subscribe to real-time changes
     const channel = supabase.channel('login-roles-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'roles' }, () => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'Roles' }, () => {
         fetchRoles();
       })
       .subscribe();
@@ -182,7 +182,7 @@ export default function Login({ onLogin }: LoginProps) {
     // 1. First, try to authenticate via Supabase if connected
     try {
       const { data: dbUsers, error: dbError } = await supabase
-        .from("platform_users")
+        .from("Usuarios")
         .select("*")
         .eq("email", email.trim());
 

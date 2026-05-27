@@ -220,7 +220,7 @@ export default function Ganancias({ user }: GananciasProps) {
     // Connect to Supabase for dynamic data and real-time subscription
     const fetchFreshInvoiceData = async () => {
       try {
-        const { data: dbInvs, error: invsErr } = await supabase.from('invoices').select('*');
+        const { data: dbInvs, error: invsErr } = await supabase.from('Facturas').select('*');
         if (!invsErr && dbInvs) {
           const mapped = dbInvs.map(i => ({
             id: i.id,
@@ -245,7 +245,7 @@ export default function Ganancias({ user }: GananciasProps) {
           localStorage.setItem('capibee_invoices', JSON.stringify(mapped));
         }
 
-        const { data: dbClients } = await supabase.from('clients').select('*');
+        const { data: dbClients } = await supabase.from('Clientes').select('*');
         if (dbClients) {
           const mappedC = dbClients.map((c: any) => ({
             id: c.id,
@@ -266,7 +266,7 @@ export default function Ganancias({ user }: GananciasProps) {
           localStorage.setItem("capibee_clientes", JSON.stringify(mappedC));
         }
 
-        const { data: dbBusinesses } = await supabase.from('businesses').select('*');
+        const { data: dbBusinesses } = await supabase.from('Directorio').select('*');
         if (dbBusinesses) {
           const mappedB = dbBusinesses.map((b: any) => ({
             id: b.id,
@@ -300,7 +300,7 @@ export default function Ganancias({ user }: GananciasProps) {
           localStorage.setItem("capibee_businesses", JSON.stringify(mappedB));
         }
 
-        const { data: dbEarnings } = await supabase.from('agent_earnings').select('*');
+        const { data: dbEarnings } = await supabase.from('Comisiones').select('*');
         if (dbEarnings) {
           const mappedE = dbEarnings.map((e: any) => ({
             id: e.id,
@@ -316,7 +316,7 @@ export default function Ganancias({ user }: GananciasProps) {
           localStorage.setItem('capibee_agent_earnings', JSON.stringify(mappedE));
         }
 
-        const { data: dbUsers } = await supabase.from('platform_users').select('*');
+        const { data: dbUsers } = await supabase.from('Usuarios').select('*');
         if (dbUsers) {
           const mappedUsers = dbUsers.map(u => ({
             id: u.id,
@@ -332,7 +332,7 @@ export default function Ganancias({ user }: GananciasProps) {
           localStorage.setItem('capibee_platform_users', JSON.stringify(mappedUsers));
         }
 
-        const { data: dbWithdrawals } = await supabase.from('withdrawal_requests').select('*');
+        const { data: dbWithdrawals } = await supabase.from('Withdrawal_requests').select('*');
         if (dbWithdrawals) {
           const mappedW = dbWithdrawals.map((w: any) => ({
             id: w.id,
@@ -348,7 +348,7 @@ export default function Ganancias({ user }: GananciasProps) {
           localStorage.setItem('capibee_withdrawals', JSON.stringify(mappedW));
         }
 
-        const { data: dbPropuestas } = await supabase.from('propuestas').select('*');
+        const { data: dbPropuestas } = await supabase.from('Propuestas').select('*');
         if (dbPropuestas) {
             const mappedP = dbPropuestas.map((p: any) => ({
                 id: p.id,
@@ -364,7 +364,7 @@ export default function Ganancias({ user }: GananciasProps) {
             localStorage.setItem("capibee_propuestas", JSON.stringify(mappedP));
         }
         
-        const { data: dbAsuntos } = await supabase.from('asuntos').select('id, nombre_asunto, business_id, fecha, created_at, user_id, contact_name, contact_phone');
+        const { data: dbAsuntos } = await supabase.from('Asuntos').select('id, nombre_asunto, business_id, fecha, created_at, user_id, contact_name, contact_phone');
         if (dbAsuntos) {
             const mappedA = dbAsuntos.map((a: any) => ({
                 id: a.id,
@@ -392,13 +392,13 @@ export default function Ganancias({ user }: GananciasProps) {
 
     // Subscribe to real-time additions/edits
     const invoicesChannel = supabase.channel('invoices-realtime-ganancias-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'invoices' }, () => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'Facturas' }, () => {
         fetchFreshInvoiceData();
       })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'agent_earnings' }, () => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'Comisiones' }, () => {
         fetchFreshInvoiceData();
       })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'withdrawal_requests' }, () => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'Withdrawal_requests' }, () => {
         fetchFreshInvoiceData();
       })
       .subscribe();
@@ -468,7 +468,7 @@ export default function Ganancias({ user }: GananciasProps) {
 
     // Save to Supabase live
     try {
-      supabase.from('invoices').upsert({
+      supabase.from('Facturas').upsert({
         id: newInvoice.id,
         invoice_number: newInvoice.invoiceNumber,
         business_id: newInvoice.businessId || null,
@@ -548,7 +548,7 @@ export default function Ganancias({ user }: GananciasProps) {
     selectedEarnings.forEach(id => {
       const earning = updated.find(e => e.id === id);
       if (earning) {
-        supabase.from('agent_earnings').upsert({
+        supabase.from('Comisiones').upsert({
           id: earning.id,
           amount: earning.amount,
           date: earning.date,
@@ -822,7 +822,7 @@ export default function Ganancias({ user }: GananciasProps) {
     setWithdrawals(updatedWithdrawals);
     localStorage.setItem('capibee_withdrawals', JSON.stringify(updatedWithdrawals));
     
-    supabase.from('withdrawal_requests').upsert({
+    supabase.from('Withdrawal_requests').upsert({
       id: newRequest.id,
       amount: newRequest.amount,
       date: newRequest.date,
@@ -852,7 +852,7 @@ export default function Ganancias({ user }: GananciasProps) {
     localStorage.setItem('capibee_agent_earnings', JSON.stringify(updated));
 
     // update supabase
-    const { error } = await supabase.from('agent_earnings').delete().eq('id', id);
+    const { error } = await supabase.from('Comisiones').delete().eq('id', id);
     if (error) {
       console.error("🔴 Supabase delete agent_earnings error:", error);
     }
@@ -866,7 +866,7 @@ export default function Ganancias({ user }: GananciasProps) {
     localStorage.setItem('capibee_agent_earnings', JSON.stringify(updated));
     const earning = updated.find(e => e.id === id);
     if (earning) {
-      supabase.from('agent_earnings').upsert({
+      supabase.from('Comisiones').upsert({
         id: earning.id,
         amount: earning.amount,
         date: earning.date,
@@ -889,7 +889,7 @@ export default function Ganancias({ user }: GananciasProps) {
     localStorage.setItem('capibee_withdrawals', JSON.stringify(updated));
     const withdrawal = updated.find(w => w.id === id);
     if (withdrawal) {
-      supabase.from('withdrawal_requests').upsert({
+      supabase.from('Withdrawal_requests').upsert({
         id: withdrawal.id,
         amount: withdrawal.amount,
         date: withdrawal.date,

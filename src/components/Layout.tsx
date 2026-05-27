@@ -134,15 +134,15 @@ export default function Layout({ children, activeModule, onSelectModule, onLogou
   const menuItems = [
     { id: null, label: 'Panel', icon: LayoutDashboard },
     { id: 'registro_negocios', label: 'Directorio', icon: Phone },
-    { id: 'asuntos', label: 'Asuntos', icon: FileText },
-    { id: 'propuestas', label: 'Propuestas', icon: ClipboardList },
+    { id: 'Asuntos', label: 'Asuntos', icon: FileText },
+    { id: 'Propuestas', label: 'Propuestas', icon: ClipboardList },
     { id: 'clientes', label: 'Clientes', icon: Users },
     { id: 'contabilidad', label: 'Facturas', icon: Calculator },
     { id: 'ganancias', label: 'Transacciones', icon: TrendingUp },
     { id: 'mis_negocios', label: 'Establecimientos', icon: Store },
     { id: 'agentes', label: 'Agentes CapiBee', icon: Bot },
     { id: 'usuarios_roles', label: 'Usuarios y Roles', icon: ShieldCheck },
-    { id: 'solicitudes', label: 'Formularios', icon: Mail },
+    { id: 'Solicitudes', label: 'Formularios', icon: Mail },
     { id: 'supabase', label: 'Backoffice', icon: Database },
     { id: 'finanzas', label: 'KPI\'s', icon: PieChart },
   ].filter(item => {
@@ -220,7 +220,7 @@ export default function Layout({ children, activeModule, onSelectModule, onLogou
             >
               <div className="relative shrink-0 flex items-center justify-center">
                 <item.icon size={18} className={`shrink-0 ${activeModule === item.id ? 'text-yellow-400' : 'text-slate-500 group-hover:text-yellow-400 transition-colors'}`} />
-                {item.id === 'propuestas' && propuestasPorEnviarCount > 0 && isSidebarCollapsed && (
+                {item.id === 'Propuestas' && propuestasPorEnviarCount > 0 && isSidebarCollapsed && (
                   <div className="absolute -top-2 -right-2 bg-amber-500 text-slate-950 text-[10px] font-black rounded-full w-4 h-4 flex items-center justify-center">
                     {propuestasPorEnviarCount}
                   </div>
@@ -231,7 +231,7 @@ export default function Layout({ children, activeModule, onSelectModule, onLogou
                 {item.label}
               </span>
               
-              {item.id === 'propuestas' && propuestasPorEnviarCount > 0 && !isSidebarCollapsed && (
+              {item.id === 'Propuestas' && propuestasPorEnviarCount > 0 && !isSidebarCollapsed && (
                  <div className="bg-amber-500 text-slate-950 text-xs font-black rounded-full px-2 py-0.5 ml-2">
                    {propuestasPorEnviarCount}
                  </div>
@@ -416,17 +416,17 @@ export default function Layout({ children, activeModule, onSelectModule, onLogou
                 <div className="h-4 w-1 bg-yellow-400 rounded-full" />
                 <h2 className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.2em] text-amber-500/80 truncate max-w-[120px] xs:max-w-[180px] sm:max-w-none">
                   {activeModule === 'registro_negocios' ? 'Directorio' : 
-                   activeModule === 'asuntos' ? 'Asuntos' : 
+                   activeModule === 'Asuntos' ? 'Asuntos' : 
                    activeModule === 'clientes' ? 'Clientes' :
                    activeModule === 'contabilidad' ? 'Facturas' :
                    activeModule === 'mis_negocios' ? 'Establecimientos' :
                    activeModule === 'agentes' ? 'Agentes CapiBee' :
                    activeModule === 'ganancias' ? 'Transacciones' :
                    activeModule === 'usuarios_roles' ? 'Usuarios y Roles' :
-                   activeModule === 'solicitudes' ? 'Formularios' :
+                   activeModule === 'Solicitudes' ? 'Formularios' :
                    activeModule === 'supabase' ? 'Backoffice' :
                    activeModule === 'finanzas' ? 'KPI\'s' :
-                   activeModule === 'propuestas' ? 'Propuestas' :
+                   activeModule === 'Propuestas' ? 'Propuestas' :
                    'Panel de Control'}
                 </h2>
               </div>

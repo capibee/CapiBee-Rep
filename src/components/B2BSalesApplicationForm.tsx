@@ -90,7 +90,7 @@ export default function B2BSalesApplicationForm({ onClose }: Props) {
       localStorage.setItem('capibee_solicitudes', JSON.stringify(solicitudes));
       
       // Upsert directly to Supabase so it persists live
-      const { error: dbErr } = await supabase.from('solicitudes').upsert({
+      const { error: dbErr } = await supabase.from('Solicitudes').upsert({
         id: newSolicitud.id,
         company_name: newSolicitud.ciudad || '',
         contact_name: newSolicitud.nombre,

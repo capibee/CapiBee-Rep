@@ -178,7 +178,7 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
     const fetchFreshData = async () => {
       try {
         // Fetch clients
-        const { data: dbClients, error: clientsErr } = await supabase.from('clients').select('*').order('created_at', { ascending: false });
+        const { data: dbClients, error: clientsErr } = await supabase.from('Clientes').select('*').order('created_at', { ascending: false });
         if (!clientsErr && dbClients) {
           const mappedC = dbClients.map((c: any) => ({
             id: c.id,
@@ -202,7 +202,7 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
         }
 
         // Fetch businesses
-        const { data: dbBusinesses, error: busErr } = await supabase.from('businesses').select('*').order('created_at', { ascending: false });
+        const { data: dbBusinesses, error: busErr } = await supabase.from('Directorio').select('*').order('created_at', { ascending: false });
         if (!busErr && dbBusinesses) {
           const mappedB = dbBusinesses.map((b: any) => ({
             id: b.id,
@@ -245,13 +245,13 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
     fetchFreshData();
 
     const clientsChannel = supabase.channel('clients-realtime-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'clients' }, () => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'Clientes' }, () => {
         fetchFreshData();
       })
       .subscribe();
 
     const businessesChannel = supabase.channel('businesses-realtime-clientes-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'businesses' }, () => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'Directorio' }, () => {
         fetchFreshData();
       })
       .subscribe();
@@ -306,7 +306,7 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
     console.log("Iniciando guardado de cliente en Supabase:", clientToPersist.id);
     
     // First attempt: try with everything (full columns and assigned user_id)
-    const { error: err1 } = await supabase.from('clients').upsert(fullPayload, { onConflict: 'id' });
+    const { error: err1 } = await supabase.from('Clientes').upsert(fullPayload, { onConflict: 'id' });
 
     if (err1) {
       console.warn("Intento principal de guardado falló, código:", err1.code, "mensaje:", err1.message);
@@ -316,20 +316,20 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
 
       if (isMissingColumns && isForeignKeyViolation) {
         console.log("Doble incompatibilidad (columnas y ID de usuario). Guardando sin columnas nuevas y sin user_id...");
-        const { error: errFinal } = await supabase.from('clients').upsert({ ...fallbackNoColsPayload, user_id: null }, { onConflict: 'id' });
+        const { error: errFinal } = await supabase.from('Clientes').upsert({ ...fallbackNoColsPayload, user_id: null }, { onConflict: 'id' });
         if (errFinal) console.error("🔴 Error crítico final al guardar cliente:", errFinal);
         else console.log("💚 Guardado con éxito sin columnas adicionales y sin user_id!");
       } 
       else if (isMissingColumns) {
         console.log("Faltan las columnas de ciudad o teléfono de contacto en Supabase, reintentando sin ellas...");
-        const { error: errColRetry } = await supabase.from('clients').upsert(fallbackNoColsPayload, { onConflict: 'id' });
+        const { error: errColRetry } = await supabase.from('Clientes').upsert(fallbackNoColsPayload, { onConflict: 'id' });
         
         if (errColRetry) {
           console.warn("Intento sin columnas adicionales también falló:", errColRetry);
           const isFkRetry = errColRetry.code === '23503' || errColRetry.message?.toLowerCase().includes('foreign key') || errColRetry.message?.toLowerCase().includes('user_id');
           if (isFkRetry) {
             console.log("Posible violación de llave foránea en user_id. Guardando sin columnas y sin user_id...");
-            const { error: errFk } = await supabase.from('clients').upsert({ ...fallbackNoColsPayload, user_id: null }, { onConflict: 'id' });
+            const { error: errFk } = await supabase.from('Clientes').upsert({ ...fallbackNoColsPayload, user_id: null }, { onConflict: 'id' });
             if (errFk) console.error("🔴 No se pudo guardar ni con reintento absoluto:", errFk);
             else console.log("💚 Guardado con éxito sin columnas y sin user_id!");
           }
@@ -339,14 +339,14 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
       } 
       else if (isForeignKeyViolation) {
         console.log("El usuario asignado no existe en platform_users de Supabase. Guardando asumiendo user_id nulo...");
-        const { error: errFkRetry } = await supabase.from('clients').upsert({ ...fullPayload, user_id: null }, { onConflict: 'id' });
+        const { error: errFkRetry } = await supabase.from('Clientes').upsert({ ...fullPayload, user_id: null }, { onConflict: 'id' });
         
         if (errFkRetry) {
           console.warn("Intento sin user_id también falló:", errFkRetry);
           const isColRetry = errFkRetry.code === '42703' || errFkRetry.message?.toLowerCase().includes('column');
           if (isColRetry) {
             console.log("Reintentando sin columnas nuevas y sin user_id...");
-            const { error: errFinal } = await supabase.from('clients').upsert({ ...fallbackNoColsPayload, user_id: null }, { onConflict: 'id' });
+            const { error: errFinal } = await supabase.from('Clientes').upsert({ ...fallbackNoColsPayload, user_id: null }, { onConflict: 'id' });
             if (errFinal) console.error("🔴 Intento final falló:", errFinal);
             else console.log("💚 Guardado con éxito sin columnas y sin user_id!");
           }
@@ -357,7 +357,7 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
       else {
         // En caso de cualquier otro problema, guardamos lo mínimo localmente viable para prevenir pérdidas
         console.log("Error desconocido detectado. Intentando guardado con payload mínimo (compatible)...");
-        const { error: errUltimate } = await supabase.from('clients').upsert({ ...fallbackNoColsPayload, user_id: null }, { onConflict: 'id' });
+        const { error: errUltimate } = await supabase.from('Clientes').upsert({ ...fallbackNoColsPayload, user_id: null }, { onConflict: 'id' });
         if (errUltimate) console.error("🔴 El guardado absoluto falló:", errUltimate);
         else console.log("💚 Guardado con éxito tras restauración mínima compatible!");
       }
@@ -430,7 +430,7 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
       await saveClientes(updated);
 
       try {
-        await supabase.from('clients').delete().eq('id', id);
+        await supabase.from('Clientes').delete().eq('id', id);
       } catch (err) {
         console.error("Supabase client deletion error:", err);
       }

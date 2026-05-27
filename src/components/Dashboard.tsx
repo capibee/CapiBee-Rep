@@ -304,7 +304,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
 
     const fetchBusinesses = async () => {
       try {
-        const { data: dbAsuntos } = await supabase.from('asuntos').select('business_id');
+        const { data: dbAsuntos } = await supabase.from('Asuntos').select('business_id');
         if (dbAsuntos) {
             setBusinessWithAsuntos(new Set(dbAsuntos.map((a: any) => a.business_id).filter(Boolean)));
         }
@@ -312,7 +312,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
         console.warn("Could not fetch asuntos:", err);
       }
       try {
-        let query = supabase.from('businesses').select('*').order('created_at', { ascending: false });
+        let query = supabase.from('Directorio').select('*').order('created_at', { ascending: false });
         
         const isSuperAdmin = currentUser?.roleName?.toLowerCase().includes('admin') || currentUser?.roleId === 'ADMIN_MAESTRO';
         if (!isSuperAdmin) {
@@ -370,7 +370,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
 
     // Subscribe to real-time changes
     const channel = supabase.channel('businesses-realtime-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'businesses' }, () => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'Directorio' }, () => {
         fetchBusinesses();
       })
       .subscribe();
@@ -473,9 +473,9 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
         localStorage.setItem("capibee_clientes", JSON.stringify(currentClients));
       }
 
-      // Sync deletes in Supabase 'clients' table
+      // Sync deletes in Supabase 'Clientes' table
       for (const id of clientsToDelete) {
-        const { error: deleteErr } = await supabase.from('clients').delete().eq('id', id);
+        const { error: deleteErr } = await supabase.from('Clientes').delete().eq('id', id);
         if (deleteErr) {
           console.error("🔴 Supabase clients delete error:", deleteErr);
         } else {
@@ -483,9 +483,9 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
         }
       }
 
-      // Upsert to Supabase table 'clients'
+      // Upsert to Supabase table 'Clientes'
       for (const c of clientsToUpsert) {
-        const { error: upsertErr } = await supabase.from('clients').upsert({
+        const { error: upsertErr } = await supabase.from('Clientes').upsert({
           id: c.id,
           type: c.type || 'Particular',
           company_name: c.companyName || '',
@@ -601,7 +601,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
         payload.contact_phone = b.contactPhone || '';
       }
 
-      const { error: upsertErr } = await supabase.from('businesses').upsert(payload, { onConflict: 'id' });
+      const { error: upsertErr } = await supabase.from('Directorio').upsert(payload, { onConflict: 'id' });
 
       if (upsertErr) {
         console.error("🔴 Supabase businesses upsert error:", upsertErr);
@@ -1022,7 +1022,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
 
     // Delete in Supabase table to keep it clean
     try {
-      await supabase.from('businesses').delete().eq('id', businessToDelete);
+      await supabase.from('Directorio').delete().eq('id', businessToDelete);
     } catch (err) {
       console.error("Supabase deletion error for business:", err);
     }
@@ -1191,7 +1191,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
       contactPhone: asuntoFormData.contactPhone || ""
     };
 
-    const { error } = await supabase.from('asuntos').insert({
+    const { error } = await supabase.from('Asuntos').insert({
         id: newAsunto.id,
         fecha: newAsunto.fecha,
         nombre_asunto: newAsunto.nombreAsunto,
@@ -1228,7 +1228,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
 
             if (hasUpdates) {
                 try {
-                    await supabase.from('businesses').update(updates).eq('id', asuntoFormData.businessId);
+                    await supabase.from('Directorio').update(updates).eq('id', asuntoFormData.businessId);
                     setBusinesses(prev => prev.map(b => b.id === asuntoFormData.businessId ? {
                         ...b,
                         ...(updates.email ? { email: updates.email } : {}),

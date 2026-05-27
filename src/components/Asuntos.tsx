@@ -121,7 +121,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
 
   const fetchFreshData = async () => {
     try {
-      const { data: dbAsuntos } = await supabase.from('asuntos').select('*');
+      const { data: dbAsuntos } = await supabase.from('Asuntos').select('*');
       if (dbAsuntos) {
           const mapped = dbAsuntos.map((a: any) => ({
               id: a.id,
@@ -139,7 +139,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
           setAsuntos(mapped);
           localStorage.setItem("capibee_asuntos", JSON.stringify(mapped));
       }
-      const { data: dbPropuestas } = await supabase.from('propuestas').select('*');
+      const { data: dbPropuestas } = await supabase.from('Propuestas').select('*');
       if (dbPropuestas) {
           const mappedP = dbPropuestas.map((p: any) => ({
               id: p.id,
@@ -149,7 +149,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
           setPropuestas(mappedP);
           localStorage.setItem("capibee_propuestas", JSON.stringify(mappedP));
       }
-      const { data: dbUsers } = await supabase.from('platform_users').select('id, full_name, email, role_name');
+      const { data: dbUsers } = await supabase.from('Usuarios').select('id, full_name, email, role_name');
       if (dbUsers) {
         const seen = new Set();
         const uniqueUsers = dbUsers.filter((u: any) => {
@@ -161,7 +161,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
         setPlatformUsers(uniqueUsers);
       }
       
-      const { data: dbBusinesses } = await supabase.from('businesses').select('id, name, contact_name, contact_phone, phone, whatsapp, responsible_name, responsible_phone, category');
+      const { data: dbBusinesses } = await supabase.from('Directorio').select('id, name, contact_name, contact_phone, phone, whatsapp, responsible_name, responsible_phone, category');
       if (dbBusinesses) {
          const mappedB = dbBusinesses.map((b: any) => ({
              id: b.id,
@@ -193,7 +193,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
       sector: businesses.find(b => b.id === formData.businessId)?.category || "",
     };
 
-    const { error } = await supabase.from('asuntos').insert({
+    const { error } = await supabase.from('Asuntos').insert({
         id: newAsunto.id,
         fecha: newAsunto.fecha,
         nombre_asunto: newAsunto.nombreAsunto,
@@ -226,7 +226,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
     const dateStr = new Date().toLocaleString();
     const updatedDatos = (selectedAsunto.datosAsunto ? selectedAsunto.datosAsunto + "\n\n" : "") + `--- Nota por ${userName} el ${dateStr} ---\n${newNote.trim()}`;
     
-    const { error } = await supabase.from('asuntos').update({
+    const { error } = await supabase.from('Asuntos').update({
         datos_asunto: updatedDatos
     }).eq('id', selectedAsunto.id);
 

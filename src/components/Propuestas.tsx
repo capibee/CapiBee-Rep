@@ -129,7 +129,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
 
   const handleDeletePropuesta = async (id: string) => {
     try {
-      const { error } = await supabase.from('propuestas').delete().eq('id', id);
+      const { error } = await supabase.from('Propuestas').delete().eq('id', id);
       if (error) {
         console.error("Error deleting proposal from Supabase:", error);
       }
@@ -181,7 +181,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
 
       try {
         const { error } = await supabase
-          .from('propuestas')
+          .from('Propuestas')
           .update({ 
             pdf_url: pdfBase64, 
             pdf_name: pdfName,
@@ -211,7 +211,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
 
     try {
       const { error } = await supabase
-        .from('propuestas')
+        .from('Propuestas')
         .update({ 
           pdf_url: null, 
           pdf_name: null 
@@ -259,7 +259,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
       const localPropuestas = localStorage.getItem("capibee_propuestas");
       const parsedLocal = localPropuestas ? JSON.parse(localPropuestas) : [];
 
-      const { data: dbPropuestas, error: dbError } = await supabase.from('propuestas').select('*');
+      const { data: dbPropuestas, error: dbError } = await supabase.from('Propuestas').select('*');
       if (dbError && dbError.code === '42P01') {
           // Table does not exist, use local only
           setPropuestas(parsedLocal);
@@ -293,7 +293,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
           setPropuestas(parsedLocal);
       }
       
-      const { data: dbAsuntos } = await supabase.from('asuntos').select('id, nombre_asunto, business_id, fecha, created_at, user_id, contact_name, contact_phone');
+      const { data: dbAsuntos } = await supabase.from('Asuntos').select('id, nombre_asunto, business_id, fecha, created_at, user_id, contact_name, contact_phone');
       if (dbAsuntos) {
           const mappedA = dbAsuntos.map((a: any) => ({
               id: a.id,
@@ -310,7 +310,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
           localStorage.setItem("capibee_asuntos", JSON.stringify(mappedA));
       }
 
-      const { data: dbBusinesses } = await supabase.from('businesses').select('id, name, contact_name');
+      const { data: dbBusinesses } = await supabase.from('Directorio').select('id, name, contact_name');
       if (dbBusinesses) {
          const mappedB = dbBusinesses.map((b: any) => ({
              id: b.id,
@@ -321,7 +321,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
          localStorage.setItem("capibee_businesses", JSON.stringify(mappedB));
       }
 
-      const { data: dbUsers } = await supabase.from('platform_users').select('id, full_name, email, role_name');
+      const { data: dbUsers } = await supabase.from('Usuarios').select('id, full_name, email, role_name');
       if (dbUsers) {
         const seen = new Set();
         const uniqueUsers = dbUsers.filter((u: any) => {
@@ -349,7 +349,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
       if (!relatedAsunto) {
          console.warn("Asunto no encontrado en el estado local, buscando en Supabase...");
          try {
-           const { data, error } = await supabase.from('asuntos').select('*').eq('id', asuntoId).maybeSingle();
+           const { data, error } = await supabase.from('Asuntos').select('*').eq('id', asuntoId).maybeSingle();
            if (!error && data) {
              relatedAsunto = {
                id: data.id,
@@ -391,7 +391,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
 
         try {
           const { data, error } = await supabase
-            .from('businesses')
+            .from('Directorio')
             .select('*')
             .eq('id', relatedAsunto.businessId)
             .maybeSingle();
@@ -471,7 +471,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
       try { localStorage.setItem("capibee_propuestas", JSON.stringify(updated)); } catch(e){}
 
       try {
-        const { error } = await supabase.from('propuestas').insert({
+        const { error } = await supabase.from('Propuestas').insert({
           id: newPropuesta.id,
           asunto_id: newPropuesta.asuntoId,
           propuesta_texto: newPropuesta.propuestaTexto,
@@ -499,7 +499,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
       setPropuestas(updated);
       try { localStorage.setItem("capibee_propuestas", JSON.stringify(updated)); } catch(e){}
       try {
-        const { error } = await supabase.from('propuestas').update({ status: newStatus }).eq('id', id);
+        const { error } = await supabase.from('Propuestas').update({ status: newStatus }).eq('id', id);
         if (error && error.code !== '42P01') {
           console.error("Error updating status in Supabase:", error);
           alert("Error al actualizar estado en base de datos: " + error.message);
@@ -539,7 +539,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
       };
 
       try {
-        const { error } = await supabase.from('propuestas').update({
+        const { error } = await supabase.from('Propuestas').update({
             asunto_id: updatedPropuesta.asuntoId,
             propuesta_texto: updatedPropuesta.propuestaTexto,
             honorarios: updatedPropuesta.honorarios,
@@ -581,7 +581,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
       };
 
       try {
-        const { error } = await supabase.from('propuestas').insert({
+        const { error } = await supabase.from('Propuestas').insert({
             id: newPropuesta.id,
             asunto_id: newPropuesta.asuntoId,
             propuesta_texto: newPropuesta.propuestaTexto,

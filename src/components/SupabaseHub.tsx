@@ -82,7 +82,7 @@ export default function SupabaseHub({ onBack }: SupabaseHubProps) {
     setSyncing('seed');
     try {
       // Create seed role
-      const { error: roleErr } = await supabase.from('roles').upsert({
+      const { error: roleErr } = await supabase.from('Roles').upsert({
         id: 'ADMIN_MAESTRO',
         name: 'Super Administrador',
         description: 'Acceso completo e incondicional a todos los módulos del sistema.',
@@ -101,7 +101,7 @@ export default function SupabaseHub({ onBack }: SupabaseHubProps) {
       if (roleErr) throw new Error(`Error al crear rol: ${roleErr.message}`);
 
       // Create default user if not exists
-      const { error: userErr } = await supabase.from('platform_users').upsert({
+      const { error: userErr } = await supabase.from('Usuarios').upsert({
         id: 'admin_seed_01',
         full_name: 'Super Administrador CapiBee',
         role_id: 'ADMIN_MAESTRO',
@@ -252,7 +252,7 @@ export default function SupabaseHub({ onBack }: SupabaseHubProps) {
           <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 shadow-xl">
             <h3 className="text-xs font-black tracking-widest uppercase text-slate-400 mb-4 flex items-center gap-2">
               <CheckCircle2 size={14} className="text-emerald-500" />
-              Verificación de Tablas del Sistema ({Object.values(status.tables).filter(Boolean).length} / 9 Listas)
+              Verificación de Tablas del Sistema ({Object.values(status.tables).filter(Boolean).length} / 11 Listas)
             </h3>
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

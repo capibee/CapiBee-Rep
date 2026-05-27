@@ -24,7 +24,7 @@ const MODULES = [
     color: 'yellow'
   },
   {
-    id: 'asuntos',
+    id: 'Asuntos',
     title: 'Asuntos',
     description: 'Gestión de asuntos y oportunidades de negocio.',
     icon: FileText,
@@ -32,7 +32,7 @@ const MODULES = [
     color: 'amber'
   },
   {
-    id: 'propuestas',
+    id: 'Propuestas',
     title: 'Propuestas',
     description: 'Creación, diseño y envío de propuestas comerciales formalizadas para clientes.',
     icon: ClipboardList,
@@ -88,7 +88,7 @@ const MODULES = [
     color: 'blue'
   },
   {
-    id: 'solicitudes',
+    id: 'Solicitudes',
     title: 'Formularios',
     description: 'Gestión de formularios de aplicación de ventas B2B y prospectos.',
     icon: Mail,
@@ -177,7 +177,7 @@ export default function ModulesSelection({ onSelectModule, onLogout, userPermiss
                      Restringido
                    </div>
                 )}
-                {module.active && module.id === 'propuestas' && propuestasPorEnviarCount > 0 && (
+                {module.active && module.id === 'Propuestas' && propuestasPorEnviarCount > 0 && (
                    <div className="absolute top-3 right-3 bg-amber-500 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded shadow-[0_0_12px_rgba(245,158,11,0.5)]">
                      {propuestasPorEnviarCount} PENDIENTE{propuestasPorEnviarCount !== 1 ? 'S' : ''}
                    </div>
