@@ -2591,7 +2591,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                         
                         return (
                           <div
-                            key={i}
+                            key={`${n.date}-${i}`}
                             className="flex flex-col gap-1.5 group relative bg-slate-950/40 hover:bg-slate-950/80 border border-slate-800/40 hover:border-slate-800/80 p-3.5 rounded-xl transition-all"
                           >
                             <div className="flex items-center gap-2 flex-wrap mb-0.5">

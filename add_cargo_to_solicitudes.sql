@@ -1,0 +1,1 @@
+ALTER TABLE solicitudes ADD COLUMN IF NOT EXISTS cargo TEXT;

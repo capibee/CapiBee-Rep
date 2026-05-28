@@ -195,7 +195,7 @@ export default function InvoiceForm({
                     <AnimatePresence initial={false}>
                       {formData.items.map((item, index) => (
                         <motion.div 
-                          key={index}
+                          key={`${index}-${item.description}`}
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           exit={{ opacity: 0, x: 20 }}

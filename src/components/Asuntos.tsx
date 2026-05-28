@@ -273,7 +273,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
             created_at: newAsunto.createdAt,
             contact_name: newAsunto.contactName || "",
             contact_phone: newAsunto.contactPhone || "",
-            assigned_user_id: newAsunto.assignedUserId || null
+            assigned_user_id: newAsunto.assignedUserId === "Área de Desarrollo" ? null : (newAsunto.assignedUserId || null)
         });
 
         if (error) {
@@ -1065,7 +1065,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                                  const isMe = msg.author.toLowerCase() === (currentUser.fullName || currentUser.full_name || "").toLowerCase();
 
                                  return (
-                                   <div key={index} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} w-full`}>
+                                   <div key={`${index}-${msg.date}`} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} w-full`}>
                                       {(() => {
                                         let rawRole = msg.role;
                                         if (!rawRole) {
