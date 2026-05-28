@@ -141,7 +141,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
 
   const fetchFreshData = async () => {
     try {
-      const { data: dbAsuntos } = await supabase.from('Asuntos').select('*');
+      const { data: dbAsuntos } = await supabase.from('asuntos').select('*');
       if (dbAsuntos) {
           const mapped = dbAsuntos.map((a: any) => ({
               id: a.id,
@@ -205,7 +205,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
   const handleDelete = async (id: string) => {
     if (!confirm("¿Está seguro de eliminar este asunto?")) return;
     
-    const { error } = await supabase.from('Asuntos').delete().eq('id', id);
+    const { error } = await supabase.from('asuntos').delete().eq('id', id);
     if (error) {
         alert(`Error al eliminar: ${error.message}`);
     } else {
@@ -222,7 +222,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
     if (selectedAsunto) {
         // Update
         const updatedAsunto = { ...selectedAsunto, ...formData };
-        const { error } = await supabase.from('Asuntos').update({
+        const { error } = await supabase.from('asuntos').update({
             nombre_asunto: updatedAsunto.nombreAsunto,
             business_id: updatedAsunto.businessId,
             datos_asunto: updatedAsunto.datosAsunto,
@@ -255,7 +255,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
           sector: formData.sector || businesses.find(b => b.id === formData.businessId)?.category || "",
         };
 
-        const { error } = await supabase.from('Asuntos').insert({
+        const { error } = await supabase.from('asuntos').insert({
             id: newAsunto.id,
             fecha: newAsunto.fecha,
             nombre_asunto: newAsunto.nombreAsunto,
@@ -289,7 +289,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
     const dateStr = new Date().toLocaleString();
     const updatedDatos = (selectedAsunto.datosAsunto ? selectedAsunto.datosAsunto + "\n\n" : "") + `--- Nota por ${userName} el ${dateStr} ---\n${newNote.trim()}`;
     
-    const { error } = await supabase.from('Asuntos').update({
+    const { error } = await supabase.from('asuntos').update({
         datos_asunto: updatedDatos
     }).eq('id', selectedAsunto.id);
 
@@ -600,7 +600,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
         </div>
         <select className="bg-slate-900/30 border border-slate-800 rounded-lg p-2 text-slate-300 text-sm outline-none focus:ring-1 focus:ring-yellow-500/50" value={clientFilter} onChange={e => setClientFilter(e.target.value)}>
             <option value="">Todos los contactos</option>
-            {businesses.map((b, idx) => <option key={`${b.id}-${idx}`} value={b.name}>{b.name}</option>)}
+            {businesses.map((b) => <option key={`biz-${b.id}`} value={b.name}>{b.name}</option>)}
         </select>
         <select className="bg-slate-900/30 border border-slate-800 rounded-lg p-2 text-slate-300 text-sm outline-none focus:ring-1 focus:ring-yellow-500/50 min-w-[124px]" value={yearFilter} onChange={e => { setYearFilter(e.target.value); setCurrentPage(1); }}>
             <option value="">Todos los años</option>
@@ -609,7 +609,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
         {canViewAll && (
             <select className="bg-slate-900/30 border border-slate-800 rounded-lg p-2 text-slate-300 text-sm outline-none focus:ring-1 focus:ring-yellow-500/50" value={executiveFilter} onChange={e => setExecutiveFilter(e.target.value)}>
                 <option value="">Todos los Ejecutivos</option>
-                {uniquePlatformUsers.map(u => <option key={u.id} value={u.id}>{u.full_name || u.email}</option>)}
+                {uniquePlatformUsers.map(u => <option key={`user-${u.id}`} value={u.id}>{u.full_name || u.email}</option>)}
             </select>
         )}
       </div>
@@ -647,7 +647,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                     currentItems.map((a, index) => {
                         const business = businesses.find(b => b.id === a.businessId);
                         return (
-                        <tr key={`${a.id}-${index}`} className="hover:bg-slate-900/20 transition-colors">
+                        <tr key={a.id} className="hover:bg-slate-900/20 transition-colors">
                             <td className="py-2 px-4 text-center font-mono text-[10px] text-slate-500 select-none w-10">
                                 AP{String((currentPage - 1) * itemsPerPage + index).padStart(3, '0')}-{new Date(a.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).split('/').join('')}
                             </td>
