@@ -834,7 +834,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1 font-sans">Personal Asignado</label>
+                                <label className="block text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1 font-sans">Asignado a</label>
                                 <select 
                                     className="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-slate-300 outline-none focus:ring-1 focus:ring-yellow-500/50 text-xs"
                                     value={formData.assignedUserId}

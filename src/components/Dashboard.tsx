@@ -2945,7 +2945,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                     <div className="grid grid-cols-1 gap-3">
                       <div className="space-y-1">
                         <label className="block text-xs font-bold text-slate-400">
-                          Nombre Asignado
+                          Asignado a
                         </label>
                         <select
                           required
@@ -2960,7 +2960,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                         >
                           <option value="" disabled>Seleccionar ejecutivo...</option>
                           {platformUsers
-                            .filter(u => u.roleName?.toLowerCase().includes('comercial') || u.roleName?.toLowerCase() === 'superadmin' || u.roleName?.toLowerCase().includes('admin'))
+                            .filter(u => u.roleName === 'Ejecutivo Comercial')
                             .map(u => (
                               <option key={u.id} value={u.fullName}>
                                 {u.fullName}
