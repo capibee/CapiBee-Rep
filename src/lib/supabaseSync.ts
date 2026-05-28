@@ -90,6 +90,7 @@ export async function pushAllLocalDataToSupabase(): Promise<{ success: boolean; 
     const localWithdrawals = JSON.parse(localStorage.getItem('capibee_withdrawals') || '[]');
     const localSolicitudes = JSON.parse(localStorage.getItem('capibee_solicitudes') || '[]');
     const localPropuestas = JSON.parse(localStorage.getItem('capibee_propuestas') || '[]');
+    const localAsuntos = JSON.parse(localStorage.getItem('capibee_asuntos') || '[]');
 
     // 2. Clear & insert Roles
     if (localRoles.length > 0) {
@@ -281,6 +282,27 @@ export async function pushAllLocalDataToSupabase(): Promise<{ success: boolean; 
       if (error && error.code !== '42P01') throw new Error(`Propuestas Upload failed: ${error.message}`);
     }
 
+    // 11. Asuntos
+    if (localAsuntos.length > 0) {
+      const mappedAsuntos = localAsuntos.map((a: any) => ({
+        id: a.id,
+        fecha: a.fecha,
+        nombre_asunto: a.nombreAsunto,
+        business_id: a.businessId,
+        user_id: a.userId === "unknown" || a.userId === "Desconocido" ? null : (a.userId || null),
+        datos_asunto: a.datosAsunto,
+        archivo_adjunto_url: a.archivoAdjuntoUrl,
+        sector: a.sector || '',
+        created_at: a.createdAt || Date.now(),
+        contact_name: a.contactName || '',
+        contact_phone: a.contactPhone || '',
+        assigned_user_id: a.assignedUserId === "Área de Desarrollo" ? null : (a.assignedUserId || null),
+        destinatario: a.destinatario || "Área de Desarrollo"
+      }));
+      const { error } = await supabase.from('Asuntos').upsert(mappedAsuntos, { onConflict: 'id' });
+      if (error && error.code !== '42P01') throw new Error(`Asuntos Upload failed: ${error.message}`);
+    }
+
     return { success: true, detail: 'Todos los datos locales han sido guardados en la base de datos real de Supabase.' };
   } catch (err: any) {
     console.error('Push data error:', err);
@@ -291,7 +313,7 @@ export async function pushAllLocalDataToSupabase(): Promise<{ success: boolean; 
 // Pull all data down from Supabase database tables into localStorage!
 export async function pullAllRemoteDataFromSupabase(): Promise<{ success: boolean; detail: string }> {
   try {
-    const [rolesRes, usersRes, clientsRes, busRes, invsRes, earnRes, withRes, solsRes, propRes] = await Promise.all([
+    const [rolesRes, usersRes, clientsRes, busRes, invsRes, earnRes, withRes, solsRes, propRes, asuntosRes] = await Promise.all([
       supabase.from('Roles').select('*'),
       supabase.from('Usuarios').select('*'),
       supabase.from('Clientes').select('*'),
@@ -300,7 +322,8 @@ export async function pullAllRemoteDataFromSupabase(): Promise<{ success: boolea
       supabase.from('Comisiones').select('*'),
       supabase.from('Withdrawal_requests').select('*'),
       supabase.from('Solicitudes').select('*'),
-      supabase.from('Propuestas').select('*')
+      supabase.from('Propuestas').select('*'),
+      supabase.from('Asuntos').select('*')
     ]);
 
     if (rolesRes.error) throw rolesRes.error;
@@ -312,6 +335,7 @@ export async function pullAllRemoteDataFromSupabase(): Promise<{ success: boolea
     if (withRes.error) throw withRes.error;
     if (solsRes.error) throw solsRes.error;
     if (propRes.error && propRes.error.code !== '42P01') throw propRes.error;
+    if (asuntosRes.error && asuntosRes.error.code !== '42P01') throw asuntosRes.error;
 
     // 1. Pull Roles
     const dbRoles = rolesRes.data;
@@ -501,6 +525,27 @@ export async function pullAllRemoteDataFromSupabase(): Promise<{ success: boolea
         pdfName: p.pdf_name || ""
       }));
       localStorage.setItem('capibee_propuestas', JSON.stringify(mapped));
+    }
+
+    // 10. Pull Asuntos
+    const dbAsuntos = asuntosRes.data;
+    if (dbAsuntos) {
+      const mapped = dbAsuntos.map(a => ({
+        id: a.id,
+        fecha: a.fecha,
+        nombreAsunto: a.nombre_asunto,
+        businessId: a.business_id,
+        userId: a.user_id,
+        datosAsunto: a.datos_asunto,
+        archivoAdjuntoUrl: a.archivo_adjunto_url,
+        sector: a.sector || "",
+        createdAt: Number(a.created_at) || Date.now(),
+        contactName: a.contact_name || "",
+        contactPhone: a.contact_phone || "",
+        assignedUserId: a.assigned_user_id || "",
+        destinatario: a.destinatario || ""
+      }));
+      localStorage.setItem('capibee_asuntos', JSON.stringify(mapped));
     }
 
     return { success: true, detail: 'Todos los datos de la base de datos de Supabase han sido descargados en Almacenamiento Local.' };

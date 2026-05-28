@@ -38,11 +38,15 @@ export default function AsuntoFormModal({ isOpen, onClose, businesses, onSuccess
   const handleCreateAsunto = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+        const user = JSON.parse(localStorage.getItem("capibee_user") || "{}");
+        const userIdVal = user.id || user.email || user.uid || "Desconocido";
+
         const payload: any = {
             id: crypto.randomUUID(),
             fecha: new Date().toISOString(),
             nombre_asunto: asuntoFormData.nombreAsunto,
             business_id: asuntoFormData.businessId,
+            user_id: userIdVal,
             datos_asunto: asuntoFormData.datosAsunto,
             archivo_adjunto_url: asuntoFormData.archivoAdjuntoUrl,
             contact_name: asuntoFormData.contactName,
