@@ -200,7 +200,11 @@ export default function Ganancias({ user }: GananciasProps) {
     
     try {
       const savedUsers = localStorage.getItem('capibee_platform_users');
-      if (savedUsers) setPlatformUsers(JSON.parse(savedUsers));
+      if (savedUsers) {
+        const parsed = JSON.parse(savedUsers);
+        const uniqueUsers = Array.from(new Map(parsed.map((u: any) => [u.id, u])).values());
+        setPlatformUsers(uniqueUsers as any[]);
+      }
 
       const savedBusinesses = localStorage.getItem('capibee_businesses');
       if (savedBusinesses) setBusinesses(JSON.parse(savedBusinesses));
@@ -328,8 +332,9 @@ export default function Ganancias({ user }: GananciasProps) {
             avatar: u.avatar,
             createdAt: u.created_at
           }));
-          setPlatformUsers(mappedUsers);
-          localStorage.setItem('capibee_platform_users', JSON.stringify(mappedUsers));
+          const uniqueUsers = Array.from(new Map(mappedUsers.map(u => [u.id, u])).values());
+          setPlatformUsers(uniqueUsers);
+          localStorage.setItem('capibee_platform_users', JSON.stringify(uniqueUsers));
         }
 
         const { data: dbWithdrawals } = await supabase.from('Withdrawal_requests').select('*');

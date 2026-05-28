@@ -90,7 +90,11 @@ export default function UsuariosRoles({}: UsuariosRolesProps) {
       const savedRoles = localStorage.getItem('capibee_platform_roles');
       const savedSolicitudes = localStorage.getItem('capibee_solicitudes');
       
-      if (savedUsers) setUsers(JSON.parse(savedUsers));
+      if (savedUsers) {
+        const parsed = JSON.parse(savedUsers);
+        const uniqueUsers = Array.from(new Map(parsed.map((u: any) => [u.id, u])).values());
+        setUsers(uniqueUsers as any[]);
+      }
       if (savedRoles) setRoles(JSON.parse(savedRoles));
       if (savedSolicitudes) setSolicitudes(JSON.parse(savedSolicitudes));
     } catch(e){}
@@ -133,8 +137,9 @@ export default function UsuariosRoles({}: UsuariosRolesProps) {
             createdAt: Number(u.created_at) || Date.now(),
             status: u.status || 'Activo'
           }));
-          setUsers(mapped);
-          localStorage.setItem('capibee_platform_users', JSON.stringify(mapped));
+          const uniqueMapped = Array.from(new Map(mapped.map((u: any) => [u.id, u])).values());
+          setUsers(uniqueMapped as any[]);
+          localStorage.setItem('capibee_platform_users', JSON.stringify(uniqueMapped));
         }
       } catch (err) {
         console.warn("Could not fetch users from Supabase:", err);

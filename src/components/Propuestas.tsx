@@ -245,7 +245,11 @@ export default function Propuestas({ onBack }: PropuestasProps) {
 
     try {
       const savedUsers = localStorage.getItem("capibee_platform_users");
-      if (savedUsers) setPlatformUsers(JSON.parse(savedUsers));
+      if (savedUsers) {
+        const parsed = JSON.parse(savedUsers);
+        const uniqueUsers = Array.from(new Map(parsed.map((u: any) => [u.id, u])).values());
+        setPlatformUsers(uniqueUsers as any[]);
+      }
     } catch (_) {}
 
     fetchFreshData();
@@ -856,7 +860,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                         const asignadoName = platformUsers.find(u => u.id === asignadoId)?.full_name || asignadoId || "Desconocido";
                         const contactName = asunto ? (asunto.contactName || businesses.find(b => b.id === asunto.businessId)?.contactName || "—") : "—";
                         return (
-                        <tr key={p.id} className="hover:bg-slate-900/20 transition-colors">
+                        <tr key={`${p.id}-${index}`} className="hover:bg-slate-900/20 transition-colors">
                             <td className="p-4 text-center font-mono text-[10px] text-slate-500 select-none w-10">PRO{String((currentPage - 1) * itemsPerPage + index + 1).padStart(3, '0')}-{new Date(p.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).split('/').join('')}</td>
                             <td className="p-4 text-sm text-slate-500 hidden">{new Date(p.createdAt).toLocaleDateString()}</td>
                             <td className="p-4 text-sm font-medium text-white">{asunto?.nombreAsunto || "Asunto Desconocido"}</td>

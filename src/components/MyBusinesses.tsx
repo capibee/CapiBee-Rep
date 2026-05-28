@@ -623,7 +623,7 @@ export default function MyBusinesses({ onLogout, onBack }: MyBusinessesProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-20 sm:pb-0">
             {currentBusinesses.map((business, index) => (
               <motion.div
-                key={business.id}
+                key={`${business.id}-${index}`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05, type: "tween" }}
@@ -1247,8 +1247,8 @@ export default function MyBusinesses({ onLogout, onBack }: MyBusinessesProps) {
                           {businesses.filter(b => {
                               const isSuperAdmin = currentUser?.roleName?.toLowerCase() === "superadmin" || currentUser?.roleId === "ADMIN_MAESTRO";
                               return !b.isEstablishment && b.status === 'Prop. Aceptada' && (isSuperAdmin || b.responsibleName === currentUser?.fullName);
-                          }).map(lead => (
-                            <option key={lead.id} value={lead.id}>{lead.name} ({lead.city || 'Sin ciudad'})</option>
+                          }).map((lead, idx) => (
+                            <option key={`${lead.id}-${idx}`} value={lead.id}>{lead.name} ({lead.city || 'Sin ciudad'})</option>
                           ))}
                         </select>
                       </div>

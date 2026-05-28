@@ -92,7 +92,11 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
       if (savedEarnings) setAgentEarnings(JSON.parse(savedEarnings));
       
       const savedUsers = localStorage.getItem('capibee_platform_users');
-      if (savedUsers) setPlatformUsers(JSON.parse(savedUsers));
+      if (savedUsers) {
+        const parsed = JSON.parse(savedUsers);
+        const uniqueUsers = Array.from(new Map(parsed.map((u: any) => [u.id, u])).values());
+        setPlatformUsers(uniqueUsers as any[]);
+      }
 
       const savedAsuntos = localStorage.getItem('capibee_asuntos');
       if (savedAsuntos) setAsuntos(JSON.parse(savedAsuntos));
@@ -236,8 +240,9 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
             avatar: u.avatar,
             createdAt: u.created_at
           }));
-          setPlatformUsers(mappedUsers);
-          localStorage.setItem('capibee_platform_users', JSON.stringify(mappedUsers));
+          const uniqueUsers = Array.from(new Map(mappedUsers.map(u => [u.id, u])).values());
+          setPlatformUsers(uniqueUsers);
+          localStorage.setItem('capibee_platform_users', JSON.stringify(uniqueUsers));
         }
 
         const { data: dbPropuestas } = await supabase.from('Propuestas').select('*');

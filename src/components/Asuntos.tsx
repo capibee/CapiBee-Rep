@@ -653,7 +653,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                     currentItems.map((a, index) => {
                         const business = businesses.find(b => b.id === a.businessId);
                         return (
-                        <tr key={a.id} className="hover:bg-slate-900/20 transition-colors">
+                        <tr key={`${a.id}-${index}`} className="hover:bg-slate-900/20 transition-colors">
                             <td className="py-2 px-4 text-center font-mono text-[10px] text-slate-500 select-none w-10">
                                 AP{String((currentPage - 1) * itemsPerPage + index).padStart(3, '0')}-{new Date(a.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).split('/').join('')}
                             </td>

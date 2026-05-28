@@ -319,7 +319,8 @@ export async function pullAllRemoteDataFromSupabase(): Promise<{ success: boolea
         avatar: u.avatar,
         createdAt: u.created_at
       }));
-      localStorage.setItem('capibee_platform_users', JSON.stringify(mapped));
+      const uniqueMapped = Array.from(new Map(mapped.map(u => [u.id, u])).values());
+      localStorage.setItem('capibee_platform_users', JSON.stringify(uniqueMapped));
     }
 
     // 3. Pull Clients

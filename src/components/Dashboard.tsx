@@ -283,7 +283,11 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
       if (savedBusinesses) setBusinesses(JSON.parse(savedBusinesses));
       
       const savedUsers = localStorage.getItem('capibee_platform_users');
-      if (savedUsers) setPlatformUsers(JSON.parse(savedUsers));
+      if (savedUsers) {
+        const parsed = JSON.parse(savedUsers);
+        const uniqueUsers = Array.from(new Map(parsed.map((u: any) => [u.id, u])).values());
+        setPlatformUsers(uniqueUsers as PlatformUser[]);
+      }
 
       const savedUser = localStorage.getItem('capibee_user');
       if (savedUser) setCurrentUser(JSON.parse(savedUser));
