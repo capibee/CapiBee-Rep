@@ -611,7 +611,7 @@ export default function UsuariosRoles({}: UsuariosRolesProps) {
                 <Users size={20} />
               </div>
               <div>
-                <h2 className="text-xl font-black text-white tracking-tight">Listado de Personal</h2>
+                <h2 className="text-xl font-black text-white tracking-tight">Usuarios</h2>
                 <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Gestión de usuarios y accesos</p>
               </div>
             </div>
