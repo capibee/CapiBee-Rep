@@ -13,6 +13,7 @@ import {
   Paperclip,
   Upload,
   Trash2,
+  Pencil,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Asunto, Business } from "../types";
@@ -188,41 +189,81 @@ export default function Asuntos({ onBack }: AsuntosProps) {
     }
   };
 
-  const handleCreate = async (e: React.FormEvent) => {
+  const handleDelete = async (id: string) => {
+    if (!confirm("¿Está seguro de eliminar este asunto?")) return;
+    
+    const { error } = await supabase.from('Asuntos').delete().eq('id', id);
+    if (error) {
+        alert(`Error al eliminar: ${error.message}`);
+    } else {
+        const updated = asuntos.filter(a => a.id !== id);
+        setAsuntos(updated);
+        localStorage.setItem("capibee_asuntos", JSON.stringify(updated));
+    }
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     const user = JSON.parse(localStorage.getItem("capibee_user") || "{}");
-    const newAsunto: Asunto = {
-      id: crypto.randomUUID(),
-      fecha: new Date().toISOString(),
-      ...formData,
-      userId: user.id || "unknown",
-      createdAt: Date.now(),
-      sector: formData.sector || businesses.find(b => b.id === formData.businessId)?.category || "",
-    };
+    
+    if (selectedAsunto) {
+        // Update
+        const updatedAsunto = { ...selectedAsunto, ...formData };
+        const { error } = await supabase.from('Asuntos').update({
+            nombre_asunto: updatedAsunto.nombreAsunto,
+            business_id: updatedAsunto.businessId,
+            datos_asunto: updatedAsunto.datosAsunto,
+            archivo_adjunto_url: updatedAsunto.archivoAdjuntoUrl,
+            sector: updatedAsunto.sector,
+            contact_name: updatedAsunto.contactName || "",
+            contact_phone: updatedAsunto.contactPhone || ""
+        }).eq('id', selectedAsunto.id);
 
-    const { error } = await supabase.from('Asuntos').insert({
-        id: newAsunto.id,
-        fecha: newAsunto.fecha,
-        nombre_asunto: newAsunto.nombreAsunto,
-        business_id: newAsunto.businessId,
-        user_id: newAsunto.userId,
-        datos_asunto: newAsunto.datosAsunto,
-        archivo_adjunto_url: newAsunto.archivoAdjuntoUrl,
-        sector: newAsunto.sector,
-        created_at: newAsunto.createdAt,
-        contact_name: newAsunto.contactName || "",
-        contact_phone: newAsunto.contactPhone || ""
-    });
-
-    if (error) {
-        console.error("Error creating Asunto:", error);
-        alert(`Error al crear asunto: ${error.message}`);
+        if (error) {
+            console.error("Error updating Asunto:", error);
+            alert(`Error al actualizar asunto: ${error.message}`);
+        } else {
+            const updatedAsuntos = asuntos.map(a => a.id === selectedAsunto.id ? updatedAsunto : a);
+            setAsuntos(updatedAsuntos);
+            localStorage.setItem("capibee_asuntos", JSON.stringify(updatedAsuntos));
+            setIsModalOpen(false);
+            setSelectedAsunto(null);
+            setFormData({ nombreAsunto: "", businessId: "", datosAsunto: "", archivoAdjuntoUrl: "", contactName: "", contactPhone: "", sector: "" });
+        }
     } else {
-        setAsuntos([newAsunto, ...asuntos]);
-        localStorage.setItem("capibee_asuntos", JSON.stringify([newAsunto, ...asuntos]));
-        setIsModalOpen(false);
-        setFormData({ nombreAsunto: "", businessId: "", datosAsunto: "", archivoAdjuntoUrl: "", contactName: "", contactPhone: "", sector: "" });
-        setAsuntoFileName("");
+        // Create
+        const newAsunto: Asunto = {
+          id: crypto.randomUUID(),
+          fecha: new Date().toISOString(),
+          ...formData,
+          userId: user.id || "unknown",
+          createdAt: Date.now(),
+          sector: formData.sector || businesses.find(b => b.id === formData.businessId)?.category || "",
+        };
+
+        const { error } = await supabase.from('Asuntos').insert({
+            id: newAsunto.id,
+            fecha: newAsunto.fecha,
+            nombre_asunto: newAsunto.nombreAsunto,
+            business_id: newAsunto.businessId,
+            user_id: newAsunto.userId,
+            datos_asunto: newAsunto.datosAsunto,
+            archivo_adjunto_url: newAsunto.archivoAdjuntoUrl,
+            sector: newAsunto.sector,
+            created_at: newAsunto.createdAt,
+            contact_name: newAsunto.contactName || "",
+            contact_phone: newAsunto.contactPhone || ""
+        });
+
+        if (error) {
+            console.error("Error creating Asunto:", error);
+            alert(`Error al crear asunto: ${error.message}`);
+        } else {
+            setAsuntos([newAsunto, ...asuntos]);
+            localStorage.setItem("capibee_asuntos", JSON.stringify([newAsunto, ...asuntos]));
+            setIsModalOpen(false);
+            setFormData({ nombreAsunto: "", businessId: "", datosAsunto: "", archivoAdjuntoUrl: "", contactName: "", contactPhone: "", sector: "" });
+        }
     }
   };
 
@@ -435,9 +476,10 @@ export default function Asuntos({ onBack }: AsuntosProps) {
 
           <div className="flex justify-end items-center mb-2">
             <button onClick={() => {
-                setFormData({ nombreAsunto: "", businessId: "", datosAsunto: "", archivoAdjuntoUrl: "", contactName: "", contactPhone: "" });
+                setFormData({ nombreAsunto: "", businessId: "", datosAsunto: "", archivoAdjuntoUrl: "", contactName: "", contactPhone: "", sector: "" });
                 setAsuntoFileName("");
                 setIsAsuntoDragOver(false);
+                setSelectedAsunto(null);
                 setIsModalOpen(true);
             }} className="bg-yellow-400 hover:bg-yellow-500 text-slate-950 px-4 py-2 rounded-lg flex items-center gap-2 font-black transition-all shadow-md text-sm">
                 <Plus size={16} /> Crear Asunto
@@ -607,7 +649,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                             </td>
                             <td className="py-2 px-4 text-sm text-slate-300">{a.contactName || business?.contactName || "—"}</td>
                             <td className="py-2 px-4 text-sm text-slate-500">{platformUsers.find(u => u.id === a.userId)?.full_name || a.userId}</td>
-                            <td className="py-2 px-4 text-right">
+                            <td className="py-2 px-4 text-right flex items-center justify-end gap-1">
                                 <button 
                                     onClick={() => {
                                       setSelectedAsunto(a);
@@ -618,6 +660,36 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                                   >
                                     <Eye size={18} />
                                 </button>
+                                {isAdmin && (
+                                  <>
+                                    <button 
+                                      onClick={() => {
+                                        setFormData({
+                                            nombreAsunto: a.nombreAsunto,
+                                            businessId: a.businessId,
+                                            datosAsunto: a.datosAsunto,
+                                            archivoAdjuntoUrl: a.archivoAdjuntoUrl,
+                                            contactName: a.contactName,
+                                            contactPhone: a.contactPhone,
+                                            sector: a.sector
+                                        });
+                                        setSelectedAsunto(a);
+                                        setIsModalOpen(true);
+                                      }}
+                                      className="p-1.5 text-slate-400 hover:text-blue-400 hover:bg-blue-400/10 rounded-lg transition-colors"
+                                      title="Editar"
+                                    >
+                                      <Pencil size={18} />
+                                    </button>
+                                    <button 
+                                      onClick={() => handleDelete(a.id)}
+                                      className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-400/10 rounded-lg transition-colors"
+                                      title="Eliminar"
+                                    >
+                                      <Trash2 size={18} />
+                                    </button>
+                                  </>
+                                )}
                             </td>
                         </tr>
                         );
@@ -644,7 +716,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                         <h2 className="text-lg font-bold text-white">Nuevo Asunto</h2>
                         <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-white transition-colors bg-slate-950/40 p-1.5 rounded-lg hover:bg-slate-950"><X size={16}/></button>
                     </div>
-                    <form onSubmit={handleCreate} className="space-y-3 overflow-y-auto flex-1 pr-1 custom-scrollbar">
+                    <form onSubmit={handleSave} className="space-y-3 overflow-y-auto flex-1 pr-1 custom-scrollbar">
                         <div className="relative">
                             <div 
                                 className={`w-full bg-slate-950 border ${isClientDropdownOpen ? 'border-yellow-500/50 ring-1 ring-yellow-500/50' : 'border-slate-800'} p-2.5 rounded-xl flex items-center justify-between cursor-text transition-all`}
