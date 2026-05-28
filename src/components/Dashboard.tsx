@@ -1191,8 +1191,8 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
       createdAt: Date.now(),
       contactName: asuntoFormData.contactName || "",
       contactPhone: asuntoFormData.contactPhone || "",
-      sector: asuntoFormData.sector || "",
-      destinatario: asuntoFormData.destinatario || ""
+      sector: asuntoFormData.sector || asuntoFormData.destinatario || "",
+      // destinatario removed
     };
 
     const { error } = await supabase.from('Asuntos').insert({
@@ -1207,7 +1207,6 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
         contact_name: newAsunto.contactName,
         contact_phone: newAsunto.contactPhone,
         sector: newAsunto.sector,
-        destinatario: newAsunto.destinatario
     });
 
     if (error) {
