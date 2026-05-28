@@ -2979,7 +2979,16 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                         >
                           <option value="" disabled>Seleccionar ejecutivo...</option>
                           {platformUsers
-                            .filter(u => u.roleName === 'Ejecutivo Comercial')
+                            .filter(u => {
+                              const role = (u.roleName || "").toLowerCase();
+                              return (
+                                role.includes('comercial') ||
+                                role.includes('ejecutivo') ||
+                                role.includes('vendedor') ||
+                                role.includes('ventas') ||
+                                (u.roleId && u.roleId.includes('6940'))
+                              );
+                            })
                             .map(u => (
                               <option key={u.id} value={u.fullName}>
                                 {u.fullName}

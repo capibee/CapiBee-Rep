@@ -1315,7 +1315,16 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
     const isSuperAdmin = currentUser?.roleName?.toUpperCase() === 'SUPERADMIN' || currentUser?.roleId?.toUpperCase() === 'SUPERADMIN' || currentUser?.roleId === 'ADMIN_MAESTRO';
     if (!isSuperAdmin) return [];
 
-    const executives = platformUsers.filter(u => u.roleName === 'Ejecutivo Comercial');
+    const executives = platformUsers.filter(u => {
+      const role = (u.roleName || "").toLowerCase();
+      return (
+        role.includes('comercial') ||
+        role.includes('ejecutivo') ||
+        role.includes('vendedor') ||
+        role.includes('ventas') ||
+        (u.roleId && u.roleId.includes('6940'))
+      );
+    });
     
     return executives.map(exec => {
       const execEarnings = agentEarnings.filter(e => e.userId === exec.id && e.status === 'En proceso');
@@ -1346,7 +1355,16 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
 
   const grandTotalPendientesEnvio = useMemo(() => {
     if (!platformUsers || !asuntos) return 0;
-    const executives = platformUsers.filter(u => u.roleName === 'Ejecutivo Comercial');
+    const executives = platformUsers.filter(u => {
+      const role = (u.roleName || "").toLowerCase();
+      return (
+        role.includes('comercial') ||
+        role.includes('ejecutivo') ||
+        role.includes('vendedor') ||
+        role.includes('ventas') ||
+        (u.roleId && u.roleId.includes('6940'))
+      );
+    });
     let total = 0;
     executives.forEach(exec => {
       const execAsuntos = asuntos.filter(a => a.userId === exec.id);

@@ -673,10 +673,16 @@ export default function Ganancias({ user }: GananciasProps) {
     const isSuperAdmin = user?.roleName?.toUpperCase() === 'SUPERADMIN' || user?.roleId?.toUpperCase() === 'SUPERADMIN' || user?.roleId === 'ADMIN_MAESTRO';
     if (!isSuperAdmin) return null;
 
-    const executives = platformUsers.filter(u => 
-      u.roleName?.toLowerCase().includes('ejecutivo') || 
-      u.roleId?.includes('6940')
-    );
+    const executives = platformUsers.filter(u => {
+      const role = (u.roleName || "").toLowerCase();
+      return (
+        role.includes('comercial') ||
+        role.includes('ejecutivo') ||
+        role.includes('vendedor') ||
+        role.includes('ventas') ||
+        (u.roleId && u.roleId.includes('6940'))
+      );
+    });
     
     // Filtro de fecha para comisiones
     const filteredBaseEarnings = baseEarnings.filter(e => {
@@ -752,10 +758,16 @@ export default function Ganancias({ user }: GananciasProps) {
 
   const grandTotalPendientesEnvio = useMemo(() => {
     if (!platformUsers || !asuntos) return 0;
-    const executives = platformUsers.filter(u => 
-      u.roleName?.toLowerCase().includes('ejecutivo') || 
-      u.roleId?.includes('6940')
-    );
+    const executives = platformUsers.filter(u => {
+      const role = (u.roleName || "").toLowerCase();
+      return (
+        role.includes('comercial') ||
+        role.includes('ejecutivo') ||
+        role.includes('vendedor') ||
+        role.includes('ventas') ||
+        (u.roleId && u.roleId.includes('6940'))
+      );
+    });
     let total = 0;
     executives.forEach(exec => {
       const execAsuntos = asuntos.filter(a => {
