@@ -647,7 +647,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
         </div>
         <select className="bg-slate-900/30 border border-slate-800 rounded-lg p-2 text-slate-300 text-sm outline-none focus:ring-1 focus:ring-yellow-500/50" value={clientFilter} onChange={e => setClientFilter(e.target.value)}>
             <option value="">Todos los contactos</option>
-            {businesses.map((b) => <option key={`biz-${b.id}`} value={b.name}>{b.name}</option>)}
+            {businesses.map((b, idx) => <option key={`biz-${b.id || idx}-${idx}`} value={b.name}>{b.name}</option>)}
         </select>
         <select className="bg-slate-900/30 border border-slate-800 rounded-lg p-2 text-slate-300 text-sm outline-none focus:ring-1 focus:ring-yellow-500/50 min-w-[124px]" value={yearFilter} onChange={e => { setYearFilter(e.target.value); setCurrentPage(1); }}>
             <option value="">Todos los años</option>
