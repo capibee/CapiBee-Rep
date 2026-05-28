@@ -308,10 +308,11 @@ export default function Solicitudes() {
           <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
               <tr className="border-b border-slate-800 bg-slate-950">
-                <th className="py-2 px-2 text-[10px] font-bold uppercase tracking-widest text-slate-500 text-center w-10">#</th>
+                <th className="py-2 px-2 text-[10px] font-bold uppercase tracking-widest text-slate-500 text-center w-24">ID</th>
                 <th className="py-2 px-4 text-xs font-bold uppercase tracking-widest text-slate-500">Fecha</th>
                 <th className="py-2 px-4 text-xs font-bold uppercase tracking-widest text-slate-500">Prospecto</th>
                 <th className="py-2 px-4 text-xs font-bold uppercase tracking-widest text-slate-500">Contacto</th>
+                <th className="py-2 px-4 text-xs font-bold uppercase tracking-widest text-slate-500">Cargo</th>
                 <th className="py-2 px-4 text-xs font-bold uppercase tracking-widest text-slate-500">Ubicación & Idiomas</th>
                 <th className="py-2 px-4 text-xs font-bold uppercase tracking-widest text-slate-500">Estado</th>
                 <th className="py-2 px-4 text-xs font-bold uppercase tracking-widest text-slate-500 text-right">Acciones</th>
@@ -320,13 +321,13 @@ export default function Solicitudes() {
             <tbody>
               {isTableLoading ? (
                 <tr>
-                  <td colSpan={7} className="py-16 text-center text-slate-500">
+                  <td colSpan={8} className="py-16 text-center text-slate-500">
                     <TableLoader />
                   </td>
                 </tr>
               ) : filteredSolicitudes.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-16 text-center text-slate-500">
+                  <td colSpan={8} className="py-16 text-center text-slate-500">
                     <div className="flex flex-col items-center justify-center gap-4">
                       <div className="p-4 bg-slate-800/50 rounded-full">
                         <FileText size={40} className="text-slate-600" />
@@ -346,8 +347,8 @@ export default function Solicitudes() {
               ) : (
                 filteredSolicitudes.map((app, index) => (
                   <tr key={app.id} className="border-b border-slate-800/50 transition-colors hover:bg-slate-800/20 group">
-                    <td className="py-2 px-2 text-[10px] text-slate-500 font-mono text-center select-none w-10">
-                      {index + 1}
+                    <td className="py-2 px-2 text-[10px] text-slate-500 font-mono text-center select-none w-24">
+                      FOR{String(index + 1).padStart(3, '0')}-{new Date(app.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '')}
                     </td>
                     <td className="py-2 px-4 text-sm text-slate-400 font-mono">
                       {new Date(app.createdAt).toLocaleDateString('es-ES', { 
@@ -361,11 +362,6 @@ export default function Solicitudes() {
                         </div>
                         <div className="flex flex-col">
                           <span className="font-bold text-slate-200 group-hover:text-amber-400 transition-colors">{app.nombre}</span>
-                          {app.cargo && (
-                            <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest mt-0.5">
-                              {app.cargo}
-                            </span>
-                          )}
                         </div>
                       </div>
                     </td>
@@ -380,6 +376,9 @@ export default function Solicitudes() {
                           <a href={`https://wa.me/${app.whatsapp.replace(/\D/g,'')}`} target="_blank" rel="noopener noreferrer" className="hover:text-amber-400 transition-colors">{app.whatsapp}</a>
                         </div>
                       </div>
+                    </td>
+                    <td className="py-2 px-4 text-sm text-slate-300">
+                      {app.cargo}
                     </td>
                     <td className="py-2 px-4">
                       <div className="flex flex-col gap-1.5">
