@@ -133,6 +133,11 @@ export default function Asuntos({ onBack }: AsuntosProps) {
       if (savedPropuestas) setPropuestas(JSON.parse(savedPropuestas));
     } catch(e) {}
 
+    try {
+      const savedU = localStorage.getItem("capibee_users");
+      if (savedU) setPlatformUsers(JSON.parse(savedU));
+    } catch(e) {}
+    
     fetchFreshData();
 
     const timer = setTimeout(() => setIsTableLoading(false), 2000);
@@ -180,6 +185,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
           return true;
         });
         setPlatformUsers(uniqueUsers);
+        localStorage.setItem("capibee_users", JSON.stringify(uniqueUsers));
       }
       
       const { data: dbBusinesses } = await supabase.from('Directorio').select('id, name, contact_name, contact_phone, phone, whatsapp, responsible_name, responsible_phone, category');
@@ -626,7 +632,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                     <th className="py-2.5 px-4 font-bold">Sector</th>
                     <th className="py-2.5 px-4 font-bold">Nombre Contacto</th>
                     <th className="py-2.5 px-4 font-bold">Creado por</th>
-                    <th className="py-2.5 px-4 font-bold">Destinatario</th>
+                    <th className="py-2.5 px-4 font-bold">Asignado A</th>
                     <th className="py-2.5 px-4 font-bold text-right">Acciones</th>
                 </tr>
             </thead>
