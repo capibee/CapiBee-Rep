@@ -279,7 +279,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
             contact_name: updatedAsunto.contactName || "",
             contact_phone: updatedAsunto.contactPhone || "",
             assigned_user_id: updatedAsunto.assignedUserId || null,
-            destinatario: updatedAsunto.destinatario
+            destinatario: updatedAsunto.destinatario || "Área de Desarrollo"
         }).eq('id', selectedAsunto.id);
 
         if (error) {
@@ -291,7 +291,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
             localStorage.setItem("capibee_asuntos", JSON.stringify(updatedAsuntos));
             setIsModalOpen(false);
             setSelectedAsunto(null);
-            setFormData({ nombreAsunto: "", businessId: "", datosAsunto: "", archivoAdjuntoUrl: "", contactName: "", contactPhone: "", sector: "", assignedUserId: "" });
+            setFormData({ nombreAsunto: "", businessId: "", datosAsunto: "", archivoAdjuntoUrl: "", contactName: "", contactPhone: "", sector: "", assignedUserId: "", destinatario: "Área de Desarrollo" });
         }
     } else {
         // Create
@@ -302,6 +302,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
           userId: user.id || user.email || user.uid || "Desconocido",
           createdAt: Date.now(),
           sector: formData.sector || businesses.find(b => b.id === formData.businessId)?.category || "",
+          destinatario: formData.destinatario || "Área de Desarrollo"
         };
 
         const { error } = await supabase.from('Asuntos').insert({
@@ -317,7 +318,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
             contact_name: newAsunto.contactName || "",
             contact_phone: newAsunto.contactPhone || "",
             assigned_user_id: newAsunto.assignedUserId === "Área de Desarrollo" ? null : (newAsunto.assignedUserId || null),
-            destinatario: newAsunto.destinatario
+            destinatario: newAsunto.destinatario || "Área de Desarrollo"
         });
 
         if (error) {
@@ -327,7 +328,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
             setAsuntos([newAsunto, ...asuntos]);
             localStorage.setItem("capibee_asuntos", JSON.stringify([newAsunto, ...asuntos]));
             setIsModalOpen(false);
-            setFormData({ nombreAsunto: "", businessId: "", datosAsunto: "", archivoAdjuntoUrl: "", contactName: "", contactPhone: "", sector: "" });
+            setFormData({ nombreAsunto: "", businessId: "", datosAsunto: "", archivoAdjuntoUrl: "", contactName: "", contactPhone: "", sector: "", assignedUserId: "", destinatario: "Área de Desarrollo" });
         }
     }
   };
@@ -737,7 +738,8 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                                             contactName: a.contactName,
                                             contactPhone: a.contactPhone,
                                             sector: a.sector,
-                                            assignedUserId: a.assignedUserId || ""
+                                            assignedUserId: a.assignedUserId || "",
+                                            destinatario: a.destinatario || "Área de Desarrollo"
                                         });
                                         setSelectedAsunto(a);
                                         setIsModalOpen(true);
