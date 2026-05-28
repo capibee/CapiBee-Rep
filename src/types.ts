@@ -169,6 +169,7 @@ export interface Asunto {
   contactPhone?: string;
   sector?: string;
   destinatario?: string;
+  assignedUserId?: string;
 }
 
 export interface WithdrawalRequest {

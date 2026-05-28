@@ -142,7 +142,8 @@ export default function Asuntos({ onBack }: AsuntosProps) {
               sector: a.sector || "",
               createdAt: Number(a.created_at),
               contactName: a.contact_name || "",
-              contactPhone: a.contact_phone || ""
+              contactPhone: a.contact_phone || "",
+              assignedUserId: a.assigned_user_id || ""
           }));
           setAsuntos(mapped);
           localStorage.setItem("capibee_asuntos", JSON.stringify(mapped));
@@ -608,22 +609,23 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                     <th className="py-2.5 px-4 font-bold hidden">Fecha</th>
                     <th className="py-2.5 px-4 font-bold">Asunto</th>
                     <th className="py-2.5 px-4 font-bold">Empresa</th>
-                    <th className="py-2.5 px-4 font-bold">Destinatario (Área)</th>
+                    <th className="py-2.5 px-4 font-bold">Sector</th>
                     <th className="py-2.5 px-4 font-bold">Nombre Contacto</th>
                     <th className="py-2.5 px-4 font-bold">Creado por</th>
+                    <th className="py-2.5 px-4 font-bold">Destinatario</th>
                     <th className="py-2.5 px-4 font-bold text-right">Acciones</th>
                 </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/30">
                 {isTableLoading ? (
                     <tr>
-                      <td colSpan={10} className="py-8">
+                      <td colSpan={11} className="py-8">
                         <TableLoader />
                       </td>
                     </tr>
                 ) : currentItems.length === 0 ? (
                     <tr>
-                      <td colSpan={10} className="py-12 text-center text-slate-500 font-medium bg-slate-900/20">
+                      <td colSpan={11} className="py-12 text-center text-slate-500 font-medium bg-slate-900/20">
                         Tabla sin datos
                       </td>
                     </tr>
@@ -649,6 +651,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                             </td>
                             <td className="py-2 px-4 text-sm text-slate-300">{a.contactName || business?.contactName || "—"}</td>
                             <td className="py-2 px-4 text-sm text-slate-500">{platformUsers.find(u => u.id === a.userId)?.full_name || a.userId}</td>
+                            <td className="py-2 px-4 text-sm text-slate-500">{platformUsers.find(u => u.id === a.assignedUserId)?.full_name || "—"}</td>
                             <td className="py-2 px-4 text-right flex items-center justify-end gap-1">
                                 <button 
                                     onClick={() => {
