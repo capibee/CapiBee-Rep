@@ -817,7 +817,7 @@ export default function Ganancias({ user }: GananciasProps) {
       amount,
       date: new Date().toISOString(),
       status: 'En proceso',
-      userId: user?.id || user?.email || user?.uid || 'Desconocido',
+      userId: user?.id || user?.email || (user as any)?.uid || 'Desconocido',
       userName: user?.fullName || 'Usuario',
       userEmail: user?.email || 'email@unknown.com',
       note: requestNote

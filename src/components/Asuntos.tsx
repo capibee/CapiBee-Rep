@@ -18,6 +18,8 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 import { Asunto, Business } from "../types";
 import { supabase } from "../lib/supabase";
+import { Pagination } from "./Pagination";
+import { TableLoader } from "./TableLoader";
 import AsuntoFormModal from './AsuntoFormModal';
 
 interface AsuntosProps {
@@ -93,6 +95,19 @@ export default function Asuntos({ onBack }: AsuntosProps) {
   }, [platformUsers]);
 
   const [isAsuntoModalOpen, setIsAsuntoModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    nombreAsunto: "",
+    businessId: "",
+    datosAsunto: "",
+    archivoAdjuntoUrl: "",
+    contactName: "",
+    contactPhone: "",
+    sector: "",
+    assignedUserId: "",
+    destinatario: "Área de Desarrollo"
+  });
+  const [asuntoFileName, setAsuntoFileName] = useState("");
+  const [isAsuntoDragOver, setIsAsuntoDragOver] = useState(false);
   const [asuntoFormData, setAsuntoFormData] = useState({
     nombreAsunto: "",
     businessId: "",
