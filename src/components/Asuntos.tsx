@@ -672,10 +672,10 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                             <td className="py-2 px-4 text-sm text-slate-300">{a.contactName || business?.contactName || "—"}</td>
                             <td className="py-2 px-4 text-sm text-slate-500">{a.userId === "unknown" || a.userId === "Desconocido" || a.userId === "capibee.ia@gmail.com" ? "Administrador" : (platformUsers.find(u => u.id === a.userId || u.email === a.userId)?.full_name || a.userId)}</td>
                             <td className="py-2 px-4 text-sm text-slate-500 text-indigo-400 font-medium">
-                                {a.sector === "Área de Desarrollo" ? (
+                                {a.assignedUserId === "Área de Desarrollo" || a.sector === "Área de Desarrollo" ? (
                                     "Área de Desarrollo"
                                 ) : (
-                                    platformUsers.find(u => u.id === a.assignedUserId)?.full_name || "Área de Desarrollo"
+                                    platformUsers.find(u => u.id === a.assignedUserId)?.full_name || a.assignedUserId || "—"
                                 )}
                             </td>
                             <td className="py-2 px-4 text-right flex items-center justify-end gap-1">
