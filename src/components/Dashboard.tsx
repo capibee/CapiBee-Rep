@@ -1675,7 +1675,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                         </td>
                       </tr>
                     ) : currentItems.map((business, index) => (
-                      <tr key={`${business.id}-${index}`} className="group transition-all">
+                      <tr key={`${business.id || 'no-id'}-${index}`} className="group transition-all">
                         <td className="px-2 py-1 bg-slate-950/40 rounded-l-lg border-y border-l border-amber-500/5 group-hover:bg-slate-800/40 transition-all font-mono text-[10px] text-slate-500 text-center select-none w-10">
                           EMP{String((currentPage - 1) * itemsPerPage + index).padStart(3, '0')}-{new Date(business.createdAt || Date.now()).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).split('/').join('')}
                         </td>
@@ -1792,21 +1792,21 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                               >
                                 <optgroup label="Contactabilidad">
                                   {STATUSES["Contactabilidad"].map((s) => (
-                                    <option key={s} value={s}>
+                                    <option key={`contact-${s}`} value={s}>
                                       {s}
                                     </option>
                                   ))}
                                 </optgroup>
                                 <optgroup label="Gestión">
                                   {STATUSES["Gestión"].map((s) => (
-                                    <option key={s} value={s}>
+                                    <option key={`gestion-${s}`} value={s}>
                                       {s}
                                     </option>
                                   ))}
                                 </optgroup>
                                 <optgroup label="Cierre">
                                   {STATUSES["Cierre"].map((s) => (
-                                    <option key={s} value={s}>
+                                    <option key={`cierre-${s}`} value={s}>
                                       {s}
                                     </option>
                                   ))}
@@ -1957,7 +1957,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
               <div className="lg:hidden space-y-3 pb-8">
                 {currentItems.map((business, index) => (
                   <div
-                    key={`${business.id}-${index}`}
+                    key={`mob-${business.id || 'no-id'}-${index}`}
                     className="bg-slate-950/40 border border-amber-500/10 rounded-xl p-3 flex flex-col gap-3 relative overflow-hidden group"
                   >
                     <div className="absolute top-0 right-0 p-2 transform translate-x-2 -translate-y-2 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform">
@@ -2362,13 +2362,13 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                           className="bg-slate-950 text-[10px] text-amber-400 font-bold border border-slate-800 hover:border-amber-500/30 rounded-lg px-3 py-1 outline-none cursor-pointer transition-colors"
                         >
                           <optgroup label="Contactabilidad">
-                            {STATUSES.Contactabilidad.map(s => <option key={s} value={s}>{s}</option>)}
+                            {STATUSES.Contactabilidad.map(s => <option key={`contact-${s}`} value={s}>{s}</option>)}
                           </optgroup>
                           <optgroup label="Gestión">
-                            {STATUSES.Gestión.map(s => <option key={s} value={s}>{s}</option>)}
+                            {STATUSES.Gestión.map(s => <option key={`gestion-${s}`} value={s}>{s}</option>)}
                           </optgroup>
                           <optgroup label="Cierre">
-                            {STATUSES.Cierre.map(s => <option key={s} value={s}>{s}</option>)}
+                            {STATUSES.Cierre.map(s => <option key={`cierre-${s}`} value={s}>{s}</option>)}
                           </optgroup>
                         </select>
                       </div>
@@ -2907,17 +2907,17 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                         >
                           <optgroup label="Contactabilidad">
                             {STATUSES["Contactabilidad"].map((s) => (
-                              <option key={s} value={s}>{s}</option>
+                              <option key={`contact-${s}`} value={s}>{s}</option>
                             ))}
                           </optgroup>
                           <optgroup label="Gestión">
                             {STATUSES["Gestión"].map((s) => (
-                              <option key={s} value={s}>{s}</option>
+                              <option key={`gestion-${s}`} value={s}>{s}</option>
                             ))}
                           </optgroup>
                           <optgroup label="Cierre">
                             {STATUSES["Cierre"].map((s) => (
-                              <option key={s} value={s}>{s}</option>
+                              <option key={`cierre-${s}`} value={s}>{s}</option>
                             ))}
                           </optgroup>
                         </select>
@@ -3124,25 +3124,20 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                   )}
                 </div>
 
-                {/* Destinatario del asunto (Área) */}
+                {/* A Cargo */}
                 <div>
                   <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
-                    Destinatario del Asunto (Área) *
+                    A Cargo
                   </label>
                   <select
+                    disabled
                     required
-                    className="w-full px-3 py-1.5 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 font-medium text-xs shadow-inner appearance-none"
-                    value={asuntoFormData.destinatario}
-                    onChange={(e) =>
-                      setAsuntoFormData({
-                        ...asuntoFormData,
-                        destinatario: e.target.value,
-                      })
-                    }
+                    className="w-full px-3 py-1.5 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 font-medium text-xs shadow-inner appearance-none disabled:opacity-70 cursor-not-allowed"
+                    value="Área de Desarrollo"
                   >
-                    <option value="" disabled hidden>Selecciona un área</option>
                     <option value="Área de Desarrollo">Área de Desarrollo</option>
                   </select>
+                  <input type="hidden" value="Área de Desarrollo" name="destinatario" />
                 </div>
 
                 {/* Datos Asunto / Notas */}
