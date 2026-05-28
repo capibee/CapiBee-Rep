@@ -187,7 +187,8 @@ export default function Asuntos({ onBack }: AsuntosProps) {
               createdAt: Number(a.created_at),
               contactName: a.contact_name || "",
               contactPhone: a.contact_phone || "",
-              assignedUserId: a.assigned_user_id || ""
+              assignedUserId: a.assigned_user_id || "",
+              destinatario: a.destinatario || ""
           }));
           setAsuntos(mapped);
           localStorage.setItem("capibee_asuntos", JSON.stringify(mapped));
@@ -697,11 +698,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                             <td className="py-2 px-4 text-sm text-slate-300">{a.contactName || business?.contactName || "—"}</td>
                             <td className="py-2 px-4 text-sm text-slate-500">{a.userId === "unknown" || a.userId === "Desconocido" || a.userId === "capibee.ia@gmail.com" ? "Administrador" : (platformUsers.find(u => u.id === a.userId || u.email === a.userId)?.full_name || a.userId)}</td>
                             <td className="py-2 px-4 text-sm text-slate-500 text-indigo-400 font-medium">
-                                {a.assignedUserId === "Área de Desarrollo" || a.sector === "Área de Desarrollo" ? (
-                                    "Área de Desarrollo"
-                                ) : (
-                                    platformUsers.find(u => u.id === a.assignedUserId)?.full_name || a.assignedUserId || "—"
-                                )}
+                                {a.destinatario || (a.assignedUserId ? platformUsers.find(u => u.id === a.assignedUserId)?.full_name || a.assignedUserId : "—")}
                             </td>
                             <td className="py-2 px-4 text-right flex items-center justify-end gap-1">
                                 <button 
