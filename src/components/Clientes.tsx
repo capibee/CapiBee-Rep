@@ -177,8 +177,12 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
   useEffect(() => {
     const fetchFreshData = async () => {
       try {
-        // Fetch clients
-        const { data: dbClients, error: clientsErr } = await supabase.from('Clientes').select('*').order('created_at', { ascending: false });
+        const [clientsRes, busRes] = await Promise.all([
+          supabase.from('Clientes').select('*').order('created_at', { ascending: false }),
+          supabase.from('Directorio').select('*').order('created_at', { ascending: false })
+        ]);
+
+        const { data: dbClients, error: clientsErr } = clientsRes;
         if (!clientsErr && dbClients) {
           const mappedC = dbClients.map((c: any) => ({
             id: c.id,
@@ -201,8 +205,7 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
           localStorage.setItem("capibee_clientes", JSON.stringify(mappedC));
         }
 
-        // Fetch businesses
-        const { data: dbBusinesses, error: busErr } = await supabase.from('Directorio').select('*').order('created_at', { ascending: false });
+        const { data: dbBusinesses, error: busErr } = busRes;
         if (!busErr && dbBusinesses) {
           const mappedB = dbBusinesses.map((b: any) => ({
             id: b.id,

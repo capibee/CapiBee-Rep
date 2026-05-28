@@ -192,7 +192,14 @@ export default function Asuntos({ onBack }: AsuntosProps) {
 
   const fetchFreshData = async () => {
     try {
-      const { data: dbAsuntos } = await supabase.from('Asuntos').select('*');
+      const [asuntosRes, propuestasRes, usersRes, businessesRes] = await Promise.all([
+        supabase.from('Asuntos').select('*'),
+        supabase.from('Propuestas').select('*'),
+        supabase.from('Usuarios').select('id, full_name, email, role_name'),
+        supabase.from('Directorio').select('id, name, contact_name, contact_phone, phone, whatsapp, responsible_name, responsible_phone, category')
+      ]);
+
+      const dbAsuntos = asuntosRes.data;
       if (dbAsuntos) {
           const mapped = dbAsuntos.map((a: any) => ({
               id: a.id,
@@ -212,7 +219,8 @@ export default function Asuntos({ onBack }: AsuntosProps) {
           setAsuntos(mapped);
           localStorage.setItem("capibee_asuntos", JSON.stringify(mapped));
       }
-      const { data: dbPropuestas } = await supabase.from('Propuestas').select('*');
+
+      const dbPropuestas = propuestasRes.data;
       if (dbPropuestas) {
           const mappedP = dbPropuestas.map((p: any) => ({
               id: p.id,
@@ -222,7 +230,8 @@ export default function Asuntos({ onBack }: AsuntosProps) {
           setPropuestas(mappedP);
           localStorage.setItem("capibee_propuestas", JSON.stringify(mappedP));
       }
-      const { data: dbUsers } = await supabase.from('Usuarios').select('id, full_name, email, role_name');
+
+      const dbUsers = usersRes.data;
       if (dbUsers) {
         const seen = new Set();
         const uniqueUsers = dbUsers.filter((u: any) => {
@@ -235,7 +244,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
         localStorage.setItem("capibee_users", JSON.stringify(uniqueUsers));
       }
       
-      const { data: dbBusinesses } = await supabase.from('Directorio').select('id, name, contact_name, contact_phone, phone, whatsapp, responsible_name, responsible_phone, category');
+      const dbBusinesses = businessesRes.data;
       if (dbBusinesses) {
          const mappedB = dbBusinesses.map((b: any) => ({
              id: b.id,

@@ -131,7 +131,17 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
     // Connect to Supabase for dynamic data and real-time subscription
     const fetchFreshInvoiceData = async () => {
       try {
-        const { data: dbInvs, error: invsErr } = await supabase.from('Facturas').select('*');
+        const [invsRes, clientsRes, busRes, earnRes, usersRes, propRes, asuntosRes] = await Promise.all([
+          supabase.from('Facturas').select('*'),
+          supabase.from('Clientes').select('*'),
+          supabase.from('Directorio').select('*'),
+          supabase.from('Comisiones').select('*'),
+          supabase.from('Usuarios').select('*'),
+          supabase.from('Propuestas').select('*'),
+          supabase.from('Asuntos').select('id, nombre_asunto, business_id, fecha, created_at, user_id, contact_name, contact_phone')
+        ]);
+
+        const { data: dbInvs, error: invsErr } = invsRes;
         if (!invsErr && dbInvs) {
           const mapped = dbInvs.map(i => ({
             id: i.id,
@@ -156,8 +166,7 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
           localStorage.setItem('capibee_invoices', JSON.stringify(mapped));
         }
 
-        // Also fetch businesses, clients, agent_earnings, platform_users to keep them absolutely fresh!
-        const { data: dbClients } = await supabase.from('Clientes').select('*');
+        const dbClients = clientsRes.data;
         if (dbClients) {
           const mappedC = dbClients.map((c: any) => ({
             id: c.id,
@@ -178,7 +187,7 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
           localStorage.setItem("capibee_clientes", JSON.stringify(mappedC));
         }
 
-        const { data: dbBusinesses } = await supabase.from('Directorio').select('*');
+        const dbBusinesses = busRes.data;
         if (dbBusinesses) {
           const mappedB = dbBusinesses.map((b: any) => ({
             id: b.id,
@@ -212,7 +221,7 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
           localStorage.setItem("capibee_businesses", JSON.stringify(mappedB));
         }
 
-        const { data: dbEarnings } = await supabase.from('Comisiones').select('*');
+        const dbEarnings = earnRes.data;
         if (dbEarnings) {
           const mappedE = dbEarnings.map((e: any) => ({
             id: e.id,
@@ -228,7 +237,7 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
           localStorage.setItem('capibee_agent_earnings', JSON.stringify(mappedE));
         }
 
-        const { data: dbUsers } = await supabase.from('Usuarios').select('*');
+        const dbUsers = usersRes.data;
         if (dbUsers) {
           const mappedUsers = dbUsers.map(u => ({
             id: u.id,
@@ -245,7 +254,7 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
           localStorage.setItem('capibee_platform_users', JSON.stringify(uniqueUsers));
         }
 
-        const { data: dbPropuestas } = await supabase.from('Propuestas').select('*');
+        const dbPropuestas = propRes.data;
         if (dbPropuestas) {
             const mappedP = dbPropuestas.map((p: any) => ({
                 id: p.id,
@@ -261,7 +270,7 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
             localStorage.setItem("capibee_propuestas", JSON.stringify(mappedP));
         }
         
-        const { data: dbAsuntos } = await supabase.from('Asuntos').select('id, nombre_asunto, business_id, fecha, created_at, user_id, contact_name, contact_phone');
+        const dbAsuntos = asuntosRes.data;
         if (dbAsuntos) {
             const mappedA = dbAsuntos.map((a: any) => ({
                 id: a.id,

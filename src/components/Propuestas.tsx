@@ -263,14 +263,20 @@ export default function Propuestas({ onBack }: PropuestasProps) {
       const localPropuestas = localStorage.getItem("capibee_propuestas");
       const parsedLocal = localPropuestas ? JSON.parse(localPropuestas) : [];
 
-      const { data: dbPropuestas, error: dbError } = await supabase.from('Propuestas').select('*');
+      const [propuestasRes, asuntosRes, businessesRes, usersRes] = await Promise.all([
+        supabase.from('Propuestas').select('*'),
+        supabase.from('Asuntos').select('id, nombre_asunto, business_id, fecha, created_at, user_id, contact_name, contact_phone'),
+        supabase.from('Directorio').select('id, name, contact_name'),
+        supabase.from('Usuarios').select('id, full_name, email, role_name')
+      ]);
+
+      const dbError = propuestasRes.error;
+      const dbPropuestas = propuestasRes.data;
+
       if (dbError && dbError.code === '42P01') {
           // Table does not exist, use local only
           setPropuestas(parsedLocal);
-          return;
-      }
-      
-      if (dbPropuestas) {
+      } else if (dbPropuestas) {
           const mapped = dbPropuestas.map((p: any) => {
               const localProp = parsedLocal.find((lp: any) => lp.id === p.id);
               return {
@@ -297,7 +303,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
           setPropuestas(parsedLocal);
       }
       
-      const { data: dbAsuntos } = await supabase.from('Asuntos').select('id, nombre_asunto, business_id, fecha, created_at, user_id, contact_name, contact_phone');
+      const dbAsuntos = asuntosRes.data;
       if (dbAsuntos) {
           const mappedA = dbAsuntos.map((a: any) => ({
               id: a.id,
@@ -314,7 +320,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
           localStorage.setItem("capibee_asuntos", JSON.stringify(mappedA));
       }
 
-      const { data: dbBusinesses } = await supabase.from('Directorio').select('id, name, contact_name');
+      const dbBusinesses = businessesRes.data;
       if (dbBusinesses) {
          const mappedB = dbBusinesses.map((b: any) => ({
              id: b.id,
@@ -325,7 +331,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
          localStorage.setItem("capibee_businesses", JSON.stringify(mappedB));
       }
 
-      const { data: dbUsers } = await supabase.from('Usuarios').select('id, full_name, email, role_name');
+      const dbUsers = usersRes.data;
       if (dbUsers) {
         const seen = new Set();
         const uniqueUsers = dbUsers.filter((u: any) => {

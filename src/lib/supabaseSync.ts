@@ -291,9 +291,30 @@ export async function pushAllLocalDataToSupabase(): Promise<{ success: boolean; 
 // Pull all data down from Supabase database tables into localStorage!
 export async function pullAllRemoteDataFromSupabase(): Promise<{ success: boolean; detail: string }> {
   try {
+    const [rolesRes, usersRes, clientsRes, busRes, invsRes, earnRes, withRes, solsRes, propRes] = await Promise.all([
+      supabase.from('Roles').select('*'),
+      supabase.from('Usuarios').select('*'),
+      supabase.from('Clientes').select('*'),
+      supabase.from('Directorio').select('*'),
+      supabase.from('Facturas').select('*'),
+      supabase.from('Comisiones').select('*'),
+      supabase.from('Withdrawal_requests').select('*'),
+      supabase.from('Solicitudes').select('*'),
+      supabase.from('Propuestas').select('*')
+    ]);
+
+    if (rolesRes.error) throw rolesRes.error;
+    if (usersRes.error) throw usersRes.error;
+    if (clientsRes.error) throw clientsRes.error;
+    if (busRes.error) throw busRes.error;
+    if (invsRes.error) throw invsRes.error;
+    if (earnRes.error) throw earnRes.error;
+    if (withRes.error) throw withRes.error;
+    if (solsRes.error) throw solsRes.error;
+    if (propRes.error && propRes.error.code !== '42P01') throw propRes.error;
+
     // 1. Pull Roles
-    const { data: dbRoles, error: rolesErr } = await supabase.from('Roles').select('*');
-    if (rolesErr) throw rolesErr;
+    const dbRoles = rolesRes.data;
     if (dbRoles) {
       const mapped = dbRoles.map(r => ({
         id: r.id,
@@ -306,8 +327,7 @@ export async function pullAllRemoteDataFromSupabase(): Promise<{ success: boolea
     }
 
     // 2. Pull Users
-    const { data: dbUsers, error: usersErr } = await supabase.from('Usuarios').select('*');
-    if (usersErr) throw usersErr;
+    const dbUsers = usersRes.data;
     if (dbUsers) {
       const mapped = dbUsers.map(u => ({
         id: u.id,
@@ -324,8 +344,7 @@ export async function pullAllRemoteDataFromSupabase(): Promise<{ success: boolea
     }
 
     // 3. Pull Clients
-    const { data: dbClients, error: clientsErr } = await supabase.from('Clientes').select('*');
-    if (clientsErr) throw clientsErr;
+    const dbClients = clientsRes.data;
     if (dbClients) {
       const mapped = dbClients.map(c => ({
         id: c.id,
@@ -346,8 +365,7 @@ export async function pullAllRemoteDataFromSupabase(): Promise<{ success: boolea
     }
 
     // 4. Pull Businesses
-    const { data: dbBusinesses, error: busErr } = await supabase.from('Directorio').select('*');
-    if (busErr) throw busErr;
+    const dbBusinesses = busRes.data;
     if (dbBusinesses) {
       const mapped = dbBusinesses.map(b => ({
         id: b.id,
@@ -381,8 +399,7 @@ export async function pullAllRemoteDataFromSupabase(): Promise<{ success: boolea
     }
 
     // 5. Pull Invoices
-    const { data: dbInvs, error: invsErr } = await supabase.from('Facturas').select('*');
-    if (invsErr) throw invsErr;
+    const dbInvs = invsRes.data;
     if (dbInvs) {
       const mapped = dbInvs.map(i => ({
         id: i.id,
@@ -407,8 +424,7 @@ export async function pullAllRemoteDataFromSupabase(): Promise<{ success: boolea
     }
 
     // 6. Pull Earnings
-    const { data: dbEarnings, error: earnErr } = await supabase.from('Comisiones').select('*');
-    if (earnErr) throw earnErr;
+    const dbEarnings = earnRes.data;
     if (dbEarnings) {
       const mapped = dbEarnings.map(e => ({
         id: e.id,
@@ -424,8 +440,7 @@ export async function pullAllRemoteDataFromSupabase(): Promise<{ success: boolea
     }
 
     // 7. Pull Withdrawals
-    const { data: dbWithdrawals, error: withErr } = await supabase.from('Withdrawal_requests').select('*');
-    if (withErr) throw withErr;
+    const dbWithdrawals = withRes.data;
     if (dbWithdrawals) {
       const mapped = dbWithdrawals.map(w => ({
         id: w.id,
@@ -441,8 +456,7 @@ export async function pullAllRemoteDataFromSupabase(): Promise<{ success: boolea
     }
 
     // 8. Pull Solicitudes
-    const { data: dbSols, error: solErr } = await supabase.from('Solicitudes').select('*');
-    if (solErr) throw solErr;
+    const dbSols = solsRes.data;
     if (dbSols) {
       const mapped = dbSols.map(s => {
         let dateStr = new Date().toISOString();
@@ -472,8 +486,7 @@ export async function pullAllRemoteDataFromSupabase(): Promise<{ success: boolea
     }
 
     // 9. Pull Propuestas
-    const { data: dbPropuestas, error: propErr } = await supabase.from('Propuestas').select('*');
-    if (propErr && propErr.code !== '42P01') throw propErr;
+    const dbPropuestas = propRes.data;
     if (dbPropuestas) {
       const mapped = dbPropuestas.map(p => ({
         id: p.id,
