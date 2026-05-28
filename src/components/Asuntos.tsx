@@ -256,7 +256,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
           id: crypto.randomUUID(),
           fecha: new Date().toISOString(),
           ...formData,
-          userId: user.id || "unknown",
+          userId: user.id || user.uid || "Desconocido",
           createdAt: Date.now(),
           sector: formData.sector || businesses.find(b => b.id === formData.businessId)?.category || "",
         };
@@ -671,7 +671,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                             </td>
                             <td className="py-2 px-4 text-sm text-slate-300">{a.contactName || business?.contactName || "—"}</td>
                             <td className="py-2 px-4 text-sm text-slate-500">{platformUsers.find(u => u.id === a.userId || u.email === a.userId)?.full_name || a.userId}</td>
-                            <td className="py-2 px-4 text-sm text-slate-500">{platformUsers.find(u => u.id === a.assignedUserId)?.full_name || "—"}</td>
+                            <td className="py-2 px-4 text-sm text-slate-500">{a.sector === "Área de Desarrollo" ? "Área de Desarrollo" : (platformUsers.find(u => u.id === a.assignedUserId)?.full_name || "—")}</td>
                             <td className="py-2 px-4 text-right flex items-center justify-end gap-1">
                                 <button 
                                     onClick={() => {
