@@ -100,8 +100,20 @@ export default function Asuntos({ onBack }: AsuntosProps) {
     archivoAdjuntoUrl: "",
     contactName: "",
     contactPhone: "",
-    sector: ""
+    sector: "",
+    assignedUserId: ""
   });
+  const [selectedRole, setSelectedRole] = useState("Ejecutivo Comercial");
+
+  const uniqueRoles = useMemo(() => {
+    const roles = new Set<string>();
+    platformUsers.forEach(u => { if (u.role_name) roles.add(u.role_name); });
+    return Array.from(roles);
+  }, [platformUsers]);
+
+  const filteredPersonnel = useMemo(() => {
+    return platformUsers.filter(u => u.role_name === selectedRole);
+  }, [platformUsers, selectedRole]);
   const [asuntoFileName, setAsuntoFileName] = useState("");
   const [isAsuntoDragOver, setIsAsuntoDragOver] = useState(false);
 
@@ -217,7 +229,8 @@ export default function Asuntos({ onBack }: AsuntosProps) {
             archivo_adjunto_url: updatedAsunto.archivoAdjuntoUrl,
             sector: updatedAsunto.sector,
             contact_name: updatedAsunto.contactName || "",
-            contact_phone: updatedAsunto.contactPhone || ""
+            contact_phone: updatedAsunto.contactPhone || "",
+            assigned_user_id: updatedAsunto.assignedUserId || null
         }).eq('id', selectedAsunto.id);
 
         if (error) {
@@ -229,7 +242,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
             localStorage.setItem("capibee_asuntos", JSON.stringify(updatedAsuntos));
             setIsModalOpen(false);
             setSelectedAsunto(null);
-            setFormData({ nombreAsunto: "", businessId: "", datosAsunto: "", archivoAdjuntoUrl: "", contactName: "", contactPhone: "", sector: "" });
+            setFormData({ nombreAsunto: "", businessId: "", datosAsunto: "", archivoAdjuntoUrl: "", contactName: "", contactPhone: "", sector: "", assignedUserId: "" });
         }
     } else {
         // Create
@@ -253,7 +266,8 @@ export default function Asuntos({ onBack }: AsuntosProps) {
             sector: newAsunto.sector,
             created_at: newAsunto.createdAt,
             contact_name: newAsunto.contactName || "",
-            contact_phone: newAsunto.contactPhone || ""
+            contact_phone: newAsunto.contactPhone || "",
+            assigned_user_id: newAsunto.assignedUserId || null
         });
 
         if (error) {
@@ -477,7 +491,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
 
           <div className="flex justify-end items-center mb-2">
             <button onClick={() => {
-                setFormData({ nombreAsunto: "", businessId: "", datosAsunto: "", archivoAdjuntoUrl: "", contactName: "", contactPhone: "", sector: "" });
+                setFormData({ nombreAsunto: "", businessId: "", datosAsunto: "", archivoAdjuntoUrl: "", contactName: "", contactPhone: "", sector: "", assignedUserId: "" });
                 setAsuntoFileName("");
                 setIsAsuntoDragOver(false);
                 setSelectedAsunto(null);
@@ -667,14 +681,15 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                                   <>
                                     <button 
                                       onClick={() => {
-                                        setFormData({
+                                                                setFormData({
                                             nombreAsunto: a.nombreAsunto,
                                             businessId: a.businessId,
                                             datosAsunto: a.datosAsunto,
                                             archivoAdjuntoUrl: a.archivoAdjuntoUrl,
                                             contactName: a.contactName,
                                             contactPhone: a.contactPhone,
-                                            sector: a.sector
+                                            sector: a.sector,
+                                            assignedUserId: a.assignedUserId || ""
                                         });
                                         setSelectedAsunto(a);
                                         setIsModalOpen(true);
@@ -798,16 +813,31 @@ export default function Asuntos({ onBack }: AsuntosProps) {
 
                         <input className="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-white outline-none focus:ring-1 focus:ring-yellow-500/50 text-xs placeholder:text-slate-600" placeholder="Nombre del asunto" value={formData.nombreAsunto} onChange={e => setFormData({...formData, nombreAsunto: e.target.value})} />
                         
-                        <div>
-                            <label className="block text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1 font-sans">Destinatario del Asunto (Área)</label>
-                            <select 
-                                className="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-slate-300 outline-none focus:ring-1 focus:ring-yellow-500/50 text-xs"
-                                value={formData.sector} 
-                                onChange={e => setFormData({...formData, sector: e.target.value})}
-                            >
-                                <option value="">Seleccionar área de destino (Opcional)</option>
-                                <option value="Área de Desarrollo">Área de Desarrollo</option>
-                            </select>
+                        <div className="grid grid-cols-2 gap-3 text-left">
+                            <div>
+                                <label className="block text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1 font-sans">Rol del Destinatario</label>
+                                <select 
+                                    className="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-slate-300 outline-none focus:ring-1 focus:ring-yellow-500/50 text-xs"
+                                    value={selectedRole}
+                                    onChange={e => {
+                                        setSelectedRole(e.target.value);
+                                        setFormData({...formData, assignedUserId: ""});
+                                    }}
+                                >
+                                    {uniqueRoles.map(role => <option key={role} value={role}>{role}</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1 font-sans">Personal Asignado</label>
+                                <select 
+                                    className="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-slate-300 outline-none focus:ring-1 focus:ring-yellow-500/50 text-xs"
+                                    value={formData.assignedUserId}
+                                    onChange={e => setFormData({...formData, assignedUserId: e.target.value})}
+                                >
+                                    <option value="">Seleccionar personal</option>
+                                    {filteredPersonnel.map(u => <option key={u.id} value={u.id}>{u.full_name}</option>)}
+                                </select>
+                            </div>
                         </div>
 
                         <textarea className="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-white outline-none focus:ring-1 focus:ring-yellow-500/50 min-h-[70px] text-xs placeholder:text-slate-600 resize-none" placeholder="Detalles o datos adicionales del asunto..." value={formData.datosAsunto} onChange={e => setFormData({...formData, datosAsunto: e.target.value})} />
