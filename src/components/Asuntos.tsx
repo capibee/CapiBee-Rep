@@ -70,7 +70,12 @@ export default function Asuntos({ onBack }: AsuntosProps) {
     asuntos.forEach((a) => {
       if (!isAdmin) {
         if (isDesarrollo) {
-          if (a.sector !== "Área de Desarrollo" && a.userId !== currentUser.id) return;
+          const isForDesarrollo = 
+            a.sector === "Área de Desarrollo" || 
+            a.destinatario === "Área de Desarrollo" || 
+            a.assignedUserId === currentUser.id || 
+            a.userId === currentUser.id;
+          if (!isForDesarrollo) return;
         } else {
           if (a.userId !== currentUser.id) return;
         }
@@ -270,7 +275,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
     if (selectedAsunto) {
         // Update
         const updatedAsunto = { ...selectedAsunto, ...formData };
-        const { error } = await supabase.from('Asuntos').update({
+        const updatePayload: any = {
             nombre_asunto: updatedAsunto.nombreAsunto,
             business_id: updatedAsunto.businessId,
             datos_asunto: updatedAsunto.datosAsunto,
@@ -280,7 +285,20 @@ export default function Asuntos({ onBack }: AsuntosProps) {
             contact_phone: updatedAsunto.contactPhone || "",
             assigned_user_id: updatedAsunto.assignedUserId || null,
             destinatario: updatedAsunto.destinatario || "Área de Desarrollo"
-        }).eq('id', selectedAsunto.id);
+        };
+
+        let { error } = await supabase.from('Asuntos').update(updatePayload).eq('id', selectedAsunto.id);
+
+        if (error && (
+            (error.message && error.message.includes('destinatario')) || 
+            (error.details && error.details.includes('destinatario')) || 
+            String(error).includes('destinatario')
+        )) {
+            console.warn("Retrying update without 'destinatario' column because it's missing in Supabase schema");
+            const { destinatario, ...retryPayload } = updatePayload;
+            const retryResult = await supabase.from('Asuntos').update(retryPayload).eq('id', selectedAsunto.id);
+            error = retryResult.error;
+        }
 
         if (error) {
             console.error("Error updating Asunto:", error);
@@ -305,7 +323,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
           destinatario: formData.destinatario || "Área de Desarrollo"
         };
 
-        const { error } = await supabase.from('Asuntos').insert({
+        const insertPayload: any = {
             id: newAsunto.id,
             fecha: newAsunto.fecha,
             nombre_asunto: newAsunto.nombreAsunto,
@@ -319,7 +337,20 @@ export default function Asuntos({ onBack }: AsuntosProps) {
             contact_phone: newAsunto.contactPhone || "",
             assigned_user_id: newAsunto.assignedUserId === "Área de Desarrollo" ? null : (newAsunto.assignedUserId || null),
             destinatario: newAsunto.destinatario || "Área de Desarrollo"
-        });
+        };
+
+        let { error } = await supabase.from('Asuntos').insert(insertPayload);
+
+        if (error && (
+            (error.message && error.message.includes('destinatario')) || 
+            (error.details && error.details.includes('destinatario')) || 
+            String(error).includes('destinatario')
+        )) {
+            console.warn("Retrying insert without 'destinatario' column because it's missing in Supabase schema");
+            const { destinatario, ...retryPayload } = insertPayload;
+            const retryResult = await supabase.from('Asuntos').insert(retryPayload);
+            error = retryResult.error;
+        }
 
         if (error) {
             console.error("Error creating Asunto:", error);
@@ -406,7 +437,12 @@ export default function Asuntos({ onBack }: AsuntosProps) {
       // Role logic:
       if (!isAdmin) {
         if (isDesarrollo) {
-          if (a.sector !== "Área de Desarrollo" && a.userId !== currentUser.id) return false;
+          const isForDesarrollo = 
+            a.sector === "Área de Desarrollo" || 
+            a.destinatario === "Área de Desarrollo" || 
+            a.assignedUserId === currentUser.id || 
+            a.userId === currentUser.id;
+          if (!isForDesarrollo) return false;
         } else {
           if (a.userId !== currentUser.id) return false;
         }
@@ -495,7 +531,12 @@ export default function Asuntos({ onBack }: AsuntosProps) {
     const listForKpis = asuntos.filter(a => {
       if (!isAdmin) {
         if (isDesarrollo) {
-          if (a.sector !== "Área de Desarrollo" && a.userId !== currentUser.id) return false;
+          const isForDesarrollo = 
+            a.sector === "Área de Desarrollo" || 
+            a.destinatario === "Área de Desarrollo" || 
+            a.assignedUserId === currentUser.id || 
+            a.userId === currentUser.id;
+          if (!isForDesarrollo) return false;
         } else {
           if (a.userId !== currentUser.id) return false;
         }

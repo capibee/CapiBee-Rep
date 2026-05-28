@@ -38,7 +38,9 @@ export default function AsuntoFormModal({ isOpen, onClose, businesses, onSuccess
   const handleCreateAsunto = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-        const { error } = await supabase.from('Asuntos').insert({
+        const payload: any = {
+            id: crypto.randomUUID(),
+            fecha: new Date().toISOString(),
             nombre_asunto: asuntoFormData.nombreAsunto,
             business_id: asuntoFormData.businessId,
             datos_asunto: asuntoFormData.datosAsunto,
@@ -48,7 +50,21 @@ export default function AsuntoFormModal({ isOpen, onClose, businesses, onSuccess
             sector: asuntoFormData.sector,
             destinatario: asuntoFormData.destinatario,
             created_at: new Date().getTime()
-        });
+        };
+
+        let { error } = await supabase.from('Asuntos').insert(payload);
+
+        if (error && (
+            (error.message && error.message.includes('destinatario')) || 
+            (error.details && error.details.includes('destinatario')) || 
+            String(error).includes('destinatario')
+        )) {
+            console.warn("Retrying insert without 'destinatario' column because it's missing in Supabase schema");
+            const { destinatario, ...retryPayload } = payload;
+            const retryResult = await supabase.from('Asuntos').insert(retryPayload);
+            error = retryResult.error;
+        }
+
         if (error) throw error;
         onClose();
         setAsuntoFormData({

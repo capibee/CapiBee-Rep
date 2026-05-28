@@ -1199,7 +1199,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
       assignedUserId: asuntoFormData.destinatario || "Área de Desarrollo",
     };
 
-    const { error } = await supabase.from('Asuntos').insert({
+    const insertPayload: any = {
         id: newAsunto.id,
         fecha: newAsunto.fecha,
         nombre_asunto: newAsunto.nombreAsunto,
@@ -1213,7 +1213,20 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
         sector: newAsunto.sector,
         assigned_user_id: newAsunto.assignedUserId === "Área de Desarrollo" ? null : newAsunto.assignedUserId,
         destinatario: "Área de Desarrollo"
-    });
+    };
+
+    let { error } = await supabase.from('Asuntos').insert(insertPayload);
+
+    if (error && (
+        (error.message && error.message.includes('destinatario')) || 
+        (error.details && error.details.includes('destinatario')) || 
+        String(error).includes('destinatario')
+    )) {
+        console.warn("Retrying insert without 'destinatario' column because it's missing in Supabase schema");
+        const { destinatario, ...retryPayload } = insertPayload;
+        const retryResult = await supabase.from('Asuntos').insert(retryPayload);
+        error = retryResult.error;
+    }
 
     if (error) {
         console.error("Error creating Asunto from Dashboard:", error);
