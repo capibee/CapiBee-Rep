@@ -1187,11 +1187,11 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
       businessId: asuntoFormData.businessId,
       datosAsunto: asuntoFormData.datosAsunto,
       archivoAdjuntoUrl: "",
-      userId: user.id || "unknown",
+      userId: user.id || user.email || user.uid || "Desconocido",
       createdAt: Date.now(),
       contactName: asuntoFormData.contactName || "",
       contactPhone: asuntoFormData.contactPhone || "",
-      sector: asuntoFormData.sector || asuntoFormData.destinatario || "",
+      sector: "Área de Desarrollo",
       // destinatario removed
     };
 

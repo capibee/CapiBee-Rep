@@ -573,7 +573,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
         propuestaTexto: "PDF",
         honorarios: Number(formData.honorarios) || 0,
         gastos: Number(formData.gastos) || 0,
-        userId: currentUser.id || "unknown",
+        userId: currentUser.id || currentUser.email || currentUser.uid || "Desconocido",
         createdAt: Date.now(),
         status: 'Enviada',
         pdfUrl: modalPdfUrl,

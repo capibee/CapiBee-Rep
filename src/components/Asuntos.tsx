@@ -256,7 +256,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
           id: crypto.randomUUID(),
           fecha: new Date().toISOString(),
           ...formData,
-          userId: user.id || user.uid || "Desconocido",
+          userId: user.id || user.email || user.uid || "Desconocido",
           createdAt: Date.now(),
           sector: formData.sector || businesses.find(b => b.id === formData.businessId)?.category || "",
         };
@@ -670,8 +670,14 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                                 )}
                             </td>
                             <td className="py-2 px-4 text-sm text-slate-300">{a.contactName || business?.contactName || "—"}</td>
-                            <td className="py-2 px-4 text-sm text-slate-500">{platformUsers.find(u => u.id === a.userId || u.email === a.userId)?.full_name || a.userId}</td>
-                            <td className="py-2 px-4 text-sm text-slate-500">{a.sector === "Área de Desarrollo" ? "Área de Desarrollo" : (platformUsers.find(u => u.id === a.assignedUserId)?.full_name || "—")}</td>
+                            <td className="py-2 px-4 text-sm text-slate-500">{a.userId === "unknown" || a.userId === "Desconocido" || a.userId === "capibee.ia@gmail.com" ? "Administrador" : (platformUsers.find(u => u.id === a.userId || u.email === a.userId)?.full_name || a.userId)}</td>
+                            <td className="py-2 px-4 text-sm text-slate-500 text-indigo-400 font-medium">
+                                {a.sector === "Área de Desarrollo" ? (
+                                    "Área de Desarrollo"
+                                ) : (
+                                    platformUsers.find(u => u.id === a.assignedUserId)?.full_name || "Área de Desarrollo"
+                                )}
+                            </td>
                             <td className="py-2 px-4 text-right flex items-center justify-end gap-1">
                                 <button 
                                     onClick={() => {
@@ -972,8 +978,8 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                            </div>
                            <div>
                               <p className="text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-1">Creado por</p>
-                              <p className="text-sm text-slate-300">{platformUsers.find(u => u.id === selectedAsunto.userId)?.full_name || "Desconocido"}</p>
-                              <p className="text-[9px] text-slate-500 uppercase tracking-widest mt-0.5">{platformUsers.find(u => u.id === selectedAsunto.userId)?.role_name || "Rol Desconocido"}</p>
+                              <p className="text-sm text-slate-300">{(selectedAsunto.userId === "unknown" || selectedAsunto.userId === "Desconocido" || selectedAsunto.userId === "capibee.ia@gmail.com") ? "Administrador" : (platformUsers.find(u => u.id === selectedAsunto.userId || u.email === selectedAsunto.userId)?.full_name || selectedAsunto.userId)}</p>
+                              <p className="text-[9px] text-slate-500 uppercase tracking-widest mt-0.5">{platformUsers.find(u => u.id === selectedAsunto.userId || u.email === selectedAsunto.userId)?.role_name || "Rol Desconocido"}</p>
                            </div>
                            <div>
                               <p className="text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-1">Nombre de Contacto</p>
@@ -1008,8 +1014,8 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                                  
                                  // First segment is the original description
                                  if (segments[0] && segments[0].trim()) {
-                                   const creator = platformUsers.find(u => u.id === selectedAsunto.userId);
-                                   const creatorName = creator?.full_name || "Desconocido";
+                                   const creator = platformUsers.find(u => u.id === selectedAsunto.userId || u.email === selectedAsunto.userId);
+                                   const creatorName = creator?.full_name || selectedAsunto.userId;
                                    const formattedDate = new Date(selectedAsunto.fecha).toLocaleString();
                                    list.push({
                                      author: creatorName,
