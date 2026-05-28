@@ -256,7 +256,7 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
             localStorage.setItem("capibee_propuestas", JSON.stringify(mappedP));
         }
         
-        const { data: dbAsuntos } = await supabase.from('asuntos').select('id, nombre_asunto, business_id, fecha, created_at, user_id, contact_name, contact_phone');
+        const { data: dbAsuntos } = await supabase.from('Asuntos').select('id, nombre_asunto, business_id, fecha, created_at, user_id, contact_name, contact_phone');
         if (dbAsuntos) {
             const mappedA = dbAsuntos.map((a: any) => ({
                 id: a.id,

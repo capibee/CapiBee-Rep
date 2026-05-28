@@ -146,7 +146,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
 
   const fetchFreshData = async () => {
     try {
-      const { data: dbAsuntos } = await supabase.from('asuntos').select('*');
+      const { data: dbAsuntos } = await supabase.from('Asuntos').select('*');
       if (dbAsuntos) {
           const mapped = dbAsuntos.map((a: any) => ({
               id: a.id,
@@ -211,7 +211,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
   const handleDelete = async (id: string) => {
     if (!confirm("¿Está seguro de eliminar este asunto?")) return;
     
-    const { error } = await supabase.from('asuntos').delete().eq('id', id);
+    const { error } = await supabase.from('Asuntos').delete().eq('id', id);
     if (error) {
         alert(`Error al eliminar: ${error.message}`);
     } else {
@@ -228,7 +228,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
     if (selectedAsunto) {
         // Update
         const updatedAsunto = { ...selectedAsunto, ...formData };
-        const { error } = await supabase.from('asuntos').update({
+        const { error } = await supabase.from('Asuntos').update({
             nombre_asunto: updatedAsunto.nombreAsunto,
             business_id: updatedAsunto.businessId,
             datos_asunto: updatedAsunto.datosAsunto,
@@ -261,7 +261,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
           sector: formData.sector || businesses.find(b => b.id === formData.businessId)?.category || "",
         };
 
-        const { error } = await supabase.from('asuntos').insert({
+        const { error } = await supabase.from('Asuntos').insert({
             id: newAsunto.id,
             fecha: newAsunto.fecha,
             nombre_asunto: newAsunto.nombreAsunto,

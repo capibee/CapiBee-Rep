@@ -293,7 +293,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
           setPropuestas(parsedLocal);
       }
       
-      const { data: dbAsuntos } = await supabase.from('asuntos').select('id, nombre_asunto, business_id, fecha, created_at, user_id, contact_name, contact_phone');
+      const { data: dbAsuntos } = await supabase.from('Asuntos').select('id, nombre_asunto, business_id, fecha, created_at, user_id, contact_name, contact_phone');
       if (dbAsuntos) {
           const mappedA = dbAsuntos.map((a: any) => ({
               id: a.id,
@@ -349,7 +349,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
       if (!relatedAsunto) {
          console.warn("Asunto no encontrado en el estado local, buscando en Supabase...");
          try {
-           const { data, error } = await supabase.from('asuntos').select('*').eq('id', asuntoId).maybeSingle();
+           const { data, error } = await supabase.from('Asuntos').select('*').eq('id', asuntoId).maybeSingle();
            if (!error && data) {
              relatedAsunto = {
                id: data.id,

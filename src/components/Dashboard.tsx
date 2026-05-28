@@ -306,7 +306,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
 
     const fetchBusinesses = async () => {
       try {
-        const { data: dbAsuntos } = await supabase.from('asuntos').select('business_id');
+        const { data: dbAsuntos } = await supabase.from('Asuntos').select('business_id');
         if (dbAsuntos) {
             setBusinessWithAsuntos(new Set(dbAsuntos.map((a: any) => a.business_id).filter(Boolean)));
         }
@@ -1195,7 +1195,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
       // destinatario removed
     };
 
-    const { error } = await supabase.from('asuntos').insert({
+    const { error } = await supabase.from('Asuntos').insert({
         id: newAsunto.id,
         fecha: newAsunto.fecha,
         nombre_asunto: newAsunto.nombreAsunto,
