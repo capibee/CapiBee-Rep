@@ -108,7 +108,12 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
   const [platformUsers, setPlatformUsers] = useState<PlatformUser[]>([]);
   const [filterAssignedUser, setFilterAssignedUser] = useState<string>('all');
   const [currentUser, setCurrentUser] = useState<any>(null);
-  const isExecutive = currentUser?.roleName?.toLowerCase().includes('ejecutivo') || currentUser?.roleId?.includes('6940');
+  const isExecutive = currentUser?.roleName?.toLowerCase().includes('ejecutivo') || 
+                      currentUser?.roleName?.toLowerCase().includes('comercial') || 
+                      currentUser?.roleName?.toLowerCase().includes('vendedor') || 
+                      currentUser?.roleName?.toLowerCase().includes('ventas') || 
+                      currentUser?.roleName?.toLowerCase().includes('vendedora') || 
+                      currentUser?.roleId?.includes('6940');
   const canCreateAsunto = permissions.create || isExecutive;
   const canCreateContact = permissions.create || isExecutive;
   const [editingBusiness, setEditingBusiness] = useState<Business | null>(null);
@@ -1555,7 +1560,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                       </option>
                     ))}
                   </select>
-                  {(currentUser?.roleName?.toLowerCase() === "superadmin" || currentUser?.roleId === "ADMIN_MAESTRO" || currentUser?.roleName?.toLowerCase().includes('ejecutivo') || currentUser?.roleId?.includes('6940')) && (
+                  {(currentUser?.roleName?.toLowerCase() === "superadmin" || currentUser?.roleId === "ADMIN_MAESTRO" || isExecutive) && (
                     <select
                       value={filterAssignedUser}
                       onChange={(e) => setFilterAssignedUser(e.target.value)}
@@ -1597,7 +1602,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                     <Phone size={10} strokeWidth={2.5} />
                     Automarcación
                   </button>
-                  {(currentUser?.roleName?.toLowerCase() === "superadmin" || currentUser?.roleId === "ADMIN_MAESTRO" || currentUser?.roleName?.toLowerCase().includes('admin') || currentUser?.roleName?.toLowerCase().includes('ejecutivo') || currentUser?.roleId?.includes('6940')) && (
+                  {(currentUser?.roleName?.toLowerCase() === "superadmin" || currentUser?.roleId === "ADMIN_MAESTRO" || currentUser?.roleName?.toLowerCase().includes('admin') || isExecutive) && (
                     <button
                       onClick={() => setIsScrapingModalOpen(true)}
                       disabled={!canCreateContact}
@@ -2163,7 +2168,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
 
       {/* Modal / Form Overlay */}
       <AnimatePresence>
-        {isScrapingModalOpen && (currentUser?.roleName?.toLowerCase() === "superadmin" || currentUser?.roleId === "ADMIN_MAESTRO" || currentUser?.roleName?.toLowerCase().includes('admin') || currentUser?.roleName?.toLowerCase().includes('ejecutivo') || currentUser?.roleId?.includes('6940')) && (
+        {isScrapingModalOpen && (currentUser?.roleName?.toLowerCase() === "superadmin" || currentUser?.roleId === "ADMIN_MAESTRO" || currentUser?.roleName?.toLowerCase().includes('admin') || isExecutive) && (
           <ScrapingModal
             onClose={() => setIsScrapingModalOpen(false)}
             onConfirm={handleAddScrapedLeads}
