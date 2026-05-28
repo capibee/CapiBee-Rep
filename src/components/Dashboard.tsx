@@ -1211,7 +1211,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
         contact_name: newAsunto.contactName,
         contact_phone: newAsunto.contactPhone,
         sector: newAsunto.sector,
-        assigned_user_id: newAsunto.assignedUserId,
+        assigned_user_id: newAsunto.assignedUserId === "Área de Desarrollo" ? null : newAsunto.assignedUserId,
     });
 
     if (error) {
