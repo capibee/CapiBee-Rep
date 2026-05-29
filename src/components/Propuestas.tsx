@@ -751,13 +751,13 @@ export default function Propuestas({ onBack }: PropuestasProps) {
   return (
     <div className="h-full bg-slate-950 p-6 flex flex-col overflow-hidden">
       {/* Panel de KPIs Mensuales */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="flex overflow-x-auto snap-x gap-3 pb-4 custom-scrollbar sm:grid sm:grid-cols-4 mb-6">
         <div 
           onClick={() => toggleKpi("pendientesEnvio")}
-          className={`snap-start flex-none w-[140px] md:flex-1 flex flex-col justify-between gap-1 p-2.5 px-3 rounded-xl border bg-slate-950/30 shadow-sm transition-colors group relative cursor-pointer ${selectedKpis.includes("pendientesEnvio") ? "border-amber-500/50 ring-1 ring-amber-500/20 bg-slate-900/50" : "border-slate-800/50 hover:bg-slate-900/60"}`}
+          className={`snap-start flex-none w-[160px] p-3 rounded-xl border transition-all duration-300 group cursor-pointer flex flex-col justify-between ${selectedKpis.includes("pendientesEnvio") ? 'bg-slate-900 border-amber-500/50 shadow-sm shadow-amber-500/10 ring-1 ring-amber-500/20' : 'bg-slate-950/30 border-slate-800/50 hover:bg-slate-900/60'}`}
         >
           <span className={`text-[9px] uppercase tracking-widest font-bold leading-none ${selectedKpis.includes("pendientesEnvio") ? "text-amber-400" : "text-slate-500"}`}>Pendientes de Envío</span>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mt-2">
             <span className="text-xl text-slate-100 font-black">{kpis.pendientesEnvio}</span>
             {selectedKpis.includes("pendientesEnvio") && (
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400 block animate-pulse"></span>
@@ -767,37 +767,40 @@ export default function Propuestas({ onBack }: PropuestasProps) {
 
         <div 
           onClick={() => toggleKpi("enviadas")}
-          className={`p-3 rounded-xl transition-all flex flex-col justify-between relative overflow-hidden group cursor-pointer border ${selectedKpis.includes("enviadas") ? "bg-blue-500/10 border-blue-500/50" : "bg-slate-900/30 border-slate-900 hover:border-blue-500/20"}`}
+          className={`snap-start flex-none w-[160px] p-3 rounded-xl border transition-all duration-300 group cursor-pointer flex flex-col justify-between ${selectedKpis.includes("enviadas") ? 'bg-slate-900 border-blue-500/50 shadow-sm shadow-blue-500/10 ring-1 ring-blue-500/20' : 'bg-slate-950/30 border-slate-800/50 hover:bg-slate-900/60'}`}
         >
-          <div className={`absolute top-0 left-0 right-0 h-0.5 transition-colors ${selectedKpis.includes("enviadas") ? "bg-blue-500" : "bg-blue-500/20 group-hover:bg-blue-500/50"}`} />
-          <span className={`text-[10px] uppercase tracking-widest font-black leading-none ${selectedKpis.includes("enviadas") ? "text-blue-400" : "text-slate-500"}`}>Propuestas Enviadas</span>
-          <div className="flex items-baseline justify-between mt-3">
-            <span className="text-2xl text-blue-400 font-extrabold">{kpis.enviadas}</span>
-            <span className="text-[10px] text-slate-500 font-medium font-mono">Enviadas</span>
+          <span className={`text-[9px] uppercase tracking-widest font-bold leading-none ${selectedKpis.includes("enviadas") ? "text-blue-400" : "text-slate-500"}`}>Propuestas Enviadas</span>
+          <div className="flex items-center justify-between mt-2">
+            <span className="text-xl text-slate-100 font-black">{kpis.enviadas}</span>
+            {selectedKpis.includes("enviadas") && (
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 block animate-pulse"></span>
+            )}
           </div>
         </div>
 
         <div 
           onClick={() => toggleKpi("aceptadas")}
-          className={`p-3 rounded-xl transition-all flex flex-col justify-between relative overflow-hidden group cursor-pointer border ${selectedKpis.includes("aceptadas") ? "bg-emerald-500/10 border-emerald-500/50" : "bg-slate-900/30 border-slate-900 hover:border-emerald-500/20"}`}
+          className={`snap-start flex-none w-[160px] p-3 rounded-xl border transition-all duration-300 group cursor-pointer flex flex-col justify-between ${selectedKpis.includes("aceptadas") ? 'bg-slate-900 border-emerald-500/50 shadow-sm shadow-emerald-500/10 ring-1 ring-emerald-500/20' : 'bg-slate-950/30 border-slate-800/50 hover:bg-slate-900/60'}`}
         >
-          <div className={`absolute top-0 left-0 right-0 h-0.5 transition-colors ${selectedKpis.includes("aceptadas") ? "bg-emerald-500" : "bg-emerald-500/20 group-hover:bg-emerald-500/50"}`} />
-          <span className={`text-[10px] uppercase tracking-widest font-black leading-none ${selectedKpis.includes("aceptadas") ? "text-emerald-400" : "text-slate-500"}`}>Propuestas Aceptadas</span>
-          <div className="flex items-baseline justify-between mt-3">
-            <span className="text-2xl text-emerald-400 font-extrabold">{kpis.aceptadas}</span>
-            <span className="text-[10px] text-slate-500 font-medium font-mono">Aceptadas</span>
+          <span className={`text-[9px] uppercase tracking-widest font-bold leading-none ${selectedKpis.includes("aceptadas") ? "text-emerald-400" : "text-slate-500"}`}>Propuestas Aceptadas</span>
+          <div className="flex items-center justify-between mt-2">
+            <span className="text-xl text-slate-100 font-black">{kpis.aceptadas}</span>
+            {selectedKpis.includes("aceptadas") && (
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 block animate-pulse"></span>
+            )}
           </div>
         </div>
 
         <div 
           onClick={() => toggleKpi("rechazadas")}
-          className={`p-3 rounded-xl transition-all flex flex-col justify-between relative overflow-hidden group cursor-pointer border ${selectedKpis.includes("rechazadas") ? "bg-rose-500/10 border-rose-500/50" : "bg-slate-900/30 border-slate-900 hover:border-rose-500/20"}`}
+          className={`snap-start flex-none w-[160px] p-3 rounded-xl border transition-all duration-300 group cursor-pointer flex flex-col justify-between ${selectedKpis.includes("rechazadas") ? 'bg-slate-900 border-rose-500/50 shadow-sm shadow-rose-500/10 ring-1 ring-rose-500/20' : 'bg-slate-950/30 border-slate-800/50 hover:bg-slate-900/60'}`}
         >
-          <div className={`absolute top-0 left-0 right-0 h-0.5 transition-colors ${selectedKpis.includes("rechazadas") ? "bg-rose-500" : "bg-rose-500/20 group-hover:bg-rose-500/50"}`} />
-          <span className={`text-[10px] uppercase tracking-widest font-black leading-none ${selectedKpis.includes("rechazadas") ? "text-rose-400" : "text-slate-500"}`}>Propuestas Rechazadas</span>
-          <div className="flex items-baseline justify-between mt-3">
-            <span className="text-2xl text-rose-400 font-extrabold">{kpis.rechazadas}</span>
-            <span className="text-[10px] text-slate-500 font-medium font-mono">Rechazadas</span>
+          <span className={`text-[9px] uppercase tracking-widest font-bold leading-none ${selectedKpis.includes("rechazadas") ? "text-rose-400" : "text-slate-500"}`}>Propuestas Rechazadas</span>
+          <div className="flex items-center justify-between mt-2">
+            <span className="text-xl text-slate-100 font-black">{kpis.rechazadas}</span>
+            {selectedKpis.includes("rechazadas") && (
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-400 block animate-pulse"></span>
+            )}
           </div>
         </div>
       </div>
