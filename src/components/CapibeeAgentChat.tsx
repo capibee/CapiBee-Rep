@@ -62,7 +62,7 @@ export default function CapibeeAgentChat() {
         setMessages(prev => [...prev, { id: Date.now().toString(), role: 'agent', content: `Error: ${data.error || 'No se pudo contactar al agente.'}` }]);
       }
     } catch (e: any) {
-      setMessages(prev => [...prev, { id: Date.now().toString(), role: 'agent', content: "Hubo un error de conexión con CapiBee Agent." }]);
+      setMessages(prev => [...prev, { id: Date.now().toString(), role: 'agent', content: `Hubo un error de conexión con CapiBee Agent. Detalles: ${e.message || 'Desconocido'}` }]);
     } finally {
       setIsLoading(false);
     }
