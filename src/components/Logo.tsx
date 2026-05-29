@@ -10,7 +10,8 @@ export default function Logo({ className = "", size = 120, textClassName = "" }:
           height: size ? `${size}px` : 'auto',
           width: 'auto',
           maxWidth: '105%',
-          filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.4))"
+          filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.4))",
+          mixBlendMode: "screen"
         }}
         className="object-contain"
         referrerPolicy="no-referrer"

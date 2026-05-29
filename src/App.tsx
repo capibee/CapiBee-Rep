@@ -28,11 +28,11 @@ const SupabaseHub = lazy(() => import("./components/SupabaseHub"));
 
 const FallbackLoader = () => (
   <div className="flex-1 h-full min-h-[300px] flex items-center justify-center">
-    <div className="relative w-20 h-20 flex items-center justify-center animate-pulse">
+    <div className="relative w-28 h-28 flex items-center justify-center animate-pulse">
       <img
         src="https://i.ibb.co/G4W60yY5/Logo-Capibee-2-removebg-preview.png"
         alt="CapiBee"
-        className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]"
+        className="w-full h-full object-contain filter drop-shadow-[0_0_12px_rgba(250,204,21,0.5)] mix-blend-screen"
       />
     </div>
   </div>
