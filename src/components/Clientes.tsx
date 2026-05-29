@@ -791,7 +791,7 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
 
           <div className="bg-slate-900/60 backdrop-blur-2xl border border-slate-800 rounded-xl overflow-hidden flex flex-col shadow-lg">
             <div className="overflow-x-auto custom-scrollbar">
-              <table className="w-full text-left border-collapse border-spacing-0">
+              <table className="w-full text-left border-collapse border-spacing-0 min-w-[1000px]">
                 <thead>
                   <tr className="bg-slate-950/50 border-b border-slate-800">
                     <th className="p-2 w-8">

@@ -835,7 +835,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
       </div>
 
       <div className="flex-1 overflow-auto custom-scrollbar bg-slate-900/30 border border-slate-800 rounded-2xl relative">
-          <table className="w-full text-left">
+          <table className="w-full text-left min-w-[800px]">
             <thead className="text-slate-500 text-[10px] uppercase tracking-widest sticky top-0 bg-slate-950 z-10">
                 <tr>
                     <th className="p-4 font-bold text-center w-10">ID</th>

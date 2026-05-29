@@ -76,7 +76,7 @@ export default function CapibeeAgentChat() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="pointer-events-auto bg-slate-900 border border-slate-800 shadow-2xl rounded-2xl w-[360px] md:w-[400px] h-[500px] mb-4 flex flex-col overflow-hidden"
+            className="pointer-events-auto bg-slate-900 border border-slate-800 shadow-2xl rounded-2xl w-[calc(100vw-32px)] sm:w-[360px] md:w-[400px] h-[500px] max-h-[calc(100vh-100px)] mb-4 flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="p-4 bg-slate-950 border-b border-amber-500/20 flex items-center justify-between shrink-0">

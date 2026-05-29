@@ -677,7 +677,7 @@ export default function UsuariosRoles({}: UsuariosRolesProps) {
 
           <div className="bg-slate-900/60 backdrop-blur-2xl border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
             <div className="overflow-x-auto custom-scrollbar">
-              <table className="w-full text-left border-collapse">
+              <table className="w-full text-left border-collapse min-w-[1000px]">
                 <thead>
                   <tr className="border-b border-slate-800 bg-slate-950/30">
                     <th className="p-5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center w-10">#</th>

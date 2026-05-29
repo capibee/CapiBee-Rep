@@ -713,7 +713,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
 
       <div className="rounded-xl overflow-hidden bg-slate-900/20 border border-slate-800">
           <div className="overflow-x-auto min-h-[400px]">
-          <table className="w-full text-left text-slate-300">
+          <table className="w-full text-left text-slate-300 min-w-[800px]">
             <thead className="bg-slate-900/80 text-slate-400 text-[10px] uppercase tracking-widest border-b border-slate-800">
                 <tr>
                     <th className="py-2.5 px-4 font-bold text-center w-10">ID</th>
