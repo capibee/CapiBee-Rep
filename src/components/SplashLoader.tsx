@@ -55,26 +55,6 @@ export default function SplashLoader({ onComplete }: SplashLoaderProps) {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-amber-500/[0.04] rounded-full blur-[80px] pointer-events-none" />
 
       <div className="relative z-10 flex flex-col items-center max-w-xs w-full px-6">
-        {/* Subtle Brand Logo / Identifier */}
-        <div className="mb-6 text-center">
-          <motion.h1
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-lg font-normal tracking-[0.3em] text-white/90"
-          >
-            CAPI<span className="font-bold text-amber-500">BEE</span>
-          </motion.h1>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.4 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-[8px] text-slate-400 font-mono tracking-[0.4em] uppercase mt-1.5"
-          >
-            Plataforma Inteligente
-          </motion.div>
-        </div>
-
         {/* Custom High-Fidelity Animated Logo */}
         <div className="mb-8 flex justify-center items-center">
           <motion.div
