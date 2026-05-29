@@ -3005,7 +3005,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                   onSubmit={handleSubmit}
                   className="space-y-6 pb-20 sm:pb-0"
                 >
-                  <div className="grid grid-cols-1 gap-6">
+                  <div className="grid grid-cols-1 gap-4">
                     <div className="space-y-1">
                       <label className="block text-xs font-bold text-slate-400">
                         Nombre empresa
@@ -3014,7 +3014,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                         required
                         type="text"
                         placeholder="Ej. Corporación Hive"
-                        className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all font-medium text-xs shadow-inner disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full px-3 py-3 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all font-medium text-xs shadow-inner disabled:opacity-50 disabled:cursor-not-allowed"
                         value={formData.name}
                         disabled={!!editingBusiness}
                         onChange={(e) =>
@@ -3023,14 +3023,14 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                       />
                     </div>
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1">
                         <label className="block text-xs font-bold text-slate-400">
                           País
                         </label>
                         <select
                           required
-                          className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 cursor-pointer text-xs font-medium shadow-inner disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-full px-3 py-3 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 cursor-pointer text-xs font-medium shadow-inner disabled:opacity-50 disabled:cursor-not-allowed"
                           value={formData.country}
                           disabled={!!editingBusiness}
                           onChange={(e) => {
@@ -3059,7 +3059,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                         <select
                           required
                           disabled={!formData.country || !!editingBusiness}
-                          className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium shadow-inner"
+                          className="w-full px-3 py-3 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium shadow-inner"
                           value={formData.city || ""}
                           onChange={(e) =>
                             setFormData({
@@ -3086,7 +3086,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                         </label>
                         <select
                           required
-                          className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 cursor-pointer font-mono text-[11px] shadow-inner"
+                          className="w-full px-3 py-3 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 cursor-pointer font-mono text-[11px] shadow-inner"
                           value={formData.prefix}
                           onChange={(e) =>
                             setFormData({ ...formData, prefix: e.target.value })
@@ -3106,7 +3106,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                           required
                           type="tel"
                           placeholder="300 000 0000"
-                          className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 font-mono text-[11px] shadow-inner"
+                          className="w-full px-3 py-3 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 font-mono text-[11px] shadow-inner"
                           value={formData.phone}
                           onChange={(e) =>
                             setFormData({ ...formData, phone: e.target.value })
@@ -3123,7 +3123,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                         <input
                           type="text"
                           placeholder="Nombre de la persona"
-                          className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all font-medium text-xs shadow-inner"
+                          className="w-full px-3 py-3 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all font-medium text-xs shadow-inner"
                           value={formData.contactName || ""}
                           onChange={(e) =>
                             setFormData({ ...formData, contactName: e.target.value })
@@ -3137,7 +3137,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                         <input
                           type="tel"
                           placeholder="Número del contacto..."
-                          className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 font-mono text-[11px] shadow-inner"
+                          className="w-full px-3 py-3 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 font-mono text-[11px] shadow-inner"
                           value={formData.responsiblePhone}
                           onChange={(e) =>
                             setFormData({ ...formData, responsiblePhone: e.target.value })
@@ -3152,7 +3152,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                           Estado
                         </label>
                         <select
-                          className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 cursor-pointer text-xs font-medium shadow-inner"
+                          className="w-full px-3 py-3 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 cursor-pointer text-xs font-medium shadow-inner"
                           value={formData.status}
                           onChange={(e) =>
                             setFormData({
@@ -3184,7 +3184,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                           Sector
                         </label>
                         <select
-                          className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 cursor-pointer text-xs font-medium shadow-inner disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-full px-3 py-3 bg-slate-950/80 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 cursor-pointer text-xs font-medium shadow-inner disabled:opacity-50 disabled:cursor-not-allowed"
                           value={formData.category}
                           disabled={!!editingBusiness}
                           onChange={(e) =>
