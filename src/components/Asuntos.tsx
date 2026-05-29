@@ -602,17 +602,17 @@ export default function Asuntos({ onBack }: AsuntosProps) {
           <button 
             type="button"
             onClick={() => toggleKpi("ytd")}
-            className={`p-3 rounded-xl text-left transition-all duration-200 border cursor-pointer select-none relative overflow-hidden group ${
+            className={`snap-start flex-none w-[140px] md:flex-1 flex flex-col justify-between gap-1 p-2.5 px-3 rounded-xl border bg-slate-950/30 shadow-sm transition-colors group relative cursor-pointer ${
               selectedKpis.includes("ytd")
-                ? "bg-yellow-400/10 border-yellow-400/60 shadow-lg shadow-yellow-400/5 ring-1 ring-yellow-400/30 scale-[1.02]"
-                : "bg-slate-900/30 border-slate-800/80 hover:border-slate-700/80 opacity-70 hover:opacity-100 hover:bg-slate-900/40"
+                ? "border-amber-500/50 ring-1 ring-amber-500/20 bg-slate-900/50"
+                : "border-slate-800/50 hover:bg-slate-900/60"
             }`}
           >
-              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">Total Clientes</div>
-              <div className="text-2xl text-yellow-400 font-black flex items-center justify-between">
+              <div className="text-[9px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">Total Clientes</div>
+              <div className="text-xl text-slate-100 font-black flex items-center justify-between">
                 <span>{kpis.totalYTD}</span>
                 {selectedKpis.includes("ytd") && (
-                  <span className="w-2 h-2 rounded-full bg-yellow-400 block animate-pulse"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 block animate-pulse"></span>
                 )}
               </div>
           </button>
@@ -620,10 +620,10 @@ export default function Asuntos({ onBack }: AsuntosProps) {
           <button 
             type="button"
             onClick={() => toggleKpi("mes")}
-            className={`p-3 rounded-xl text-left transition-all duration-200 border cursor-pointer select-none relative overflow-hidden group ${
+            className={`snap-start flex-none w-[140px] md:flex-1 flex flex-col justify-between gap-1 p-2.5 px-3 rounded-xl border bg-slate-950/30 shadow-sm transition-colors group relative cursor-pointer ${
               selectedKpis.includes("mes")
-                ? "bg-yellow-400/10 border-yellow-400/60 shadow-lg shadow-yellow-400/5 ring-1 ring-yellow-400/30 scale-[1.02]"
-                : "bg-slate-900/30 border-slate-800/80 hover:border-slate-700/80 opacity-70 hover:opacity-100 hover:bg-slate-900/40"
+                ? "border-amber-500/50 ring-1 ring-amber-500/20 bg-slate-900/50"
+                : "border-slate-800/50 hover:bg-slate-900/60"
             }`}
           >
               <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">Clientes YDT</div>

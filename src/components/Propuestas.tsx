@@ -754,13 +754,14 @@ export default function Propuestas({ onBack }: PropuestasProps) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div 
           onClick={() => toggleKpi("pendientesEnvio")}
-          className={`p-3 rounded-xl transition-all flex flex-col justify-between relative overflow-hidden group cursor-pointer border ${selectedKpis.includes("pendientesEnvio") ? "bg-amber-500/10 border-amber-500/50" : "bg-slate-900/30 border-slate-900 hover:border-amber-500/20"}`}
+          className={`snap-start flex-none w-[140px] md:flex-1 flex flex-col justify-between gap-1 p-2.5 px-3 rounded-xl border bg-slate-950/30 shadow-sm transition-colors group relative cursor-pointer ${selectedKpis.includes("pendientesEnvio") ? "border-amber-500/50 ring-1 ring-amber-500/20 bg-slate-900/50" : "border-slate-800/50 hover:bg-slate-900/60"}`}
         >
-          <div className={`absolute top-0 left-0 right-0 h-0.5 transition-colors ${selectedKpis.includes("pendientesEnvio") ? "bg-amber-500" : "bg-amber-500/20 group-hover:bg-amber-500/50"}`} />
-          <span className={`text-[10px] uppercase tracking-widest font-black leading-none ${selectedKpis.includes("pendientesEnvio") ? "text-amber-400" : "text-slate-500"}`}>Pendientes de Envío</span>
-          <div className="flex items-baseline justify-between mt-3">
-            <span className="text-2xl text-amber-400 font-extrabold">{kpis.pendientesEnvio}</span>
-            <span className="text-[10px] text-slate-500 font-medium font-mono">Asuntos</span>
+          <span className={`text-[9px] uppercase tracking-widest font-bold leading-none ${selectedKpis.includes("pendientesEnvio") ? "text-amber-400" : "text-slate-500"}`}>Pendientes de Envío</span>
+          <div className="flex items-center justify-between">
+            <span className="text-xl text-slate-100 font-black">{kpis.pendientesEnvio}</span>
+            {selectedKpis.includes("pendientesEnvio") && (
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 block animate-pulse"></span>
+            )}
           </div>
         </div>
 
@@ -1016,6 +1017,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
             const asignadoName = platformUsers.find(u => u.id === asignadoId)?.full_name || asignadoId || "Desconocido";
             const contactName = asunto ? (asunto.contactName || businesses.find(b => b.id === asunto.businessId)?.contactName || "—") : "—";
             const currentPrefixedId = `PRO${String((currentPage - 1) * itemsPerPage + index + 1).padStart(3, '0')}`;
+            const businessName = asunto ? (businesses.find(b => b.id === asunto.businessId)?.name || 'Desconocido') : 'Desconocido';
             
             return (
               <motion.div
@@ -1033,19 +1035,19 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                 className="bg-slate-900/60 backdrop-blur-md border border-slate-800/80 hover:border-amber-500/30 rounded-2xl p-4.5 flex flex-col gap-3.5 shadow-xl transition-all duration-300 relative overflow-hidden"
               >
                 {/* Header Row: ID Code, Date, Action Controls */}
-                <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center justify-between gap-2 border-b border-slate-800/30 pb-2.5">
                   <div className="flex items-center gap-2">
-                    <span className="text-[9.5px] font-mono text-slate-500 select-none uppercase font-bold">
+                    <span className="text-[10px] font-mono text-slate-400 font-bold select-none uppercase tracking-tight">
                       {currentPrefixedId}
                     </span>
-                    <span className="text-[9px] text-slate-600 bg-slate-950/40 px-1.5 py-0.2 rounded-md font-bold">
+                    <span className="text-[9px] text-slate-500 bg-slate-950/60 px-2 py-0.5 rounded-md font-bold font-mono">
                       {new Date(p.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
                     </span>
                   </div>
 
                   {/* Actions buttons */}
                   {!p.isAsunto && (
-                    <div className="flex items-center gap-1.5 shrink-0">
+                    <div className="flex items-center gap-1 shrink-0">
                       <button
                         onClick={() => {
                           const relatedPropuesta = propuestas.find(pr => pr.id === p.id);
@@ -1054,7 +1056,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                             setIsViewModalOpen(true);
                           }
                         }}
-                        className="p-1.5 text-slate-400 hover:text-yellow-400 hover:bg-slate-800 rounded-xl border border-slate-800/60 transition-all"
+                        className="p-1.5 text-slate-400 hover:text-yellow-400 hover:bg-slate-800 rounded-xl border border-slate-800/60 transition-colors"
                         title="Ver detalle"
                       >
                         <Eye size={11} />
@@ -1066,7 +1068,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                             handleEditClick(relatedPropuesta);
                           }
                         }}
-                        className="p-1.5 text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-xl border border-slate-800/60 transition-all"
+                        className="p-1.5 text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-xl border border-slate-800/60 transition-colors"
                         title="Editar Propuesta"
                       >
                         <Edit size={11} />
@@ -1076,7 +1078,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                           onClick={() => {
                             setDeleteConfirmId(p.id);
                           }}
-                          className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-500/5 hover:border-red-500/20 rounded-xl border border-slate-800 transition-all"
+                          className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-500/0 hover:border-red-500/20 rounded-xl border border-slate-800 transition-colors"
                           title="Eliminar"
                         >
                           <Trash2 size={11} />
@@ -1086,27 +1088,58 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                   )}
                 </div>
 
-                {/* Asunto / Proposal Title */}
+                {/* Asunto / Proposal Title & Business Partner */}
                 <div className="min-w-0">
-                  <h4 className="font-bold text-slate-100 text-[13px] leading-tight tracking-wide">
+                  <h4 className="font-bold text-slate-105 text-[13px] leading-snug tracking-normal select-all">
                     {asunto?.nombreAsunto || "Asunto Desconocido"}
                   </h4>
+                  {asunto && (
+                    <div className="text-[10px] text-slate-400 font-semibold truncate mt-1">
+                      Empresa: <span className="text-amber-500/90 font-bold">{businessName}</span>
+                    </div>
+                  )}
                 </div>
 
-                {/* Bento Grid layout with Assigned user, Contact name and Status Select */}
-                <div className="grid grid-cols-2 gap-3.5 bg-slate-950/40 rounded-xl p-3 border border-slate-800/40 text-[10.5px]">
+                {/* Bento Grid layout with Assigned user, Contact name, Fees, Expenses, and Status Select */}
+                <div className="grid grid-cols-2 gap-3.5 bg-slate-950/40 rounded-xl p-3.5 border border-slate-800/40 text-[10.5px]">
                   <div className="flex flex-col gap-0.5 min-w-0">
-                    <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Asignado a</span>
-                    <span className="text-slate-200 font-medium truncate">{asignadoName}</span>
+                    <span className="text-[8px] text-slate-500 font-extrabold uppercase tracking-widest">Honorarios</span>
+                    <span className="text-emerald-400 font-bold font-mono text-[11px]">
+                      {p.isAsunto ? (
+                        <span className="text-[9px] text-slate-500 italic font-medium">Sin cotizar</span>
+                      ) : (
+                        `$${p.honorarios?.toLocaleString('es-ES') || '0'} USD`
+                      )}
+                    </span>
                   </div>
 
-                  <div className="flex flex-col gap-0.5 min-w-0">
-                    <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Contacto</span>
-                    <span className="text-slate-200 font-medium truncate">{contactName}</span>
+                  <div className="flex flex-col gap-0.5 min-w-0 text-right">
+                    <span className="text-[8px] text-slate-500 font-extrabold uppercase tracking-widest">Gastos</span>
+                    <span className="text-rose-400 font-bold font-mono text-[11px]">
+                      {p.isAsunto ? (
+                        <span className="text-[9px] text-slate-500 italic font-medium">—</span>
+                      ) : (
+                        `$${p.gastos?.toLocaleString('es-ES') || '0'} USD`
+                      )}
+                    </span>
                   </div>
 
-                  <div className="flex flex-col gap-1 col-span-2 mt-0.5">
-                    <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Estado</span>
+                  <div className="flex flex-col gap-1.5 col-span-2 pt-2 border-t border-slate-900">
+                    <div className="flex items-center justify-between gap-1">
+                      <div className="flex flex-col gap-0.5 min-w-0">
+                        <span className="text-[8px] text-slate-500 font-extrabold uppercase tracking-widest">Asignado a</span>
+                        <span className="text-slate-300 font-medium truncate">{asignadoName}</span>
+                      </div>
+                      
+                      <div className="flex flex-col gap-0.5 min-w-0 text-right">
+                        <span className="text-[8px] text-slate-500 font-extrabold uppercase tracking-widest">Contacto</span>
+                        <span className="text-slate-300 font-medium truncate">{contactName}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5 col-span-2 pt-2 border-t border-slate-900">
+                    <span className="text-[8px] text-slate-500 font-extrabold uppercase tracking-widest">Estado</span>
                     <select
                       value={(p.status === "Cancelada" ? "Rechazada" : p.status) || (p.isAsunto ? 'Pendiente' : 'Enviada')}
                       onChange={(e) => {
@@ -1117,26 +1150,26 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                           asuntoId: p.asuntoId
                         });
                       }}
-                      className={`w-full mt-1 text-[11px] font-black rounded-xl px-3 py-2 outline-none border transition-colors bg-slate-950 cursor-pointer ${
+                      className={`w-full mt-1 text-[10.5px] font-black rounded-xl px-3 py-2 outline-none border transition-colors bg-slate-950 cursor-pointer text-center tracking-widest uppercase ${
                         (p.status === "Cancelada" ? "Rechazada" : p.status) === 'Aceptada'
-                          ? 'border-emerald-500/30 text-emerald-400 focus:ring-1 focus:ring-emerald-500/50'
+                          ? 'border-emerald-500/30 text-emerald-400'
                           : (p.status === "Cancelada" ? "Rechazada" : p.status) === 'Rechazada'
-                          ? 'border-red-500/30 text-red-400 focus:ring-1 focus:ring-red-500/50'
+                          ? 'border-red-500/30 text-red-400'
                           : (p.status === "Cancelada" ? "Rechazada" : p.status) === 'Pendiente' || p.isAsunto
-                          ? 'border-amber-500/30 text-amber-500 focus:ring-1 focus:ring-amber-500/50'
-                          : 'border-blue-500/30 text-blue-400 focus:ring-1 focus:ring-blue-500/50'
+                          ? 'border-amber-500/30 text-amber-500'
+                          : 'border-blue-500/30 text-blue-400'
                       }`}
                     >
-                      <option value="Pendiente" className="bg-slate-900 text-amber-400">Pendiente Envío</option>
-                      <option value="Enviada" className="bg-slate-900 text-blue-400">Enviada</option>
-                      <option value="Aceptada" className="bg-slate-900 text-emerald-400">Aceptada</option>
-                      <option value="Rechazada" className="bg-slate-900 text-red-400">Rechazada</option>
+                      <option value="Pendiente" className="bg-slate-900 text-amber-400">PENDIENTE</option>
+                      <option value="Enviada" className="bg-slate-900 text-blue-400">ENVIADA</option>
+                      <option value="Aceptada" className="bg-slate-900 text-emerald-400">ACEPTADA</option>
+                      <option value="Rechazada" className="bg-slate-900 text-red-400">RECHAZADA</option>
                     </select>
                   </div>
                 </div>
 
                 {/* PDF Action Row */}
-                <div className="pt-2.5 border-t border-slate-800/80 flex items-center gap-2">
+                <div className="pt-2 border-t border-slate-800/40">
                   {p.isAsunto ? (
                     <button
                       onClick={() => {
@@ -1144,9 +1177,9 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                         setIsCreatingForAsunto(true);
                         setIsModalOpen(true);
                       }}
-                      className="w-full py-2 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black text-[10px] uppercase tracking-wider rounded-xl transition-all shadow-[0_2px_8px_rgba(245,158,11,0.2)]"
+                      className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-[0_2px_8px_rgba(245,158,11,0.2)]"
                     >
-                      Subir Propuesta
+                      <Plus size={11} strokeWidth={2.5} /> Subir Propuesta
                     </button>
                   ) : (p.pdfUrl && p.pdfUrl !== "") ? (
                     <div className="flex items-center justify-between w-full gap-2">
@@ -1157,14 +1190,14 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                             win.document.write(`<iframe src="${p.pdfUrl}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
                           }
                         }}
-                        className="flex-1 flex items-center justify-center gap-1.5 py-2 text-blue-400 border border-blue-500/20 bg-blue-500/5 rounded-xl hover:bg-blue-500/10 transition-colors text-[10px] font-bold"
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-blue-400 border border-blue-500/20 bg-blue-500/5 rounded-xl hover:bg-blue-500/10 transition-colors text-[10px] font-bold"
                         title="Ver Propuesta"
                       >
                         Ver PDF
                       </button>
                       <button
                         onClick={() => document.getElementById(`pdf-upload-${p.id}`)?.click()}
-                        className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-slate-800 border border-slate-700/60 hover:bg-slate-700 text-white rounded-xl transition-colors text-[10px] font-bold"
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-slate-800 border border-slate-700/60 hover:bg-slate-750 text-white rounded-xl transition-colors text-[10px] font-bold"
                       >
                         <RefreshCw size={10} strokeWidth={2.5} /> Reemplazar
                       </button>
@@ -1177,7 +1210,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
                     <>
                       <button
                         onClick={() => document.getElementById(`pdf-upload-${p.id}`)?.click()}
-                        className="w-full flex items-center justify-center gap-1.5 py-2 bg-slate-850 hover:bg-slate-800 text-amber-500 border border-amber-500/10 rounded-xl transition-all text-[10px] font-black uppercase tracking-wider"
+                        className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-slate-850 hover:bg-slate-800 text-amber-500 border border-amber-500/10 rounded-xl transition-all text-[10px] font-black uppercase tracking-widest"
                       >
                         <FileText size={11} /> Cargar Propuesta PDF
                       </button>
