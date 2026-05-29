@@ -13,7 +13,7 @@ import {
   Sparkles,
   Network,
   Cpu,
-  Briefcase
+  Briefcase,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { ADMIN_PASSWORD } from "../constants";
@@ -44,20 +44,55 @@ export default function Login({ onLogin }: LoginProps) {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showB2BForm, setShowB2BForm] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    setMousePos({ x: e.clientX, y: e.clientY });
+  };
 
   const THEMES = [
-    { name: "yellow", rgb1: "250, 204, 21", rgb2: "234, 179, 8", hexDark: "#422006", rawHex: "#facc15" },
-    { name: "blue", rgb1: "56, 189, 248", rgb2: "14, 165, 233", hexDark: "#082f49", rawHex: "#38bdf8" },
-    { name: "green", rgb1: "74, 222, 128", rgb2: "34, 197, 94", hexDark: "#052e16", rawHex: "#4ade80" },
-    { name: "cyan", rgb1: "34, 211, 238", rgb2: "6, 182, 212", hexDark: "#083344", rawHex: "#22d3ee" },
-    { name: "white", rgb1: "248, 250, 252", rgb2: "226, 232, 240", hexDark: "#0f172a", rawHex: "#f8fafc" }
+    {
+      name: "yellow",
+      rgb1: "250, 204, 21",
+      rgb2: "234, 179, 8",
+      hexDark: "#422006",
+      rawHex: "#facc15",
+    },
+    {
+      name: "blue",
+      rgb1: "56, 189, 248",
+      rgb2: "14, 165, 233",
+      hexDark: "#082f49",
+      rawHex: "#38bdf8",
+    },
+    {
+      name: "green",
+      rgb1: "74, 222, 128",
+      rgb2: "34, 197, 94",
+      hexDark: "#052e16",
+      rawHex: "#4ade80",
+    },
+    {
+      name: "cyan",
+      rgb1: "34, 211, 238",
+      rgb2: "6, 182, 212",
+      hexDark: "#083344",
+      rawHex: "#22d3ee",
+    },
+    {
+      name: "white",
+      rgb1: "248, 250, 252",
+      rgb2: "226, 232, 240",
+      hexDark: "#0f172a",
+      rawHex: "#f8fafc",
+    },
   ];
 
   const getThemeIndex = (roleId: string) => {
     if (!roleId || roleId === "ADMIN_MAESTRO") return 0;
     let hash = 0;
     for (let i = 0; i < roleId.length; i++) {
-        hash = roleId.charCodeAt(i) + ((hash << 5) - hash);
+      hash = roleId.charCodeAt(i) + ((hash << 5) - hash);
     }
     return 1 + (Math.abs(hash) % (THEMES.length - 1));
   };
@@ -66,35 +101,23 @@ export default function Login({ onLogin }: LoginProps) {
 
   const messages = [
     {
-      title: "Creamos la Inteligencia que mueve al mundo",
+      title: "El Activo B2B Definitivo.",
+      color: "text-amber-400",
+      description:
+        "Las empresas exigen automatización. Nosotros proveemos los Agentes Inteligentes CapiBee. Tu misión es cerrar el trato.",
+    },
+    {
+      title: "Monetiza la Era de la IA.",
       color: "text-white",
-      description: "Transformamos empresas con Agentes IA de nueva generación. Implementamos tecnología CapiBee para compañías que no solo adoptan la IA, sino que la convierten en el motor de su éxito."
+      description:
+        "El mercado compra eficiencia, tú vendes resultados. Genera altas comisiones conectando empresas con sus nuevos asistentes inteligentes.",
     },
     {
-      title: "Desarrollamos soluciones cognitivas a medida",
-      color: "text-white",
-      description: "Conceptualizamos soluciones inteligentes para desafíos operativos complejos. Convertimos fricciones en ventajas competitivas mediante nuestra arquitectura avanzada."
+      title: "Tu Facturación Define tu Nivel.",
+      color: "text-amber-400",
+      description:
+        "[ J ] Junior: +2.000 USD ➔ 10%\n\n[ S ] Senior: +6.000 USD ➔ 12%\n\n[ M ] Master: +8.000 USD ➔ 15%\n\n¿Con qué rango vas a cerrar el mes?",
     },
-    {
-      title: "Evolución digital de alcance global",
-      color: "text-white",
-      description: "Con una sólida presencia en Estados Unidos, España, Colombia, México y Argentina, somos el aliado tecnológico de referencia para organizaciones que lideran el mercado iberoamericano."
-    },
-    {
-      title: "Tu ambición merece resultados exponenciales",
-      color: "text-yellow-500",
-      description: "Recibe las comisiones más competitivas del mercado por vender soluciones de Inteligencia Artificial. Transformamos tu talento y esfuerzo en una ventaja financiera superior."
-    },
-    {
-      title: "Sé un Ejecutivo Comercial de élite",
-      color: "text-yellow-500",
-      description: "Únete a CapiBee y redefine tu éxito profesional. Como Ejecutivo Comercial, formas parte de un ecosistema de alto impacto donde la tecnología y la rentabilidad se encuentran."
-    },
-    {
-      title: "Optimización que redefine la eficiencia",
-      color: "text-yellow-500",
-      description: "Ahorramos horas críticas al automatizar procesos. Ayudamos a las empresas a recuperar tiempo valioso para que se centren en lo único que importa: escalar su negocio."
-    }
   ];
 
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
@@ -109,17 +132,20 @@ export default function Login({ onLogin }: LoginProps) {
     // 2. Fetch fresh roles from Supabase
     const fetchRoles = async () => {
       try {
-        const { data, error } = await supabase.from('Roles').select('*');
+        const { data, error } = await supabase.from("Roles").select("*");
         if (!error && data) {
           const mapped = data.map((r: any) => ({
             id: r.id,
             name: r.name,
-            description: r.description || '',
+            description: r.description || "",
             permissions: r.permissions || {},
-            createdAt: Number(r.created_at) || r.created_at || Date.now()
+            createdAt: Number(r.created_at) || r.created_at || Date.now(),
           }));
           setRoles(mapped);
-          localStorage.setItem('capibee_platform_roles', JSON.stringify(mapped));
+          localStorage.setItem(
+            "capibee_platform_roles",
+            JSON.stringify(mapped),
+          );
         }
       } catch (err) {
         console.warn("Could not fetch roles from Supabase at login:", err);
@@ -129,10 +155,15 @@ export default function Login({ onLogin }: LoginProps) {
     fetchRoles();
 
     // 3. Subscribe to real-time changes
-    const channel = supabase.channel('login-roles-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'Roles' }, () => {
-        fetchRoles();
-      })
+    const channel = supabase
+      .channel("login-roles-changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "Roles" },
+        () => {
+          fetchRoles();
+        },
+      )
       .subscribe();
 
     return () => {
@@ -188,14 +219,18 @@ export default function Login({ onLogin }: LoginProps) {
 
       if (!dbError && dbUsers && dbUsers.length > 0) {
         const matchingUser = dbUsers.find(
-          (u) => u.role_id === selectedRoleId && u.password === password
+          (u) => u.role_id === selectedRoleId && u.password === password,
         );
         if (matchingUser) {
           onLogin({
             id: matchingUser.id,
             email: matchingUser.email,
             roleId: matchingUser.role_id,
-            roleName: matchingUser.role_name || (matchingUser.role_id === "ADMIN_MAESTRO" ? "Super Administrador" : ""),
+            roleName:
+              matchingUser.role_name ||
+              (matchingUser.role_id === "ADMIN_MAESTRO"
+                ? "Super Administrador"
+                : ""),
             fullName: matchingUser.full_name,
             avatar: matchingUser.avatar,
           });
@@ -204,13 +239,19 @@ export default function Login({ onLogin }: LoginProps) {
         }
       }
     } catch (suppressedError) {
-      console.warn("Supabase auth check failed, falling back to local credentials:", suppressedError);
+      console.warn(
+        "Supabase auth check failed, falling back to local credentials:",
+        suppressedError,
+      );
     }
 
     // 2. Local Fallback for offline / development
     if (selectedRoleId === "ADMIN_MAESTRO") {
-      const isCustomAdmin = email === "capibee.ia@gmail.com" && (password === ADMIN_PASSWORD || password === "1$alome$0");
-      const isLegacyAdmin = email === "admin@capibee.ia" && password === ADMIN_PASSWORD;
+      const isCustomAdmin =
+        email === "capibee.ia@gmail.com" &&
+        (password === ADMIN_PASSWORD || password === "1$alome$0");
+      const isLegacyAdmin =
+        email === "admin@capibee.ia" && password === ADMIN_PASSWORD;
 
       if (isCustomAdmin) {
         onLogin({
@@ -256,35 +297,43 @@ export default function Login({ onLogin }: LoginProps) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center bg-slate-950 p-3 xs:p-5 sm:p-8 lg:p-12 relative font-sans overflow-x-hidden overflow-y-auto">
-        {!showB2BForm && (
-          <button 
-            onClick={() => setShowB2BForm(true)}
-            className="fixed top-3 right-3 sm:top-6 sm:right-8 z-[999] px-3.5 py-2 sm:px-5 sm:py-2.5 bg-slate-900/60 backdrop-blur-md border border-slate-800 hover:bg-yellow-500/10 hover:border-yellow-500/30 hover:text-yellow-500 text-slate-300 text-[9px] sm:text-xs font-bold tracking-widest uppercase rounded-xl flex items-center gap-1.5 sm:gap-2.5 transition-all shadow-lg"
-          >
-            <Briefcase size={12} className="sm:w-3.5 sm:h-3.5" />
-            <span className="hidden xs:inline">Trabaja con nosotros</span>
-            <span className="inline xs:hidden">Unirse</span>
-          </button>
-        )}
+    <div 
+      className="min-h-screen flex flex-col justify-center bg-slate-950 p-3 xs:p-5 sm:p-8 lg:p-12 relative font-sans overflow-x-hidden overflow-y-auto"
+      onMouseMove={handleMouseMove}
+    >
+      <div 
+        className="pointer-events-none fixed inset-0 z-0 transition-opacity duration-300"
+        style={{
+          background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, rgba(250, 204, 21, 0.08), transparent 80%)`
+        }}
+      />
+      {!showB2BForm && (
+        <button
+          onClick={() => setShowB2BForm(true)}
+          className="fixed top-3 right-3 sm:top-6 sm:right-8 z-[999] px-3.5 py-2 sm:px-5 sm:py-2.5 bg-slate-900/60 backdrop-blur-md border border-slate-800 hover:bg-yellow-500/10 hover:border-yellow-500/30 hover:text-yellow-500 text-slate-300 text-[9px] sm:text-xs font-bold tracking-widest uppercase rounded-xl flex items-center gap-1.5 sm:gap-2.5 transition-all shadow-lg"
+        >
+          <Briefcase size={12} className="sm:w-3.5 sm:h-3.5" />
+          <span className="hidden xs:inline">Trabaja con nosotros</span>
+          <span className="inline xs:hidden">Unirse</span>
+        </button>
+      )}
 
-        {/* Background Decor - Honeycomb / AI Aesthetic */}
-        <BackgroundPattern />
+      {/* Background Decor - Honeycomb / AI Aesthetic */}
+      <BackgroundPattern />
 
       {/* Glows */}
-      <motion.div 
-         animate={{ backgroundColor: `rgba(${activeTheme.rgb1}, 0.1)` }}
-         transition={{ duration: 1 }}
-         className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] blur-[150px] rounded-full animate-pulse pointer-events-none" 
+      <motion.div
+        animate={{ backgroundColor: `rgba(${activeTheme.rgb1}, 0.1)` }}
+        transition={{ duration: 1 }}
+        className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] blur-[150px] rounded-full animate-pulse pointer-events-none"
       />
-      <motion.div 
-         animate={{ backgroundColor: `rgba(${activeTheme.rgb2}, 0.1)` }}
-         transition={{ duration: 1 }}
-         className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] blur-[150px] rounded-full pointer-events-none" 
+      <motion.div
+        animate={{ backgroundColor: `rgba(${activeTheme.rgb2}, 0.1)` }}
+        transition={{ duration: 1 }}
+        className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] blur-[150px] rounded-full pointer-events-none"
       />
 
       <div className="max-w-7xl w-full mx-auto relative z-10 flex flex-col lg:grid lg:grid-cols-2 gap-6 lg:gap-12 items-center px-2 xs:px-4 md:px-6 py-6 lg:py-0">
-        
         {/* Mobile Header: Hidden on lg screens */}
         <div className="lg:hidden flex flex-col items-center text-center mt-12 mb-2 z-10">
           <Logo size={60} textClassName="text-2xl" />
@@ -297,11 +346,10 @@ export default function Login({ onLogin }: LoginProps) {
 
         {/* Left Column content (slideshow description) - Visible on lg screens */}
         <div className="hidden lg:flex flex-col justify-center py-8 lg:py-0 text-center lg:text-left">
-          
           <div className="mb-4 flex justify-center lg:justify-start">
             <Logo size={80} textClassName="text-3xl sm:text-4xl lg:text-5xl" />
           </div>
-          
+
           <h2 className="text-base sm:text-lg font-light text-yellow-200/80 mb-4 mt-2 tracking-[0.15em] uppercase flex items-center justify-center lg:justify-start gap-2">
             <Network className="text-yellow-500/50" size={16} />
             Software & IA
@@ -309,7 +357,7 @@ export default function Login({ onLogin }: LoginProps) {
 
           <div className="w-12 h-1 bg-gradient-to-r from-yellow-500 to-transparent mb-6 mx-auto lg:mx-0 opacity-80" />
 
-          <div className="relative h-40 sm:h-32 mb-6 w-full overflow-hidden">
+          <div className="relative h-[280px] sm:h-64 mb-6 w-full overflow-hidden">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentMessageIndex}
@@ -319,10 +367,12 @@ export default function Login({ onLogin }: LoginProps) {
                 transition={{ duration: 0.4, ease: "easeOut" }}
                 className="absolute inset-0"
               >
-                <h2 className={`text-xl md:text-2xl font-bold mb-2 leading-tight ${messages[currentMessageIndex].color}`}>
+                <h2
+                  className={`text-2xl md:text-3xl font-display font-medium tracking-tight mb-3 leading-tight ${messages[currentMessageIndex].color}`}
+                >
                   {messages[currentMessageIndex].title}
                 </h2>
-                <p className="text-[#A0AEC0] text-xs md:text-sm leading-[1.5] max-w-lg mx-auto lg:mx-0">
+                <p className="text-[#A0AEC0] text-sm md:text-base leading-relaxed tracking-wide max-w-lg mx-auto lg:mx-0 whitespace-pre-line font-medium">
                   {messages[currentMessageIndex].description}
                 </p>
               </motion.div>
@@ -331,9 +381,9 @@ export default function Login({ onLogin }: LoginProps) {
 
           <div className="flex gap-1.5 justify-center lg:justify-start mb-6">
             {messages.map((_, idx) => (
-              <div 
-                key={idx} 
-                className={`h-1 rounded-full transition-all duration-500 ${idx === currentMessageIndex ? 'w-6 bg-yellow-500' : 'w-1.5 bg-slate-800'}`}
+              <div
+                key={idx}
+                className={`h-1 rounded-full transition-all duration-500 ${idx === currentMessageIndex ? "w-6 bg-yellow-500" : "w-1.5 bg-slate-800"}`}
               />
             ))}
           </div>
@@ -342,19 +392,20 @@ export default function Login({ onLogin }: LoginProps) {
         {/* Right Column: Login Card */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ 
-            opacity: 1, 
-            scale: 1,
-            "--theme-r1": activeTheme.rgb1,
-            "--theme-r2": activeTheme.rgb2,
-            "--theme-raw": activeTheme.rawHex,
-            "--theme-dark": activeTheme.hexDark,
-          } as any}
+          animate={
+            {
+              opacity: 1,
+              scale: 1,
+              "--theme-r1": activeTheme.rgb1,
+              "--theme-r2": activeTheme.rgb2,
+              "--theme-raw": activeTheme.rawHex,
+              "--theme-dark": activeTheme.hexDark,
+            } as any
+          }
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="w-full max-w-sm mx-auto lg:max-w-md z-10"
         >
           <div className="bg-slate-950/80 backdrop-blur-2xl rounded-2xl border border-slate-800/80 shadow-2xl overflow-hidden p-5 sm:p-8 relative">
-            
             <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-yellow-500/50 to-transparent" />
 
             <div className="mb-6 sm:mb-8 text-center lg:text-left relative z-10 border-b border-slate-800/50 pb-4">
@@ -390,15 +441,17 @@ export default function Login({ onLogin }: LoginProps) {
                       >
                         Super Administrador
                       </option>
-                      {roles.filter(role => role.id !== "ADMIN_MAESTRO").map((role) => (
-                        <option
-                          key={role.id}
-                          value={role.id}
-                          className="bg-slate-950 text-slate-200"
-                        >
-                          {role.name}
-                        </option>
-                      ))}
+                      {roles
+                        .filter((role) => role.id !== "ADMIN_MAESTRO")
+                        .map((role) => (
+                          <option
+                            key={role.id}
+                            value={role.id}
+                            className="bg-slate-950 text-slate-200"
+                          >
+                            {role.name}
+                          </option>
+                        ))}
                     </select>
                     <div className="absolute right-3.5 sm:right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
                       <ChevronDown size={13} />
@@ -427,7 +480,11 @@ export default function Login({ onLogin }: LoginProps) {
                           />
                           <input
                             type="email"
-                            placeholder={selectedRoleId === "ADMIN_MAESTRO" ? "admin@capibee.ia" : "agente@capibee.ia"}
+                            placeholder={
+                              selectedRoleId === "ADMIN_MAESTRO"
+                                ? "admin@capibee.ia"
+                                : "agente@capibee.ia"
+                            }
                             className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 bg-slate-900 border border-slate-800 rounded-xl focus:border-yellow-500/50 text-slate-200 text-xs sm:text-sm outline-none placeholder:text-slate-650 transition-all"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
@@ -481,10 +538,14 @@ export default function Login({ onLogin }: LoginProps) {
                 </button>
               </div>
             </form>
-            
+
             <div className="mt-6 pt-5 border-t border-slate-800/50 text-center">
-              <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Hecho con IA S.A.S.</p>
-              <p className="text-[9px] text-slate-600 uppercase tracking-wider mt-1 font-medium">© 2026 Todos los derechos reservados</p>
+              <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">
+                Hecho con IA S.A.S.
+              </p>
+              <p className="text-[9px] text-slate-600 uppercase tracking-wider mt-1 font-medium">
+                © 2026 Todos los derechos reservados
+              </p>
             </div>
           </div>
         </motion.div>
@@ -495,4 +556,3 @@ export default function Login({ onLogin }: LoginProps) {
     </div>
   );
 }
-

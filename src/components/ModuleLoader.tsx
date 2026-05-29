@@ -1,4 +1,4 @@
-import { motion } from 'motion/react';
+import { motion } from "motion/react";
 
 interface ModuleLoaderProps {
   moduleName: string;
@@ -11,20 +11,31 @@ export default function ModuleLoader({ moduleName }: ModuleLoaderProps) {
       <div className="absolute w-56 h-56 bg-amber-500/[0.03] rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative flex flex-col items-center max-w-xs px-4 text-center">
-        {/* Custom High-Fidelity Custom Hex Spinner */}
+        {/* Custom High-Fidelity Custom Hex Spinner replaced with Animated Logo */}
         <div className="mb-6 flex justify-center items-center">
-          <div className="relative w-14 h-14 flex items-center justify-center">
-            {/* The outer rotating premium hexagon border */}
-            <div className="hex-loader absolute w-12 h-12 bg-gradient-to-tr from-amber-400 via-yellow-300 to-amber-500 flex items-center justify-center">
-              {/* Inner dark core hexagon to create a perfect high-contrast outline effect */}
-              <div 
-                className="w-[82%] h-[82%] bg-slate-950" 
-                style={{
-                  clipPath: 'polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%)'
-                }} 
-              />
-            </div>
-          </div>
+          <motion.div
+            className="relative w-16 h-16 flex items-center justify-center p-1 rounded-2xl bg-amber-500/10 border border-amber-500/20"
+            initial={{ y: 0, shadow: "0px 0px 0px rgba(250,204,21,0)" }}
+            animate={{
+              y: [-4, 4, -4],
+              boxShadow: [
+                "0px 4px 20px rgba(250,204,21,0.1)",
+                "0px 10px 30px rgba(250,204,21,0.3)",
+                "0px 4px 20px rgba(250,204,21,0.1)",
+              ],
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          >
+            <img
+              src="https://i.ibb.co/YBgQ3LF9/Logo-Capibee-1-removebg-preview.png"
+              alt="CapiBee"
+              className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]"
+            />
+          </motion.div>
         </div>
 
         {/* Clean, well-spaced modern micro-copy */}

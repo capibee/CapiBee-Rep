@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "motion/react";
 
 interface SplashLoaderProps {
   onComplete?: () => void;
@@ -8,14 +8,14 @@ interface SplashLoaderProps {
 
 export default function SplashLoader({ onComplete }: SplashLoaderProps) {
   const [progress, setProgress] = useState(0);
-  const [statusText, setStatusText] = useState('Iniciando sistema...');
+  const [statusText, setStatusText] = useState("Iniciando sistema...");
 
   const phrases = [
-    { threshold: 0, text: 'Iniciando sistema...' },
-    { threshold: 25, text: 'Sincronizando datos...' },
-    { threshold: 50, text: 'Conectando base segura...' },
-    { threshold: 75, text: 'Cargando interfaces...' },
-    { threshold: 92, text: 'Finalizando...' }
+    { threshold: 0, text: "Iniciando sistema..." },
+    { threshold: 25, text: "Sincronizando datos..." },
+    { threshold: 50, text: "Conectando base segura..." },
+    { threshold: 75, text: "Cargando interfaces..." },
+    { threshold: 92, text: "Finalizando..." },
   ];
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export default function SplashLoader({ onComplete }: SplashLoaderProps) {
         }
         return best;
       }, phrases[0].text);
-      
+
       setStatusText(phrase);
 
       if (currentStep >= steps) {
@@ -57,7 +57,7 @@ export default function SplashLoader({ onComplete }: SplashLoaderProps) {
       <div className="relative z-10 flex flex-col items-center max-w-xs w-full px-6">
         {/* Subtle Brand Logo / Identifier */}
         <div className="mb-6 text-center">
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -65,7 +65,7 @@ export default function SplashLoader({ onComplete }: SplashLoaderProps) {
           >
             CAPI<span className="font-bold text-amber-500">BEE</span>
           </motion.h1>
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.4 }}
             transition={{ delay: 0.2, duration: 0.8 }}
@@ -75,20 +75,40 @@ export default function SplashLoader({ onComplete }: SplashLoaderProps) {
           </motion.div>
         </div>
 
-        {/* Custom High-Fidelity Custom Hex Spinner */}
+        {/* Custom High-Fidelity Animated Logo */}
         <div className="mb-6 flex justify-center items-center">
-          <div className="relative w-14 h-14 flex items-center justify-center">
-            {/* The outer rotating premium hexagon border */}
-            <div className="hex-loader absolute w-12 h-12 bg-gradient-to-tr from-amber-400 via-yellow-300 to-amber-500 flex items-center justify-center">
-              {/* Inner dark core hexagon to create a perfect high-contrast outline effect */}
-              <div 
-                className="w-[82%] h-[82%] bg-slate-950" 
-                style={{
-                  clipPath: 'polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%)'
-                }} 
-              />
-            </div>
-          </div>
+          <motion.div
+            className="relative w-20 h-20 flex items-center justify-center p-2 rounded-2xl bg-amber-500/10 border border-amber-500/20"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{
+              scale: [0.9, 1.05, 1],
+              opacity: 1,
+              boxShadow: [
+                "0px 0px 0px rgba(250,204,21,0)",
+                "0px 10px 40px rgba(250,204,21,0.4)",
+                "0px 4px 20px rgba(250,204,21,0.2)",
+              ],
+            }}
+            transition={{
+              duration: 2,
+              ease: "easeOut",
+              times: [0, 0.6, 1],
+            }}
+          >
+            <motion.img
+              src="https://i.ibb.co/YBgQ3LF9/Logo-Capibee-1-removebg-preview.png"
+              alt="CapiBee"
+              className="w-full h-full object-contain filter drop-shadow-[0_0_12px_rgba(250,204,21,0.6)]"
+              animate={{
+                y: [-2, 2, -2],
+              }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+          </motion.div>
         </div>
 
         {/* Status Line - Subtle */}
