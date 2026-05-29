@@ -1136,7 +1136,7 @@ export default function Ganancias({ user }: GananciasProps) {
 
   return (
     <div className="h-full bg-transparent flex flex-col font-sans overflow-hidden text-slate-200">
-      <main className="flex-1 p-4 sm:p-6 lg:p-10 overflow-y-auto relative custom-scrollbar min-h-0">
+      <main className="flex-1 p-2 sm:p-4 lg:p-10 overflow-y-auto overflow-x-hidden relative custom-scrollbar min-h-0">
         <div className="max-w-[1400px] mx-auto relative z-10">
           
           <header className="mb-6 border-b border-slate-800/50 pb-6 flex flex-col gap-4">
@@ -1209,7 +1209,7 @@ export default function Ganancias({ user }: GananciasProps) {
                   </div>
               )}
 
-              <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="flex overflow-x-auto snap-x gap-3 pb-2 custom-scrollbar sm:grid sm:grid-cols-3">
                 {[
                   { id: 'En proceso', label: 'En proceso', desc: 'Por confirmar', value: statsByStatus['En proceso'], icon: Clock },
                   { id: 'Procesado', label: 'Procesado', desc: 'Confirmado, pdte. pago', value: statsByStatus['Procesado'], icon: Banknote },
@@ -1220,34 +1220,27 @@ export default function Ganancias({ user }: GananciasProps) {
                   return (
                     <div 
                       key={kpi.id}
-                      className={`p-3 rounded-lg border transition-all duration-300 group cursor-pointer flex flex-col justify-between ${
+                      className={`snap-start flex-none w-[160px] p-3 rounded-xl border transition-all duration-300 group cursor-pointer flex flex-col justify-between ${
                         isActive
-                          ? 'bg-slate-900/80 border-amber-500/50 shadow-sm shadow-amber-500/10'
-                          : 'bg-slate-950/30 border-slate-800 hover:border-slate-700'
+                          ? 'bg-slate-900 border-amber-500/50 shadow-sm shadow-amber-500/10 ring-1 ring-amber-500/20'
+                          : 'bg-slate-950/30 border-slate-800/50 hover:bg-slate-900/60'
                       }`}
                       onClick={() => setStatusFilter(isActive ? "" : kpi.id)}
                     >
-                      <div className="flex justify-between items-center mb-1.5 gap-2">
-                        <div className={`text-[9px] font-bold uppercase tracking-widest ${isActive ? 'text-amber-500' : 'text-slate-500'}`}>
+                      <div className="flex justify-between items-center mb-2 gap-2">
+                        <div className={`text-[9px] font-bold uppercase tracking-widest ${isActive ? 'text-amber-400' : 'text-slate-500'}`}>
                           {kpi.label}
                         </div>
-                        <Icon size={12} className={`shrink-0 ${isActive ? 'text-amber-500' : 'text-slate-600'}`} />
+                        <Icon size={12} className={`shrink-0 ${isActive ? 'text-amber-400' : 'text-slate-600'}`} />
                       </div>
-                      <div className="flex-1 text-[8px] text-slate-400 mb-2.5 leading-tight" title={kpi.desc}>
-                        {kpi.desc}
-                      </div>
-                      <div className="flex flex-col gap-0.5 mt-auto">
-                        <div className={`text-base font-display font-black tracking-tight leading-tight ${isActive ? 'text-white' : 'text-slate-300'}`}>
-                          <span className={isActive ? 'text-amber-500/50' : 'text-slate-600'}>$</span>{safeToLocaleString(kpi.value.USD)} <span className="text-[8px] text-slate-500">USD</span>
+                      <div className="flex flex-col gap-0.5 mt-2">
+                        <div className={`text-lg font-display font-black tracking-tight leading-tight ${isActive ? 'text-white' : 'text-slate-200'}`}>
+                          ${safeToLocaleString(kpi.value.USD)} <span className="text-[8px] text-slate-500 font-medium">USD</span>
                         </div>
-                        <div className={`text-base font-display font-black tracking-tight leading-tight ${isActive ? 'text-white' : 'text-slate-300'}`}>
-                          <span className={isActive ? 'text-amber-500/50' : 'text-slate-600'}>€</span>{safeToLocaleString(kpi.value.EURO)} <span className="text-[8px] text-slate-500">EUR</span>
+                        <div className={`text-[10px] font-display font-bold tracking-tight leading-tight ${isActive ? 'text-slate-300' : 'text-slate-500'}`}>
+                          ${safeToLocaleString(kpi.value.EURO)} <span className="text-[7px] text-slate-600 font-bold">EUR</span> | 
+                          ${safeToLocaleString(kpi.value.COP)} <span className="text-[7px] text-slate-600 font-bold">COP</span>
                         </div>
-                        {kpi.value.COP !== undefined && (
-                          <div className={`text-base font-display font-black tracking-tight leading-tight ${isActive ? 'text-white' : 'text-slate-300'}`}>
-                            <span className={isActive ? 'text-amber-500/50' : 'text-slate-600'}>Col$</span>{safeToLocaleString(kpi.value.COP)} <span className="text-[8px] text-slate-500">COP</span>
-                          </div>
-                        )}
                       </div>
                     </div>
                   );
