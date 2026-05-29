@@ -10,6 +10,7 @@ import { ModulePermission, PlatformUser } from '../types';
 import BackgroundPattern from './BackgroundPattern';
 import Logo from './Logo';
 import { calculateUserRank, UserRank } from '../lib/rankUtils';
+import CapibeeAgentChat from './CapibeeAgentChat';
 
 interface SidebarProps {
   activeModule: string | null;
@@ -486,6 +487,10 @@ export default function Layout({ children, activeModule, onSelectModule, onLogou
             </button>
           ))}
         </div>
+
+        {(user?.roleId === 'ADMIN_MAESTRO' || user?.roleName?.toUpperCase().includes('ADMIN') || user?.roleId?.toUpperCase().includes('ADMIN')) && (
+          <CapibeeAgentChat />
+        )}
       </div>
     </div>
   );

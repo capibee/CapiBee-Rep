@@ -14,8 +14,8 @@ export default function ModuleLoader({ moduleName }: ModuleLoaderProps) {
         {/* Custom High-Fidelity Custom Hex Spinner replaced with Animated Logo */}
         <div className="mb-6 flex justify-center items-center">
           <motion.div
-            className="relative w-16 h-16 flex items-center justify-center p-1 rounded-2xl bg-amber-500/10 border border-amber-500/20"
-            initial={{ y: 0, shadow: "0px 0px 0px rgba(250,204,21,0)" }}
+            className="relative w-20 h-20 flex items-center justify-center"
+            initial={{ y: 0, boxShadow: "0px 0px 0px rgba(250,204,21,0)" }}
             animate={{
               y: [-4, 4, -4],
               boxShadow: [
@@ -31,7 +31,7 @@ export default function ModuleLoader({ moduleName }: ModuleLoaderProps) {
             }}
           >
             <img
-              src="https://i.ibb.co/YBgQ3LF9/Logo-Capibee-1-removebg-preview.png"
+              src="https://i.ibb.co/G4W60yY5/Logo-Capibee-2-removebg-preview.png"
               alt="CapiBee"
               className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]"
             />

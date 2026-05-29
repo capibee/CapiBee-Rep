@@ -4,7 +4,7 @@ export default function Logo({ className = "", size = 120, textClassName = "" }:
   return (
     <div className={`flex flex-col items-center justify-center ${className}`}>
       <img 
-        src="https://i.ibb.co/YBgQ3LF9/Logo-Capibee-1-removebg-preview.png" 
+        src="https://i.ibb.co/G4W60yY5/Logo-Capibee-2-removebg-preview.png" 
         alt="CapiBee" 
         style={{ 
           height: size ? `${size}px` : 'auto',

@@ -78,7 +78,7 @@ export default function SplashLoader({ onComplete }: SplashLoaderProps) {
         {/* Custom High-Fidelity Animated Logo */}
         <div className="mb-6 flex justify-center items-center">
           <motion.div
-            className="relative w-20 h-20 flex items-center justify-center p-2 rounded-2xl bg-amber-500/10 border border-amber-500/20"
+            className="relative w-24 h-24 flex items-center justify-center"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{
               scale: [0.9, 1.05, 1],
@@ -96,7 +96,7 @@ export default function SplashLoader({ onComplete }: SplashLoaderProps) {
             }}
           >
             <motion.img
-              src="https://i.ibb.co/YBgQ3LF9/Logo-Capibee-1-removebg-preview.png"
+              src="https://i.ibb.co/G4W60yY5/Logo-Capibee-2-removebg-preview.png"
               alt="CapiBee"
               className="w-full h-full object-contain filter drop-shadow-[0_0_12px_rgba(250,204,21,0.6)]"
               animate={{
