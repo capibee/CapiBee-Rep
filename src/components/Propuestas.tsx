@@ -427,7 +427,9 @@ export default function Propuestas({ onBack }: PropuestasProps) {
         businessData?.country?.toLowerCase().includes("españa") ||
         businessData?.country?.toLowerCase().includes("portugal") ||
         businessData?.country?.toLowerCase().includes("francia")
-      ) ? "EURO" : "USD";
+      ) ? "EURO" : (
+        businessData?.country?.toLowerCase().includes("colombia") ? "COP" : "USD"
+      );
 
       // Crear objeto pre-completado
       const prefillData = {

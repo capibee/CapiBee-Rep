@@ -358,9 +358,9 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
         count: 0,
         emitidasCount: 0,
         enviadasCount: 0,
-        emitted: { USD: 0, EURO: 0 },
-        total: { USD: 0, EURO: 0 }, // For "Por Cobrar" (debt)
-        paid: { USD: 0, EURO: 0 }
+        emitted: { USD: 0, EURO: 0, COP: 0 },
+        total: { USD: 0, EURO: 0, COP: 0 }, // For "Por Cobrar" (debt)
+        paid: { USD: 0, EURO: 0, COP: 0 }
     };
 
     const now = new Date();
@@ -968,7 +968,7 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
         infoYPos += splitNote.length * 4 + 10;
     }
 
-    if (currency === 'EURO' || currency === 'USD') {
+    if (currency === 'EURO' || currency === 'USD' || currency === 'COP') {
         doc.setFontSize(9);
         doc.setFont("helvetica", "bold");
         doc.setTextColor(...primaryColor);
@@ -982,6 +982,11 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
             doc.text('Banco: Wise Europe SA', 20, infoYPos + 17);
             doc.text('IBAN (EUR): BE52 9055 3433 4409', 20, infoYPos + 22);
             doc.text('Swift/BIC: TRWIBEB1XXX', 20, infoYPos + 27);
+        } else if (currency === 'COP') {
+            doc.text('Beneficiario: Hecho con IA S.A.S.', 20, infoYPos + 12);
+            doc.text('Banco: Bancolombia S.A.', 20, infoYPos + 17);
+            doc.text('Tipo: Cuenta de Ahorros', 20, infoYPos + 22);
+            doc.text('Cuenta (COP): 315-207778-83', 20, infoYPos + 27);
         } else {
             doc.text('Beneficiario: Hecho con IA S.A.S.', 20, infoYPos + 12);
             doc.text('Banco: Evolve Bank & Trust', 20, infoYPos + 17);
@@ -1476,6 +1481,11 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
                       <span className="text-[8px] text-emerald-500/80 font-bold">€{safeToLocaleString(totals.kpis.paid.EURO)} EUR</span>
                     </div>
                   )}
+                  {totals.kpis.paid.COP > 0 && (
+                    <div className="flex gap-2 mt-0.5">
+                      <span className="text-[8px] text-emerald-500/80 font-bold">Col$ {safeToLocaleString(totals.kpis.paid.COP)} COP</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1489,6 +1499,11 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
                   {totals.kpis.emitted.EURO > 0 && (
                     <div className="flex gap-2 mt-0.5">
                       <span className="text-[8px] text-slate-400/80 font-bold">€{safeToLocaleString(totals.kpis.emitted.EURO)} EUR</span>
+                    </div>
+                  )}
+                  {totals.kpis.emitted.COP > 0 && (
+                    <div className="flex gap-2 mt-0.5">
+                      <span className="text-[8px] text-slate-400/80 font-bold">Col$ {safeToLocaleString(totals.kpis.emitted.COP)} COP</span>
                     </div>
                   )}
                 </div>

@@ -140,7 +140,7 @@ export default function Ganancias({ user }: GananciasProps) {
     contactName: '',
     email: '',
     language: 'Español' as 'Español' | 'Inglés' | 'Portugués' | 'Francés',
-    currency: 'USD' as 'USD' | 'EURO',
+    currency: 'USD' as 'USD' | 'EURO' | 'COP',
     country: '',
     sector: '',
   });
@@ -610,9 +610,9 @@ export default function Ganancias({ user }: GananciasProps) {
 
   const statsByStatus = useMemo(() => {
     let totals = {
-      'En proceso': { USD: 0, EURO: 0 },
-      'Procesado': { USD: 0, EURO: 0 },
-      'Pagado': { USD: 0, EURO: 0 }
+      'En proceso': { USD: 0, EURO: 0, COP: 0 },
+      'Procesado': { USD: 0, EURO: 0, COP: 0 },
+      'Pagado': { USD: 0, EURO: 0, COP: 0 }
     };
 
     const now = new Date();
@@ -631,12 +631,15 @@ export default function Ganancias({ user }: GananciasProps) {
                 
                 if (e.status === 'En proceso') {
                     if (currency === 'EURO') totals['En proceso'].EURO += e.amount;
+                    else if (currency === 'COP') totals['En proceso'].COP += e.amount;
                     else totals['En proceso'].USD += e.amount;
                 } else if (e.status === 'Procesado') {
                     if (currency === 'EURO') totals['Procesado'].EURO += e.amount;
+                    else if (currency === 'COP') totals['Procesado'].COP += e.amount;
                     else totals['Procesado'].USD += e.amount;
                 } else if (e.status === 'Pagado') {
                     if (currency === 'EURO') totals['Pagado'].EURO += e.amount;
+                    else if (currency === 'COP') totals['Pagado'].COP += e.amount;
                     else totals['Pagado'].USD += e.amount;
                 }
             }
@@ -707,6 +710,9 @@ export default function Ganancias({ user }: GananciasProps) {
       let totalEUROProceso = 0;
       let totalEUROProcesado = 0;
       let totalEUROPagado = 0;
+      let totalCOPProceso = 0;
+      let totalCOPProcesado = 0;
+      let totalCOPPagado = 0;
       
       execEarnings.forEach(e => {
         const inv = invoices.find(i => i.id === e.invoiceId);
@@ -717,6 +723,10 @@ export default function Ganancias({ user }: GananciasProps) {
           if (e.status === 'En proceso') totalEUROProceso += e.amount;
           if (e.status === 'Procesado') totalEUROProcesado += e.amount;
           if (e.status === 'Pagado') totalEUROPagado += e.amount;
+        } else if (currency === 'COP') {
+          if (e.status === 'En proceso') totalCOPProceso += e.amount;
+          if (e.status === 'Procesado') totalCOPProcesado += e.amount;
+          if (e.status === 'Pagado') totalCOPPagado += e.amount;
         } else {
           if (e.status === 'En proceso') totalUSDProceso += e.amount;
           if (e.status === 'Procesado') totalUSDProcesado += e.amount;
@@ -724,7 +734,7 @@ export default function Ganancias({ user }: GananciasProps) {
         }
       });
 
-      // Calcular "Pendientes de Envío": Asuntos de este ejecutivo que no tienen propuesta asignada
+      // Calcular "Pendientes de Envío"
       const execAsuntos = asuntos.filter(a => {
         if (a.userId !== exec.id) return false;
         const d = a.fecha ? new Date(a.fecha) : (a.createdAt ? new Date(a.createdAt) : null);
@@ -741,7 +751,7 @@ export default function Ganancias({ user }: GananciasProps) {
       });
       const pendientesCount = execAsuntos.filter(a => !propuestas.some(p => p.asuntoId === a.id)).length;
       
-      if (totalUSDProceso === 0 && totalUSDProcesado === 0 && totalUSDPagado === 0 && totalEUROProceso === 0 && totalEUROProcesado === 0 && totalEUROPagado === 0) {
+      if (totalUSDProceso === 0 && totalUSDProcesado === 0 && totalUSDPagado === 0 && totalEUROProceso === 0 && totalEUROProcesado === 0 && totalEUROPagado === 0 && totalCOPProceso === 0 && totalCOPProcesado === 0 && totalCOPPagado === 0) {
         stats.push({ name: exec.fullName, currency: 'USD', totalProceso: 0, totalProcesado: 0, totalPagado: 0, pendientesEnvio: pendientesCount });
       } else {
         if (totalUSDProceso > 0 || totalUSDProcesado > 0 || totalUSDPagado > 0) {
@@ -749,6 +759,9 @@ export default function Ganancias({ user }: GananciasProps) {
         }
         if (totalEUROProceso > 0 || totalEUROProcesado > 0 || totalEUROPagado > 0) {
           stats.push({ name: exec.fullName, currency: 'EURO', totalProceso: totalEUROProceso, totalProcesado: totalEUROProcesado, totalPagado: totalEUROPagado, pendientesEnvio: pendientesCount });
+        }
+        if (totalCOPProceso > 0 || totalCOPProcesado > 0 || totalCOPPagado > 0) {
+          stats.push({ name: exec.fullName, currency: 'COP', totalProceso: totalCOPProceso, totalProcesado: totalCOPProcesado, totalPagado: totalCOPPagado, pendientesEnvio: pendientesCount });
         }
       }
     });
@@ -1228,6 +1241,11 @@ export default function Ganancias({ user }: GananciasProps) {
                         <div className={`text-base font-display font-black tracking-tight leading-tight ${isActive ? 'text-white' : 'text-slate-300'}`}>
                           <span className={isActive ? 'text-amber-500/50' : 'text-slate-600'}>€</span>{safeToLocaleString(kpi.value.EURO)} <span className="text-[8px] text-slate-500">EUR</span>
                         </div>
+                        {kpi.value.COP !== undefined && (
+                          <div className={`text-base font-display font-black tracking-tight leading-tight ${isActive ? 'text-white' : 'text-slate-300'}`}>
+                            <span className={isActive ? 'text-amber-500/50' : 'text-slate-600'}>Col$</span>{safeToLocaleString(kpi.value.COP)} <span className="text-[8px] text-slate-500">COP</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
@@ -1364,13 +1382,13 @@ export default function Ganancias({ user }: GananciasProps) {
                             {stat.pendientesEnvio}
                           </td>
                           <td className="py-3 px-4 text-xs text-emerald-400 font-bold text-right">
-                            {stat.currency === 'EURO' ? '€' : '$'}{stat.totalProceso.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            {stat.currency === 'EURO' ? '€' : stat.currency === 'COP' ? 'Col$ ' : '$'}{stat.totalProceso.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </td>
                           <td className="py-3 px-4 text-xs text-blue-400 font-bold text-right">
-                            {stat.currency === 'EURO' ? '€' : '$'}{stat.totalProcesado.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            {stat.currency === 'EURO' ? '€' : stat.currency === 'COP' ? 'Col$ ' : '$'}{stat.totalProcesado.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </td>
                           <td className="py-3 px-4 text-xs text-indigo-400 font-bold text-right">
-                            {stat.currency === 'EURO' ? '€' : '$'}{stat.totalPagado.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            {stat.currency === 'EURO' ? '€' : stat.currency === 'COP' ? 'Col$ ' : '$'}{stat.totalPagado.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </td>
                         </tr>
                       ))
@@ -1390,6 +1408,11 @@ export default function Ganancias({ user }: GananciasProps) {
                               €{agentTransactionStats.filter(s => s.currency === 'EURO').reduce((sum, s) => sum + s.totalProceso, 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </span>
                           )}
+                          {agentTransactionStats.some(s => s.currency === 'COP') && (
+                            <span className="block text-[10px] text-slate-500">
+                              Col$ {agentTransactionStats.filter(s => s.currency === 'COP').reduce((sum, s) => sum + s.totalProceso, 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
+                          )}
                         </td>
                         <td className="py-4 px-4 text-right text-xs text-blue-400 font-mono">
                           ${agentTransactionStats.filter(s => s.currency === 'USD').reduce((sum, s) => sum + s.totalProcesado, 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -1398,12 +1421,22 @@ export default function Ganancias({ user }: GananciasProps) {
                               €{agentTransactionStats.filter(s => s.currency === 'EURO').reduce((sum, s) => sum + s.totalProcesado, 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </span>
                           )}
+                          {agentTransactionStats.some(s => s.currency === 'COP') && (
+                            <span className="block text-[10px] text-slate-500">
+                              Col$ {agentTransactionStats.filter(s => s.currency === 'COP').reduce((sum, s) => sum + s.totalProcesado, 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
+                          )}
                         </td>
                         <td className="py-4 px-4 text-right text-xs text-indigo-400 font-mono">
                           ${agentTransactionStats.filter(s => s.currency === 'USD').reduce((sum, s) => sum + s.totalPagado, 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           {agentTransactionStats.some(s => s.currency === 'EURO') && (
                             <span className="block text-[10px] text-slate-500">
                               €{agentTransactionStats.filter(s => s.currency === 'EURO').reduce((sum, s) => sum + s.totalPagado, 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
+                          )}
+                          {agentTransactionStats.some(s => s.currency === 'COP') && (
+                            <span className="block text-[10px] text-slate-500">
+                              Col$ {agentTransactionStats.filter(s => s.currency === 'COP').reduce((sum, s) => sum + s.totalPagado, 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </span>
                           )}
                         </td>

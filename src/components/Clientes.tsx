@@ -48,7 +48,7 @@ interface ClientesProps {
 }
 
 const LANGUAGES = ["Español", "Inglés", "Portugués", "Francés"] as const;
-const CURRENCIES = ["USD", "EURO"] as const;
+const CURRENCIES = ["USD", "EURO", "COP"] as const;
 
 export default function Clientes({ onLogout, onBack }: ClientesProps) {
   const permissions = usePermissions("clientes");
@@ -1045,7 +1045,9 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
                                 b.country?.toLowerCase().includes("españa") ||
                                 b.country?.toLowerCase().includes("portugal") ||
                                 b.country?.toLowerCase().includes("francia")
-                              ) ? "EURO" : "USD";
+                              ) ? "EURO" : (
+                                b.country?.toLowerCase().includes("colombia") ? "COP" : "USD"
+                              );
 
                               setFormData({
                                 ...formData,

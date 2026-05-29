@@ -34,8 +34,8 @@ export default function Layout({ children, activeModule, onSelectModule, onLogou
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [statsByStatus, setStatsByStatus] = useState<{'USD': number, 'EURO': number}>({'USD': 0, 'EURO': 0});
-  const [currentCurrency, setCurrentCurrency] = useState<'USD' | 'EURO'>('USD');
+  const [statsByStatus, setStatsByStatus] = useState<{'USD': number, 'EURO': number, 'COP': number}>({'USD': 0, 'EURO': 0, 'COP': 0});
+  const [currentCurrency, setCurrentCurrency] = useState<'USD' | 'EURO' | 'COP'>('USD');
   const [userRank, setUserRank] = useState<UserRank | null>(null);
   const [propuestasPorEnviarCount, setPropuestasPorEnviarCount] = useState<number>(0);
 
@@ -53,6 +53,7 @@ export default function Layout({ children, activeModule, onSelectModule, onLogou
 
         let enProcesoUSD = 0;
         let enProcesoEURO = 0;
+        let enProcesoCOP = 0;
 
         savedEarnings.forEach((e: any) => {
           // Resolve actualUserId for the commission row
@@ -77,13 +78,15 @@ export default function Layout({ children, activeModule, onSelectModule, onLogou
 
             if (currency === 'EURO') {
               enProcesoEURO += e.amount;
+            } else if (currency === 'COP') {
+              enProcesoCOP += e.amount;
             } else {
               enProcesoUSD += e.amount;
             }
           }
         });
 
-        setStatsByStatus({'USD': enProcesoUSD, 'EURO': enProcesoEURO});
+        setStatsByStatus({'USD': enProcesoUSD, 'EURO': enProcesoEURO, 'COP': enProcesoCOP});
 
         // Calculate pending proposals (Asuntos without a corresponding proposal)
         const isAdmin = user?.roleId === 'ADMIN_MAESTRO' || user?.roleName?.toUpperCase() === 'SUPERADMIN' || user?.roleId?.toUpperCase() === 'SUPERADMIN';
@@ -110,7 +113,11 @@ export default function Layout({ children, activeModule, onSelectModule, onLogou
     window.addEventListener('capibee_balance_update', calculateBalance);
 
     const intervalCurrency = setInterval(() => {
-      setCurrentCurrency(prev => prev === 'USD' ? 'EURO' : 'USD');
+      setCurrentCurrency(prev => {
+        if (prev === 'USD') return 'EURO';
+        if (prev === 'EURO') return 'COP';
+        return 'USD';
+      });
     }, 5000);
     
     // Periodically re-calculate balance just in case
@@ -387,7 +394,7 @@ export default function Layout({ children, activeModule, onSelectModule, onLogou
                   exit={{ opacity: 0, y: -5 }}
                   className="text-[10px] text-emerald-400 font-bold truncate mt-1"
                 >
-                  Tu tienes: ${safeToLocaleString(statsByStatus?.[currentCurrency] || 0)} {currentCurrency}
+                  Tu tienes: {currentCurrency === 'EURO' ? '€' : currentCurrency === 'COP' ? 'Col$ ' : '$'}{safeToLocaleString(statsByStatus?.[currentCurrency] || 0)} {currentCurrency}
                 </motion.span>
               )}
             </div>

@@ -437,7 +437,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
             email: b.email || "",
             phone: b.phone || "",
             language: "Español",
-            currency: b.country === 'España' ? 'EURO' : 'USD',
+            currency: b.country === 'España' || b.country?.toLowerCase().includes('españa') ? 'EURO' : (b.country === 'Colombia' || b.country?.toLowerCase().includes('colombia') ? 'COP' : 'USD'),
             country: b.country || "",
             sector: b.category || "",
             address: b.address || "",

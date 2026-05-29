@@ -121,7 +121,7 @@ export interface Client {
   contactName: string;
   email: string;
   language: 'Español' | 'Inglés' | 'Portugués' | 'Francés';
-  currency: 'USD' | 'EURO';
+  currency: 'USD' | 'EURO' | 'COP';
   country?: string;
   address?: string;
   sector?: string;

@@ -13,7 +13,7 @@ export default function Finanzas() {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [viewMode, setViewMode] = useState<'month' | 'year'>('month');
-  const [selectedCurrency, setSelectedCurrency] = useState<'USD' | 'EUR'>('USD');
+  const [selectedCurrency, setSelectedCurrency] = useState<'USD' | 'EUR' | 'COP'>('USD');
   const [isTableLoading, setIsTableLoading] = useState(true);
 
   useEffect(() => {
@@ -47,7 +47,7 @@ export default function Finanzas() {
     invoices.forEach(inv => {
         // Find client for this invoice to check currency
         const client = clients.find(c => c.id === inv.businessId);
-        const invCurrency = client?.currency === 'EURO' ? 'EUR' : 'USD';
+        const invCurrency = client?.currency === 'EURO' ? 'EUR' : (client?.currency === 'COP' ? 'COP' : 'USD');
         if (invCurrency === selectedCurrency) {
             const subtotal = inv.items.reduce((acc, item) => acc + (item.quantity * item.price), 0);
             ventas += subtotal * (1 + (inv.tax || 0) / 100);
@@ -97,7 +97,7 @@ export default function Finanzas() {
 
         invoices.forEach(inv => {
             const client = clients.find(c => c.id === inv.businessId);
-            const invCurrency = client?.currency === 'EURO' ? 'EUR' : 'USD';
+            const invCurrency = client?.currency === 'EURO' ? 'EUR' : (client?.currency === 'COP' ? 'COP' : 'USD');
 
             if (invCurrency === selectedCurrency) {
                 const d = new Date(inv.date || inv.createdAt);
@@ -130,7 +130,7 @@ export default function Finanzas() {
 
         invoices.forEach(inv => {
             const client = clients.find(c => c.id === inv.businessId);
-            const invCurrency = client?.currency === 'EURO' ? 'EUR' : 'USD';
+            const invCurrency = client?.currency === 'EURO' ? 'EUR' : (client?.currency === 'COP' ? 'COP' : 'USD');
 
             if (invCurrency === selectedCurrency) {
                 const d = new Date(inv.date || inv.createdAt);
@@ -177,6 +177,7 @@ export default function Finanzas() {
           >
             <option value="USD" className="bg-slate-900">USD - Dólar</option>
             <option value="EUR" className="bg-slate-900">EUR - Euro</option>
+            <option value="COP" className="bg-slate-900">COP - Peso Colombiano</option>
           </select>
         </div>
       </div>
@@ -201,7 +202,7 @@ export default function Finanzas() {
                     </div>
                 </div>
                 <div className="text-3xl font-black text-white relative z-10">
-                  {kpi.isCurrency ? (selectedCurrency === 'EUR' ? '€' : '$') : ''}
+                  {kpi.isCurrency ? (selectedCurrency === 'EUR' ? '€' : selectedCurrency === 'COP' ? 'Col$ ' : '$') : ''}
                   {kpi.value.toLocaleString(undefined, {minimumFractionDigits: kpi.isCurrency ? 2 : 0, maximumFractionDigits: kpi.isCurrency ? 2 : 0})}
                 </div>
                 <div className="absolute -bottom-6 -right-6 opacity-[0.03] group-hover:opacity-10 group-hover:scale-110 transition-all duration-500">
@@ -328,11 +329,11 @@ export default function Finanzas() {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
                 <XAxis dataKey="name" stroke="#475569" fontSize={12} tickLine={false} axisLine={false} dy={10} />
-                <YAxis stroke="#475569" fontSize={12} tickLine={false} axisLine={false} dx={-10} tickFormatter={(value) => `${selectedCurrency === 'EUR' ? '€' : '$'}${value}`} />
+                <YAxis stroke="#475569" fontSize={12} tickLine={false} axisLine={false} dx={-10} tickFormatter={(value) => `${selectedCurrency === 'EUR' ? '€' : selectedCurrency === 'COP' ? 'Col$ ' : '$'}${value}`} />
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '12px', color: '#f8fafc', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)' }}
                   itemStyle={{ color: '#10b981', fontWeight: 'bold' }}
-                  formatter={(value: number) => [`${selectedCurrency === 'EUR' ? '€' : '$'}${value.toLocaleString(undefined, {minimumFractionDigits: 2})}`, 'Ventas']}
+                  formatter={(value: number) => [`${selectedCurrency === 'EUR' ? '€' : selectedCurrency === 'COP' ? 'Col$ ' : '$'}${value.toLocaleString(undefined, {minimumFractionDigits: 2})}`, 'Ventas']}
                 />
                 <Area 
                   type="monotone" 
