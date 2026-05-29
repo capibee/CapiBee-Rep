@@ -55,8 +55,9 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
   const [clientes, setClientes] = useState<Client[]>([]);
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [users, setUsers] = useState<any[]>([]);
   const [editingClientDetails, setEditingClientDetails] = useState<Client | null>(null);
-  const [editClientFormData, setEditClientFormData] = useState({ contactName: "", email: "" });
+  const [editClientFormData, setEditClientFormData] = useState({ contactName: "", email: "", assignedUserId: "" });
   const [selectedClientIds, setSelectedClientIds] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [countryFilter, setCountryFilter] = useState("");
@@ -115,6 +116,7 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
     language: "Español" as (typeof LANGUAGES)[number],
     currency: "USD" as (typeof CURRENCIES)[number],
     address: "",
+    assignedUserId: "",
   });
 
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -123,7 +125,9 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
     try {
       const savedUser = localStorage.getItem("capibee_user");
       if (savedUser) {
-        setCurrentUser(JSON.parse(savedUser));
+        const u = JSON.parse(savedUser);
+        setCurrentUser(u);
+        setFormData(prev => ({ ...prev, assignedUserId: u.id || "" }));
       }
     } catch(e){}
 
@@ -140,6 +144,13 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
         setBusinesses(JSON.parse(savedBusinesses));
       }
     } catch(e) {}
+
+    try {
+      const savedUsersList = localStorage.getItem("capibee_platform_users");
+      if (savedUsersList) {
+        setUsers(JSON.parse(savedUsersList));
+      }
+    } catch(e){}
     
     const timer = setTimeout(() => setIsTableLoading(false), 2000);
     return () => clearTimeout(timer);
@@ -177,9 +188,10 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
   useEffect(() => {
     const fetchFreshData = async () => {
       try {
-        const [clientsRes, busRes] = await Promise.all([
+        const [clientsRes, busRes, usersRes] = await Promise.all([
           supabase.from('Clientes').select('*').order('created_at', { ascending: false }),
-          supabase.from('Directorio').select('*').order('created_at', { ascending: false })
+          supabase.from('Directorio').select('*').order('created_at', { ascending: false }),
+          supabase.from('Usuarios').select('*')
         ]);
 
         const { data: dbClients, error: clientsErr } = clientsRes;
@@ -238,6 +250,21 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
           setBusinesses(mappedB);
           localStorage.setItem("capibee_businesses", JSON.stringify(mappedB));
         }
+
+        const { data: dbUsers, error: usersErr } = usersRes || {};
+        if (!usersErr && dbUsers) {
+          const mappedU = dbUsers.map((u: any) => ({
+            id: u.id,
+            fullName: u.full_name,
+            roleId: u.role_id || '',
+            roleName: u.role_name || '',
+            email: u.email,
+            status: u.status || 'Activo'
+          }));
+          const uniqueMappedU = Array.from(new Map(mappedU.map((u: any) => [u.id, u])).values());
+          setUsers(uniqueMappedU);
+          localStorage.setItem('capibee_platform_users', JSON.stringify(uniqueMappedU));
+        }
       } catch (err) {
         console.warn("Could not sync data from Supabase in Clientes:", err);
       } finally {
@@ -259,9 +286,16 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
       })
       .subscribe();
 
+    const usersChannel = supabase.channel('users-realtime-clientes-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'Usuarios' }, () => {
+        fetchFreshData();
+      })
+      .subscribe();
+
     return () => {
       supabase.removeChannel(clientsChannel);
       supabase.removeChannel(businessesChannel);
+      supabase.removeChannel(usersChannel);
     };
   }, []);
 
@@ -374,10 +408,10 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
     if (!editingClientDetails) return;
 
     const clientId = editingClientDetails.id;
-    const { contactName: newContactName, email: newEmail } = editClientFormData;
+    const { contactName: newContactName, email: newEmail, assignedUserId: newAssignedUserId } = editClientFormData;
 
     const updatedClientes = clientes.map(c => 
-      c.id === clientId ? { ...c, contactName: newContactName, email: newEmail } : c
+      c.id === clientId ? { ...c, contactName: newContactName, email: newEmail, userId: newAssignedUserId || null } : c
     );
     
     setEditingClientDetails(null);
@@ -406,7 +440,7 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
       language: formData.language,
       currency: formData.currency,
       createdAt: Date.now(),
-      userId: currentUser?.id || null,
+      userId: formData.assignedUserId || currentUser?.id || null,
     };
 
     await saveClientes([newClient, ...clientes], newClient);
@@ -424,6 +458,7 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
       language: "Español",
       currency: "USD",
       address: "",
+      assignedUserId: currentUser?.id || "",
     });
   };
 
@@ -533,8 +568,9 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
 
       let matchesSeller = true;
       if (sellerFilter !== "") {
+        const assignedUser = users.find(u => u.id === c.userId);
         const linkedBusiness = businesses.find((b) => b.id === c.id);
-        const sellerName = linkedBusiness?.responsibleName || "Sin Asignar";
+        const sellerName = assignedUser?.fullName || linkedBusiness?.responsibleName || "Sin Asignar";
         matchesSeller = sellerName === sellerFilter;
       }
 
@@ -724,7 +760,10 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
                     onChange={(e) => setSellerFilter(e.target.value)}
                   >
                     <option value="">Vendedor...</option>
-                    {Array.from(new Set(authorizedClientes.map(c => businesses.find(b => b.id === c.id)?.responsibleName || "Sin Asignar")))
+                    {Array.from(new Set(authorizedClientes.map(c => {
+                      const assignedUser = users.find(u => u.id === c.userId);
+                      return assignedUser?.fullName || businesses.find(b => b.id === c.id)?.responsibleName || "Sin Asignar";
+                    })))
                       .filter(name => name)
                       .sort()
                       .map(name => (
@@ -860,7 +899,7 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
                         <button 
                           onClick={() => {
                             setEditingClientDetails(cli);
-                            setEditClientFormData({ contactName: cli.contactName, email: cli.email || "" });
+                            setEditClientFormData({ contactName: cli.contactName, email: cli.email || "", assignedUserId: cli.userId || "" });
                           }}
                           className="text-left w-full hover:text-blue-400 transition-colors py-1 truncate"
                         >
@@ -907,7 +946,7 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
                         <button 
                           onClick={() => {
                             setEditingClientDetails(cli);
-                            setEditClientFormData({ contactName: cli.contactName, email: cli.email || "" });
+                            setEditClientFormData({ contactName: cli.contactName, email: cli.email || "", assignedUserId: cli.userId || "" });
                           }}
                           className={`text-left w-full hover:text-blue-400 transition-colors py-1 truncate ${!cli.email ? 'text-slate-500 italic' : ''}`}
                         >
@@ -915,7 +954,7 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
                         </button>
                       </td>
                       <td className="p-2 text-[10px] text-slate-400">
-                        {businesses.find(b => b.id === cli.id)?.responsibleName || "-"}
+                        {users.find(u => u.id === cli.userId)?.fullName || businesses.find(b => b.id === cli.id)?.responsibleName || "-"}
                       </td>
                       <td className="p-2 text-center">
                         <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter bg-slate-800/50 px-1 py-0.5 rounded">
@@ -1343,6 +1382,36 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
                       </div>
                     </div>
                   </div>
+
+                  {/* Asignado a */}
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                      Asignado a (Comercial)
+                    </label>
+                    <div className="relative">
+                      <User
+                        className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"
+                        size={14}
+                      />
+                      <select
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs focus:border-blue-500 transition-all outline-none appearance-none cursor-pointer"
+                        value={formData.assignedUserId}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            assignedUserId: e.target.value,
+                          })
+                        }
+                      >
+                        <option value="">Sin asignar (Público)</option>
+                        {users.map((u) => (
+                          <option key={u.id} value={u.id}>
+                            {u.fullName} ({u.roleName || 'Vendedor'})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="pt-4 flex gap-4">
@@ -1443,6 +1512,35 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
                           })
                         }
                       />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                      Asignado a (Comercial)
+                    </label>
+                    <div className="relative">
+                      <User
+                        className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"
+                        size={14}
+                      />
+                      <select
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs focus:border-blue-500 transition-all outline-none appearance-none cursor-pointer"
+                        value={editClientFormData.assignedUserId}
+                        onChange={(e) =>
+                          setEditClientFormData({
+                            ...editClientFormData,
+                            assignedUserId: e.target.value,
+                          })
+                        }
+                      >
+                        <option value="">Sin asignar (Público)</option>
+                        {users.map((u) => (
+                          <option key={u.id} value={u.id}>
+                            {u.fullName} ({u.roleName || 'Vendedor'})
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
 
