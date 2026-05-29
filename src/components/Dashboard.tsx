@@ -3005,7 +3005,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                   onSubmit={handleSubmit}
                   className="space-y-6 pb-20 sm:pb-0"
                 >
-                  <div className="grid grid-cols-1 gap-4">
+                  <div className="grid grid-cols-1 gap-6">
                     <div className="space-y-1">
                       <label className="block text-xs font-bold text-slate-400">
                         Nombre empresa
@@ -3023,7 +3023,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                       />
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="space-y-1">
                         <label className="block text-xs font-bold text-slate-400">
                           País
