@@ -332,6 +332,17 @@ export default function UsuariosRoles({}: UsuariosRolesProps) {
   const handleCreateUser = async () => {
     if (!userForm.fullName || !userForm.email || !userForm.password || !userForm.roleId || !permissions.create) return;
 
+    // Check pre-emptively if email is already in use
+    const emailToCheck = userForm.email.trim().toLowerCase();
+    const isEmailUsed = users.some(u => u.email?.trim().toLowerCase() === emailToCheck);
+    if (isEmailUsed) {
+      setConfirmAction({
+        type: 'error',
+        message: `El correo electrónico "${userForm.email}" ya está registrado en la base de datos de usuarios. Por favor, selecciona un correo electrónico diferente.`
+      });
+      return;
+    }
+
     const selectedRole = roles.find(r => r.id === userForm.roleId);
     
     const newUser: PlatformUser = {
@@ -363,14 +374,29 @@ export default function UsuariosRoles({}: UsuariosRolesProps) {
       }, { onConflict: 'id' });
       if (error) {
         console.error("Error saving user to Supabase:", error);
+        
+        // Rollback states
+        setUsers(users);
+        saveToStorage(users, roles);
+
+        let customMsg = `Error de Supabase al guardar personal: ${error.message}. Asegúrate de tener la tabla 'Usuarios' listada con políticas RLS.`;
+        if (error.message?.includes('platform_users_email_key') || error.message?.includes('unique constraint') || error.code === '23505') {
+          customMsg = `El correo electrónico "${newUser.email}" ya se encuentra registrado para otro usuario en la plataforma. Por favor, ingresa un correo diferente.`;
+        }
+
         setConfirmAction({
           type: 'error',
-          message: `Error de Supabase al guardar personal: ${error.message}. Asegúrate de tener la tabla 'Usuarios' listada con políticas RLS.`
+          message: customMsg
         });
         return;
       }
     } catch (err: any) {
       console.error("Supabase communication error during user save:", err);
+      
+      // Rollback states
+      setUsers(users);
+      saveToStorage(users, roles);
+
       setConfirmAction({
         type: 'error',
         message: `Error de red al guardar personal: ${err.message || err}`
