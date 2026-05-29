@@ -53,6 +53,7 @@ const getCountryName = (phoneNumberString: string) => {
   return null;
 };
 import { usePermissions } from "../hooks/usePermissions";
+import Logo from "./Logo";
 import {
   BUSINESS_CATEGORIES,
   COUNTRIES,
@@ -3000,6 +3001,9 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
               </div>
 
               <div className="p-4 sm:p-6 lg:p-8 overflow-y-auto custom-scrollbar flex-1 min-h-0 bg-slate-900">
+                <div className="mb-6 flex justify-center">
+                  <Logo size={40} />
+                </div>
                 <form
                   id="business-form"
                   onSubmit={handleSubmit}

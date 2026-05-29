@@ -418,9 +418,9 @@ export default function Layout({ children, activeModule, onSelectModule, onLogou
           </div>
 
           {/* Content Container */}
-          <main className="flex-1 overflow-y-auto relative bg-slate-950 custom-scrollbar">
+          <main className="flex-1 overflow-y-auto overflow-x-hidden relative bg-slate-950 custom-scrollbar">
             {/* Top Header inside main to scroll */}
-            <header className="h-16 border-b border-amber-500/5 bg-slate-950/80 backdrop-blur-xl flex items-center justify-between px-4 sm:px-8 shrink-0 sticky top-0 z-20">
+            <header className="h-16 border-b border-amber-500/5 bg-slate-950/80 backdrop-blur-xl flex items-center justify-between px-4 sm:px-6 shrink-0 sticky top-0 z-20">
               <div className="flex items-center gap-3">
                 {activeModule !== null && (
                    <button 
@@ -459,7 +459,7 @@ export default function Layout({ children, activeModule, onSelectModule, onLogou
             {/* CapiBee Background Aesthetics */}
             <BackgroundPattern />
             
-            <div className="h-full relative z-10 p-0">
+            <div className="h-full relative z-10 p-2 sm:p-4">
               {children}
             </div>
           </main>
