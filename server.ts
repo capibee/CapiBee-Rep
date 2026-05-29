@@ -116,7 +116,7 @@ async function startServer() {
   app.post("/api/capibee/chat", async (req, res) => {
     try {
       const { message, platformData, currentUser } = req.body;
-      const apiKey = process.env.GEMINI_API_KEY;
+      const apiKey = process.env.GEMINI_API_KEYY || process.env.GEMINI_API_KEY;
       
       if (!apiKey) {
         return res.status(500).json({ error: "No se ha configurado la API Key de Gemini." });
