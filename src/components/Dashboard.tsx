@@ -262,6 +262,7 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
   const [statusFilter, setStatusFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isTableLoading, setIsTableLoading] = useState(true);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
   const itemsPerPage = 50;
   const [mounted, setMounted] = useState(false);
 
@@ -1499,7 +1500,8 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
             animate={{ opacity: 1, y: 0 }}
             className="bg-slate-900/80 backdrop-blur-2xl shadow-[0_4px_16px_rgba(245,158,11,0.05)] rounded-xl border border-yellow-400/20 flex flex-col h-full"
           >
-            <div className="p-2 border-b border-yellow-400/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 shrink-0">
+            {/* Desktop Header and Filters */}
+            <div className="hidden sm:flex p-2 border-b border-yellow-400/10 justify-between items-center gap-2 shrink-0">
               <div className="flex items-center gap-2">
                 <div className="p-1 bg-amber-500/10 rounded-lg border border-amber-500/20 shadow-inner">
                   <Users className="text-amber-400" size={14} />
@@ -1513,8 +1515,8 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                   </p>
                 </div>
               </div>
-              <div className="flex flex-wrap items-center gap-1 w-full sm:w-auto">
-                <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-1 flex-1">
+              <div className="flex flex-wrap items-center gap-1 sm:w-auto">
+                <div className="flex flex-wrap items-center gap-1 flex-1">
                   <select
                     value={countryFilter}
                     onChange={(e) => setCountryFilter(e.target.value)}
@@ -1643,6 +1645,213 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                   >
                     <Plus size={10} strokeWidth={2.5} />
                     Crear contacto
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile Header and Collapsible Filters panel */}
+            <div className="sm:hidden flex flex-col shrink-0 border-b border-yellow-400/10">
+              <div className="flex items-center justify-between p-3 bg-slate-950/20">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 bg-amber-500/10 rounded-lg border border-amber-500/20 shadow-inner">
+                    <Users className="text-amber-400" size={14} />
+                  </div>
+                  <div>
+                    <h3 className="font-display font-black text-white text-xs uppercase tracking-widest leading-none">
+                      Directorio {filteredBusinesses.length > 0 && `(${filteredBusinesses.length})`}
+                    </h3>
+                    <p className="text-[7.5px] text-slate-500 font-bold mt-0.5 uppercase tracking-tighter">
+                      Panel Centralizado
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => setShowMobileFilters(!showMobileFilters)}
+                    className={`p-2 rounded-xl border flex items-center justify-center transition-all ${
+                      showMobileFilters || countryFilter || statusFilter || cityFilter || (filterAssignedUser && filterAssignedUser !== "all")
+                        ? "bg-amber-500/20 border-amber-500/40 text-amber-400 shadow-[0_0_8px_rgba(250,204,21,0.2)]"
+                        : "bg-slate-950 border-slate-800 text-slate-400"
+                    }`}
+                  >
+                    <Globe size={13} className={showMobileFilters ? "animate-pulse" : ""} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2.5 p-3 bg-slate-950/40">
+                {/* Mobile Search input */}
+                <div className="relative w-full">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={12} />
+                  <input
+                    type="text"
+                    placeholder="Buscar empresa, contacto..."
+                    className="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 text-slate-200 placeholder:text-slate-600 transition-all shadow-inner"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+
+                {/* Mobile Filter select options (expandable drawer) */}
+                {showMobileFilters && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="grid grid-cols-2 gap-2 text-[11px] pb-1 border-t border-slate-800/60 pt-2.5 mt-0.5"
+                  >
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-[8px] text-slate-500 uppercase tracking-widest font-bold">País</span>
+                      <select
+                        value={countryFilter}
+                        onChange={(e) => {
+                          setCountryFilter(e.target.value);
+                          setCityFilter("");
+                        }}
+                        className="w-full px-2 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200"
+                        style={{ colorScheme: 'dark' }}
+                      >
+                        <option value="">Cualquiera</option>
+                        {COUNTRIES.map((country) => (
+                          <option key={country} value={country}>
+                            {COUNTRY_FLAGS[country]} {country}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-[8px] text-slate-500 uppercase tracking-widest font-bold">Ciudad</span>
+                      <select
+                        value={cityFilter}
+                        onChange={(e) => setCityFilter(e.target.value)}
+                        disabled={!countryFilter}
+                        className="w-full px-2 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200 disabled:opacity-40"
+                        style={{ colorScheme: 'dark' }}
+                      >
+                        <option value="">Cualquiera</option>
+                        {countryFilter &&
+                          LOCATION_DATA[countryFilter]?.map((city) => (
+                            <option key={city} value={city}>
+                              {city}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+
+                    <div className="flex flex-col gap-0.5 col-span-2">
+                      <span className="text-[8px] text-slate-500 uppercase tracking-widest font-bold">Estado del lead</span>
+                      <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="w-full px-2 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200"
+                        style={{ colorScheme: 'dark' }}
+                      >
+                        <option value="">Todos los estados</option>
+                        {[
+                          ...STATUSES["Contactabilidad"],
+                          ...STATUSES["Gestión"],
+                          ...STATUSES["Cierre"],
+                        ].map((status) => (
+                          <option key={status} value={status}>
+                            {status}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {(currentUser?.roleName?.toLowerCase() === "superadmin" || currentUser?.roleId === "ADMIN_MAESTRO" || isExecutive) && (
+                      <div className="flex flex-col gap-0.5 col-span-2">
+                        <span className="text-[8px] text-slate-500 uppercase tracking-widest font-bold">Asignado a</span>
+                        <select
+                          value={filterAssignedUser}
+                          onChange={(e) => setFilterAssignedUser(e.target.value)}
+                          className="w-full px-2 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200"
+                        >
+                          <option value="all">Asignación: Todos</option>
+                          {platformUsers
+                            .filter(u => 
+                              u.roleName?.toLowerCase().includes('vendedor') || 
+                              u.roleName?.toLowerCase().includes('ventas') ||
+                              u.roleName?.toLowerCase().includes('ejecutivo') || 
+                              u.roleName?.toLowerCase().includes('comercial') || 
+                              u.roleId?.includes('6940')
+                            )
+                            .map(u => (
+                              <option key={u.id} value={u.fullName}>{u.fullName}</option>
+                            ))}
+                        </select>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+
+                {/* Mobile Action Buttons Bar (Clean 2x2 grid layout) */}
+                <div className="grid grid-cols-2 gap-2 mt-1">
+                  <button
+                    onClick={handleStartAutoDial}
+                    className="py-2.5 rounded-xl uppercase tracking-wider text-[9.5px] font-bold flex gap-1.5 items-center justify-center border bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border-amber-500/20 active:scale-[0.98] transition-all"
+                  >
+                    <Phone size={11} strokeWidth={2.5} />
+                    Marcación
+                  </button>
+
+                  {(currentUser?.roleName?.toLowerCase() === "superadmin" || currentUser?.roleId === "ADMIN_MAESTRO" || currentUser?.roleName?.toLowerCase().includes('admin') || isExecutive) && (
+                    <button
+                      onClick={() => setIsScrapingModalOpen(true)}
+                      disabled={!canCreateContact}
+                      className={`py-2.5 rounded-xl uppercase tracking-wider text-[9.5px] font-bold flex gap-1.5 items-center justify-center border ${
+                        !canCreateContact
+                          ? "bg-slate-900 border-slate-800 text-slate-600 cursor-not-allowed"
+                          : "bg-slate-950 hover:bg-slate-900 border-slate-800 text-amber-500 font-bold border-amber-500/20 active:scale-[0.98] transition-all"
+                      }`}
+                    >
+                      <ScanEye size={11} strokeWidth={2.5} />
+                      Scraping
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => {
+                      setAsuntoFormData({
+                        nombreAsunto: "",
+                        businessId: "",
+                        datosAsunto: "",
+                        archivoAdjuntoUrl: "",
+                        clientEmail: "",
+                        meetingDate: "",
+                        contactName: "",
+                        contactPhone: ""
+                      });
+                      setAsuntoFileName("");
+                      setIsAsuntoDragOver(false);
+                      setAsuntoClientSearch("");
+                      setIsAsuntoClientDropdownOpen(false);
+                      setIsAsuntoModalOpen(true);
+                    }}
+                    disabled={!canCreateAsunto}
+                    className={`py-2.5 rounded-xl uppercase tracking-wider text-[9.5px] font-bold flex gap-1.5 items-center justify-center border ${
+                      !canCreateAsunto
+                        ? "bg-slate-900 border-slate-800 text-slate-600 cursor-not-allowed"
+                        : "bg-slate-950 hover:bg-slate-900 border-slate-800 text-blue-400 hover:text-blue-300 border-blue-500/20 active:scale-[0.98] transition-all"
+                    }`}
+                  >
+                    <Plus size={11} strokeWidth={2.5} />
+                    Concepto
+                  </button>
+
+                  <button
+                    onClick={handleCreateNew}
+                    disabled={!canCreateContact}
+                    className={`py-2.5 rounded-xl uppercase tracking-wider text-[9.5px] font-black flex gap-1.5 items-center justify-center border border-yellow-400/40 ${
+                      !canCreateContact
+                        ? "bg-slate-800 text-slate-500 border-slate-700 cursor-not-allowed"
+                        : "bg-gradient-to-br from-yellow-400 to-yellow-500 text-slate-950 shadow-[0_1px_6px_rgba(250,204,21,0.2)] active:scale-[0.98] transition-all"
+                    }`}
+                  >
+                    <Plus size={11} strokeWidth={2.5} />
+                    Ficha Lead
                   </button>
                 </div>
               </div>
@@ -1973,98 +2182,71 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
               </div>
 
               {/* Mobile Card View */}
-              <div className="lg:hidden space-y-3 pb-8">
+              <div className="lg:hidden space-y-4 pb-8 px-1">
                 {currentItems.map((business, index) => (
                   <div
                     key={`mob-${business.id || 'no-id'}-${index}`}
-                    className="bg-slate-950/40 border border-amber-500/10 rounded-xl p-3 flex flex-col gap-3 relative overflow-hidden group"
+                    className="bg-slate-900/60 backdrop-blur-md border border-slate-800/80 hover:border-amber-500/30 rounded-2xl p-4.5 flex flex-col gap-4 shadow-xl transition-all duration-300 relative overflow-hidden"
                   >
-                    <div className="absolute top-0 right-0 p-2 transform translate-x-2 -translate-y-2 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform">
+                    {/* Upper Row: Title, Category & Status Badge */}
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="min-w-0 flex-1">
+                        <h4 className="font-bold text-slate-100 text-[13px] leading-tight tracking-wide truncate">
+                          {business.name}
+                        </h4>
+                        <span className="inline-block mt-1 text-[9px] font-semibold text-slate-400 bg-slate-950/50 border border-slate-800/60 px-2 py-0.5 rounded-md">
+                          {business.category}
+                        </span>
+                      </div>
+                      
+                      {/* Professional status pill */}
                       <span
-                        className={`text-[8px] font-black uppercase px-2 py-0.5 flex items-center gap-1 rounded-bl-lg ${
+                        className={`text-[8.5px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full flex items-center gap-1.5 shrink-0 border ${
                           business.status?.includes("Prop. Aceptada")
-                            ? "bg-emerald-500 text-slate-950"
+                            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
                             : business.status === "Reunión programada"
-                              ? "bg-purple-500 text-slate-950"
+                              ? "bg-purple-500/10 text-purple-400 border-purple-500/20"
                               : business.status === "Volver a llamar"
-                                ? "bg-amber-500 text-slate-950"
-                                : "bg-slate-800 text-slate-400"
+                                ? "bg-amber-500/10 text-amber-500 border-amber-500/20"
+                                : "bg-slate-800/40 text-slate-400 border-slate-700/40"
                         }`}
                       >
+                        <span className={`w-1 h-1 rounded-full ${
+                          business.status?.includes("Prop. Aceptada") ? "bg-emerald-400" :
+                          business.status === "Reunión programada" ? "bg-purple-400" :
+                          business.status === "Volver a llamar" ? "bg-amber-400" : "bg-slate-400"
+                        }`} />
                         {business.status}
-                        {business.status === 'Reunión programada' && business.meetingDate && (
-                          <span className="opacity-80 flex items-center" title={business.meetingDate}>
-                            <Calendar size={10} className="mr-0.5"/>
-                            {new Date(business.meetingDate).toLocaleString('es-ES', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                          </span>
-                        )}
                       </span>
                     </div>
 
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h4 className="font-bold text-slate-100 text-sm leading-tight">
-                          {business.name}
-                        </h4>
-                        <p className="text-[10px] text-slate-500 font-medium">
-                          {business.category}
-                        </p>
-                        {business.contactName && (
-                          <p className="text-[10px] text-amber-500 font-bold mt-1">
-                            <UserIcon size={10} className="inline mr-1" />
-                            {business.contactName}
-                          </p>
-                        )}
+                    {/* Meeting Information Alert Banner */}
+                    {business.status === "Reunión programada" && business.meetingDate && (
+                      <div className="flex items-center gap-2 px-3 py-2 bg-purple-500/5 border border-purple-500/10 rounded-xl text-[10px] text-purple-300">
+                        <Calendar size={11} className="text-purple-400 shrink-0" />
+                        <span className="font-bold uppercase tracking-wider text-[8.5px] shrink-0">Reunión:</span>
+                        <span className="truncate">
+                          {new Date(business.meetingDate).toLocaleString('es-ES', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </span>
                       </div>
-                      <div className="flex gap-1">
-                        {businessWithAsuntos.has(business.id) ? (
-                          <div className="flex items-center justify-center text-emerald-400 gap-1 px-2 border border-emerald-500/20 bg-emerald-500/10 rounded-lg">
-                            <Check size={12} />
-                            <span className="text-[9px] uppercase tracking-widest font-bold">Creado</span>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => {
-                              setAsuntoFormData({
-                                nombreAsunto: "",
-                                businessId: business.id,
-                                datosAsunto: "",
-                                archivoAdjuntoUrl: "",
-                                clientEmail: business.email || "",
-                                meetingDate: "",
-                                contactName: business.contactName || "",
-                                contactPhone: "",
-                                sector: ""
-                              });
-                              setAsuntoFileName("");
-                              setIsAsuntoDragOver(false);
-                              setAsuntoClientSearch("");
-                              setIsAsuntoClientDropdownOpen(false);
-                              setIsAsuntoModalOpen(true);
-                            }}
-                            disabled={!canCreateAsunto}
-                            className={`p-1.5 flex items-center justify-center rounded-lg ${!canCreateAsunto ? 'bg-slate-900 text-slate-700 cursor-not-allowed' : 'bg-slate-900 text-slate-400 hover:text-blue-400 hover:bg-slate-800'}`}
-                          >
-                            <FileText size={14} />
-                          </button>
-                        )}
-                      </div>
-                    </div>
+                    )}
 
-                    <div className="grid grid-cols-2 gap-2 text-[10px]">
-                      <div className="flex flex-col gap-1">
-                        <span className="text-slate-500 font-bold uppercase tracking-tighter">
+                    {/* Bento Info Block: Locación & Contact details */}
+                    <div className="grid grid-cols-2 gap-3.5 bg-slate-950/40 rounded-xl p-3 border border-slate-800/40">
+                      <div className="flex flex-col gap-1 min-w-0">
+                        <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">
                           Locación
                         </span>
-                        <span className="text-slate-300 truncate">
-                          {business.city || "Descn."}, {business.country}
+                        <span className="text-[10px] text-slate-200 truncate font-medium">
+                          {business.city || "S.D."}, {business.country}
                         </span>
                       </div>
-                      <div className="flex flex-col gap-1">
-                        <span className="text-slate-500 font-bold uppercase tracking-tighter">
-                          Contacto
+                      
+                      <div className="flex flex-col gap-1 min-w-0">
+                        <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">
+                          Contacto Principal
                         </span>
-                        <div className="flex gap-2">
+                        <div className="flex items-center gap-2 mt-0.5">
                           {business.phone && (
                             <button
                               onClick={() =>
@@ -2075,11 +2257,11 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                                   business.name
                                 )
                               }
-                              className="text-amber-500 flex items-center gap-1"
-                              title="Copiar número"
+                              className="text-amber-500 hover:text-amber-400 flex items-center gap-1 transition-colors"
+                              title="Copiar o Llamar"
                             >
-                              <Phone size={10} />{" "}
-                              <span className="opacity-80">Copiar</span>
+                              <Phone size={10} strokeWidth={2.5} />
+                              <span className="text-[10px] font-bold">Llamar</span>
                             </button>
                           )}
                           {business.whatsapp && (
@@ -2091,23 +2273,27 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                                   "whatsapp",
                                 )
                               }
-                              className="text-amber-400 flex items-center gap-1"
+                              className="text-emerald-400 hover:text-emerald-300 flex items-center gap-1 transition-colors"
+                              title="Mensaje de WhatsApp"
                             >
-                              <Send size={10} />{" "}
-                              <span className="opacity-80">WA</span>
+                              <Send size={10} strokeWidth={2.5} />
+                              <span className="text-[10px] font-bold text-emerald-400">WA</span>
                             </button>
                           )}
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between pt-2 border-t border-amber-500/5">
-                      <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                        <UserIcon size={10} className="text-slate-500 shrink-0" />
-                        <span className="text-[10px] text-slate-400 font-medium truncate max-w-[70px]">
-                          {business.responsibleName || ""}
+                    {/* Bottom Section containing Responsible signature & Management Actions */}
+                    <div className="flex items-center justify-between pt-2.5 border-t border-slate-800/80">
+                      <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                        <UserIcon size={11} className="text-slate-500 shrink-0" />
+                        <span className="text-[10px] text-slate-400 font-medium truncate max-w-[80px]" title={business.responsibleName || ""}>
+                          {business.responsibleName || "Sin asignar"}
                         </span>
-                        <div className="h-3 w-px bg-slate-800 self-center mx-1 shrink-0" />
+                        
+                        <div className="h-3 w-px bg-slate-800 self-center mx-1.5 shrink-0" />
+                        
                         <button
                           onClick={() => {
                             setNoteModal({
@@ -2115,29 +2301,80 @@ export default function Dashboard({ onLogout, onBack }: DashboardProps) {
                               notes: business.notes || [],
                             });
                           }}
-                          className="flex items-center gap-1.5 text-[10px] text-amber-500 hover:text-amber-400 transition-colors select-none"
+                          className="flex items-center gap-1 text-[10px] text-amber-500 hover:text-amber-400 transition-colors shrink-0"
                         >
-                          <MessageSquare size={10} className="shrink-0" />
-                          <span>Notas</span>
-                          <span className="text-[8px] font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-500/20 px-1 rounded-sm shrink-0">
+                          <MessageSquare size={11} strokeWidth={2.5} />
+                          <span className="font-semibold text-slate-300">Notas</span>
+                          <span className="text-[8px] font-mono font-black bg-amber-500/10 text-amber-400 border border-amber-500/20 px-1.5 py-0.2 rounded-md shrink-0">
                             {business.notes ? business.notes.length : 0}
                           </span>
                         </button>
                       </div>
-                      <div className="flex gap-1">
+
+                      {/* Rapid action icons */}
+                      <div className="flex items-center gap-2 shrink-0">
+                        {/* Concepto Creation button */}
+                        <div className="flex">
+                          {businessWithAsuntos.has(business.id) ? (
+                            <div className="flex items-center justify-center text-emerald-400 gap-1 px-2 py-1.5 border border-emerald-500/10 bg-emerald-500/5 rounded-xl">
+                              <Check size={11} strokeWidth={3} />
+                              <span className="text-[8.5px] uppercase tracking-wider font-extrabold pb-0.5">Listo</span>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => {
+                                setAsuntoFormData({
+                                  nombreAsunto: "",
+                                  businessId: business.id,
+                                  datosAsunto: "",
+                                  archivoAdjuntoUrl: "",
+                                  clientEmail: business.email || "",
+                                  meetingDate: "",
+                                  contactName: business.contactName || "",
+                                  contactPhone: "",
+                                  sector: ""
+                                });
+                                setAsuntoFileName("");
+                                setIsAsuntoDragOver(false);
+                                setAsuntoClientSearch("");
+                                setIsAsuntoClientDropdownOpen(false);
+                                setIsAsuntoModalOpen(true);
+                              }}
+                              disabled={!canCreateAsunto}
+                              className={`p-1.5 rounded-xl border ${
+                                !canCreateAsunto 
+                                  ? "bg-slate-900 border-slate-800/40 text-slate-600 cursor-not-allowed" 
+                                  : "bg-slate-950 border-slate-800 text-slate-400 hover:text-blue-400 hover:border-blue-500/30 transition-colors"
+                              }`}
+                              title="Nuevo Concepto / Asunto"
+                            >
+                              <FileText size={11.5} />
+                            </button>
+                          )}
+                        </div>
+
                         <button
                           onClick={() => permissions.edit && handleEdit(business)}
                           disabled={!permissions.edit}
-                          className={`p-1.5 rounded-lg ${!permissions.edit ? 'text-slate-600 bg-slate-900/50 cursor-not-allowed' : 'text-slate-400 bg-slate-800'}`}
+                          className={`p-1.5 rounded-xl border transition-colors ${
+                            !permissions.edit 
+                              ? "text-slate-600 border-slate-800/40 bg-slate-900/40 cursor-not-allowed" 
+                              : "text-slate-400 border-slate-800 bg-slate-950 hover:text-amber-500 hover:border-amber-500/30"
+                          }`}
                         >
-                          <Edit2 size={12} />
+                          <Edit2 size={11} />
                         </button>
+                        
                         <button
                           onClick={() => permissions.delete && handleDelete(business.id)}
                           disabled={!permissions.delete}
-                          className={`p-1.5 rounded-lg ${!permissions.delete ? 'text-slate-600 bg-slate-900/50 cursor-not-allowed' : 'text-red-400 bg-red-400/5'}`}
+                          className={`p-1.5 rounded-xl border transition-colors ${
+                            !permissions.delete 
+                              ? "text-slate-600 border-slate-800/40 bg-slate-900/40 cursor-not-allowed" 
+                              : "text-red-400/80 border-slate-800 bg-slate-950 hover:text-red-400 hover:border-red-500/30 hover:bg-red-500/5"
+                          }`}
                         >
-                          <Trash2 size={12} />
+                          <Trash2 size={11} />
                         </button>
                       </div>
                     </div>

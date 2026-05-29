@@ -33,6 +33,8 @@ const DEFAULT_AVATARS = [
 export default function Layout({ children, activeModule, onSelectModule, onLogout, userPermissions, user, onUpdateUser }: { children: React.ReactNode } & SidebarProps) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const isCollapsed = isSidebarCollapsed && !isMobileMenuOpen;
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [statsByStatus, setStatsByStatus] = useState<{'USD': number, 'EURO': number, 'COP': number}>({'USD': 0, 'EURO': 0, 'COP': 0});
@@ -200,18 +202,18 @@ export default function Layout({ children, activeModule, onSelectModule, onLogou
     <div className="flex h-screen bg-slate-950 text-slate-200 overflow-hidden font-sans" onMouseMove={handleMouseMove}>
       {/* Sidebar - Hidden on mobile, overlay on mobile if open */}
       <aside className={`fixed inset-y-0 left-0 z-[60] lg:relative lg:flex ${
-        isSidebarCollapsed ? 'w-20' : 'w-64'
+        isCollapsed ? 'w-20' : 'w-64'
       } bg-slate-950 border-r border-yellow-500/10 flex-col shrink-0 transition-all duration-300 shadow-2xl overflow-y-auto overflow-x-hidden ${
         isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       }`} style={{ zIndex: 60 }}>
-        <div className={`p-4 flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between'} mb-6 relative`}>
-          <div className={`flex items-center gap-3 ${isSidebarCollapsed ? 'hidden lg:hidden' : 'flex'}`}>
+        <div className={`p-4 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} mb-6 relative`}>
+          <div className={`flex items-center gap-3 ${isCollapsed ? 'hidden lg:hidden' : 'flex'}`}>
             <Logo size={42} textClassName="text-xl" />
           </div>
           
           <button 
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            className={`hidden lg:block p-2 rounded-lg hover:bg-slate-900 text-slate-400 hover:text-slate-200 transition-colors ${isSidebarCollapsed ? 'mx-auto flex justify-center items-center' : ''}`}
+            className={`hidden lg:block p-2 rounded-lg hover:bg-slate-900 text-slate-400 hover:text-slate-200 transition-colors ${isCollapsed ? 'mx-auto flex justify-center items-center' : ''}`}
           >
             {isSidebarCollapsed ? <Menu size={20} /> : <ChevronLeft size={20} />}
           </button>
@@ -233,7 +235,7 @@ export default function Layout({ children, activeModule, onSelectModule, onLogou
                 setIsMobileMenuOpen(false);
               }}
               className={`w-full flex items-center gap-2 py-2 rounded-lg transition-all duration-200 group relative ${
-                isSidebarCollapsed ? 'lg:justify-center lg:px-0 px-4' : 'px-4'
+                isCollapsed ? 'lg:justify-center lg:px-0 px-4' : 'px-4'
               } ${
                 activeModule === item.id
                   ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 shadow-[0_4px_12px_rgba(250,204,21,0.05)]'
@@ -242,25 +244,25 @@ export default function Layout({ children, activeModule, onSelectModule, onLogou
             >
               <div className="relative shrink-0 flex items-center justify-center">
                 <item.icon size={18} className={`shrink-0 ${activeModule === item.id ? 'text-yellow-400' : 'text-slate-500 group-hover:text-yellow-400 transition-colors'}`} />
-                {item.id === 'propuestas' && propuestasPorEnviarCount > 0 && isSidebarCollapsed && (
+                {item.id === 'propuestas' && propuestasPorEnviarCount > 0 && isCollapsed && (
                   <div className="absolute -top-2 -right-2 bg-amber-500 text-slate-950 text-[10px] font-black rounded-full w-4 h-4 flex items-center justify-center">
                     {propuestasPorEnviarCount}
                   </div>
                 )}
               </div>
               
-              <span className={`text-sm tracking-wide whitespace-nowrap flex-1 text-left ${isSidebarCollapsed ? 'lg:hidden' : ''} ${activeModule === item.id ? 'font-semibold' : 'font-medium'}`}>
+              <span className={`text-sm tracking-wide whitespace-nowrap flex-1 text-left ${isCollapsed ? 'lg:hidden' : ''} ${activeModule === item.id ? 'font-semibold' : 'font-medium'}`}>
                 {item.label}
               </span>
               
-              {item.id === 'propuestas' && propuestasPorEnviarCount > 0 && !isSidebarCollapsed && (
+              {item.id === 'propuestas' && propuestasPorEnviarCount > 0 && !isCollapsed && (
                  <div className="bg-amber-500 text-slate-950 text-xs font-black rounded-full px-2 py-0.5 ml-2">
                    {propuestasPorEnviarCount}
                  </div>
               )}
 
               {/* Tooltip for collapsed state */}
-              {isSidebarCollapsed && (
+              {isCollapsed && (
                 <div className="absolute left-full ml-4 px-2 py-1 bg-slate-800 text-slate-200 text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all whitespace-nowrap z-50 hidden lg:block">
                   {item.label}
                 </div>
@@ -273,13 +275,13 @@ export default function Layout({ children, activeModule, onSelectModule, onLogou
           <button
             onClick={onLogout}
             className={`w-full flex items-center gap-3 py-3 rounded-lg text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all duration-200 group border border-transparent hover:border-red-500/20 relative ${
-              isSidebarCollapsed ? 'lg:justify-center lg:px-0 px-4' : 'px-4'
+              isCollapsed ? 'lg:justify-center lg:px-0 px-4' : 'px-4'
             }`}
           >
             <LogOut size={18} className="shrink-0 text-slate-500 group-hover:text-red-400" />
-            <span className={`text-sm font-medium tracking-wide whitespace-nowrap ${isSidebarCollapsed ? 'lg:hidden' : ''}`}>Cerrar Sesión</span>
+            <span className={`text-sm font-medium tracking-wide whitespace-nowrap ${isCollapsed ? 'lg:hidden' : ''}`}>Cerrar Sesión</span>
             
-            {isSidebarCollapsed && (
+            {isCollapsed && (
               <div className="absolute left-full ml-4 px-2 py-1 bg-red-950 text-red-200 text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all whitespace-nowrap z-50 hidden lg:block">
                 Cerrar Sesión
               </div>
@@ -287,7 +289,7 @@ export default function Layout({ children, activeModule, onSelectModule, onLogou
           </button>
         </div>
 
-        {!isSidebarCollapsed && (
+        {!isCollapsed && (
           <div className="p-4 border-t border-slate-800 text-center">
             <p className="text-[9px] text-slate-500 uppercase tracking-widest font-bold">Hecho con IA S.A.S.</p>
             <p className="text-[8px] text-slate-600 uppercase tracking-wider mt-0.5">© 2026 Reservados</p>

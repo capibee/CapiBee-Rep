@@ -790,7 +790,7 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
           </div>
 
           <div className="bg-slate-900/60 backdrop-blur-2xl border border-slate-800 rounded-xl overflow-hidden flex flex-col shadow-lg">
-            <div className="overflow-x-auto custom-scrollbar">
+            <div className="hidden lg:block overflow-x-auto custom-scrollbar">
               <table className="w-full text-left border-collapse border-spacing-0 min-w-[1000px]">
                 <thead>
                   <tr className="bg-slate-950/50 border-b border-slate-800">
@@ -991,6 +991,168 @@ export default function Clientes({ onLogout, onBack }: ClientesProps) {
                   )}
                 </tbody>
               </table>
+              <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+            </div>
+
+            {/* Mobile Cards-based responsive view */}
+            <div className="lg:hidden p-3.5 space-y-4">
+              {isTableLoading ? (
+                <div className="py-12">
+                  <TableLoader />
+                </div>
+              ) : currentItems.length === 0 ? (
+                <div className="py-12 text-center text-slate-500 font-medium text-xs">
+                  No hay clientes registrados en esta vista.
+                </div>
+              ) : (
+                currentItems.map((cli, index) => {
+                  const assignedUser = users.find(u => u.id === cli.userId)?.fullName || businesses.find(b => b.id === cli.id)?.responsibleName || "Sin asignar";
+                  return (
+                    <motion.div
+                      key={`cli-mob-${cli.id}-${index}`}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-slate-900/60 backdrop-blur-md border border-slate-800/80 hover:border-amber-500/30 rounded-2xl p-4 flex flex-col gap-3.5 shadow-xl transition-all duration-300 relative overflow-hidden"
+                    >
+                      {/* Top status bar: type badge & ID & Actions */}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <input
+                            type="checkbox"
+                            checked={selectedClientIds.includes(cli.id)}
+                            onChange={() => toggleClientSelection(cli.id)}
+                            className="accent-blue-500 shrink-0"
+                          />
+                          <span className="text-[9px] font-mono text-slate-500 select-none truncate">
+                            CL-{new Date(cli.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' }).replace('/', '')}
+                          </span>
+                          <span
+                            className={`text-[8.5px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border shrink-0 ${
+                              cli.type === "Empresa"
+                                ? "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
+                                : "bg-slate-800 text-slate-400 border-slate-700"
+                            }`}
+                          >
+                            {cli.type}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => {
+                              setEditingClientDetails(cli);
+                              setEditClientFormData({ contactName: cli.contactName, email: cli.email || "", assignedUserId: cli.userId || "" });
+                            }}
+                            className="p-1.5 text-slate-400 hover:text-amber-500 hover:bg-slate-800/50 rounded-xl border border-slate-800/60 transition-colors"
+                          >
+                            <User size={11} />
+                          </button>
+                          <button
+                            onClick={() => permissions.delete && handleDelete(cli.id)}
+                            disabled={!permissions.delete}
+                            className={`p-1.5 rounded-xl border transition-colors ${
+                              !permissions.delete
+                                ? "text-slate-700 border-slate-800/20 cursor-not-allowed"
+                                : "text-slate-400 border-slate-800 hover:text-red-400 hover:bg-red-500/5 hover:border-red-500/30"
+                            }`}
+                          >
+                            <Trash2 size={11} />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Client name / Business name */}
+                      <div className="min-w-0">
+                        <h4 className="font-bold text-slate-100 text-[13px] leading-tight tracking-wide truncate">
+                          {cli.companyName || cli.contactName || "Sin Nombre"}
+                        </h4>
+                        {cli.sector && (
+                          <span className="inline-block mt-1 text-[8.5px] text-blue-400/80 font-black uppercase tracking-widest bg-blue-500/5 px-2 py-0.5 rounded border border-blue-500/10">
+                            {cli.sector}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Info bento card */}
+                      <div className="grid grid-cols-2 gap-3.5 bg-slate-950/40 rounded-xl p-3 border border-slate-800/40 text-[10px]">
+                        <div className="flex flex-col gap-0.5 min-w-0">
+                          <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Contacto</span>
+                          <span className="text-slate-200 font-semibold truncate hover:text-blue-400 cursor-pointer" onClick={() => {
+                            setEditingClientDetails(cli);
+                            setEditClientFormData({ contactName: cli.contactName, email: cli.email || "", assignedUserId: cli.userId || "" });
+                          }}>
+                            {cli.contactName || "-"}
+                          </span>
+                        </div>
+
+                        <div className="flex flex-col gap-0.5 min-w-0">
+                          <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Ubicación</span>
+                          <span className="text-slate-200 truncate flex items-center gap-1 font-medium">
+                            <Globe size={10} className="text-blue-500 shrink-0" />
+                            {cli.city ? `${cli.city}, ` : ''}{cli.country}
+                          </span>
+                        </div>
+
+                        <div className="flex flex-col gap-0.5 min-w-0">
+                          <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Asignación</span>
+                          <span className="text-slate-300 truncate font-medium">
+                            {assignedUser}
+                          </span>
+                        </div>
+
+                        <div className="flex flex-col gap-0.5 min-w-0">
+                          <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Idioma / Divisa</span>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className="text-[8.5px] font-bold text-slate-400 bg-slate-800 px-2 py-0.5 rounded-md uppercase">
+                              {cli.language || 'ES'}
+                            </span>
+                            <span className="text-[8.5px] font-black text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md">
+                              {cli.currency || 'USD'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Communication bar */}
+                      {(cli.phone || cli.contactPhone || cli.email) && (
+                        <div className="flex flex-wrap items-center gap-2 pt-2.5 border-t border-slate-800/80">
+                          {cli.phone && (
+                            <button
+                              onClick={() => handlePhoneClick(cli.id, cli.companyName || cli.contactName, cli.phone || "")}
+                              className="text-amber-500 hover:text-amber-400 flex items-center gap-1.5 text-[10px] font-bold bg-amber-500/5 px-3 py-1.5 rounded-xl border border-amber-500/10 hover:border-amber-500/25 transition-all"
+                            >
+                              <Phone size={10} strokeWidth={2.5} />
+                              Llamar Sede
+                            </button>
+                          )}
+                          {cli.contactPhone && cli.contactPhone !== cli.phone && (
+                            <button
+                              onClick={() => handlePhoneClick(cli.id, cli.contactName, cli.contactPhone || "")}
+                              className="text-blue-400 hover:text-blue-300 flex items-center gap-1.5 text-[10px] font-bold bg-blue-500/5 px-3 py-1.5 rounded-xl border border-blue-500/10 hover:border-blue-500/25 transition-all"
+                            >
+                              <Phone size={10} strokeWidth={2.5} />
+                              Contacto S.S.
+                            </button>
+                          )}
+                          {cli.email && (
+                            <button
+                              onClick={() => {
+                                setEditingClientDetails(cli);
+                                setEditClientFormData({ contactName: cli.contactName, email: cli.email || "", assignedUserId: cli.userId || "" });
+                              }}
+                              className="text-indigo-400 hover:text-indigo-300 flex items-center gap-1.5 text-[10px] font-bold bg-indigo-500/5 px-3 py-1.5 rounded-xl border border-indigo-500/10 hover:border-indigo-500/25 transition-all truncate max-w-[150px]"
+                            >
+                              <Mail size={10} />
+                              Correo
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </motion.div>
+                  );
+                })
+              )}
+
               <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
           </div>

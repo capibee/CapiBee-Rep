@@ -304,7 +304,7 @@ export default function Solicitudes() {
         </div>
 
         {/* Table View */}
-        <div className="overflow-x-auto">
+        <div className="hidden lg:block overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
               <tr className="border-b border-slate-800 bg-slate-950">
@@ -435,6 +435,137 @@ export default function Solicitudes() {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Bento-style Solicitudes/Formularios cards */}
+        <div className="lg:hidden p-3.5 space-y-4">
+          {isTableLoading ? (
+            <div className="py-12">
+              <TableLoader />
+            </div>
+          ) : filteredSolicitudes.length === 0 ? (
+            <div className="py-12 text-center text-slate-500 font-medium text-xs bg-slate-900/10 border border-slate-800/85 rounded-2xl">
+              No hay solicitudes registradas con estos filtros.
+            </div>
+          ) : (
+            filteredSolicitudes.map((app, index) => {
+              const currentPrefixedId = `FOR${String(index + 1).padStart(3, '0')}`;
+              const formattedDate = new Date(app.createdAt).toLocaleDateString('es-ES', { 
+                day: '2-digit', month: 'short', year: 'numeric' 
+              });
+              
+              return (
+                <motion.div
+                  key={`sol-mob-${app.id}-${index}`}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-slate-900/60 backdrop-blur-md border border-slate-800/80 hover:border-amber-500/30 rounded-2xl p-4 flex flex-col gap-3.5 shadow-xl transition-all duration-300 relative overflow-hidden group"
+                >
+                  {/* Top status header: ID & Date & Edit/Delete buttons */}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9.5px] font-mono text-slate-500 font-bold tracking-wider">
+                        {currentPrefixedId}
+                      </span>
+                      <span className="text-[9px] text-slate-600 bg-slate-950/40 px-1.5 py-0.2 rounded-md font-bold">
+                        {formattedDate}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        onClick={() => setEditingApp({ ...app })}
+                        className="p-1.5 text-slate-400 hover:text-amber-500 hover:bg-slate-800 rounded-xl border border-slate-800/60 transition-colors"
+                        title="Editar formulario"
+                      >
+                        <Edit2 size={11} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(app.id)}
+                        className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-500/5 hover:border-red-500/20 rounded-xl border border-slate-800 transition-colors"
+                        title="Eliminar formulario"
+                      >
+                        <Trash2 size={11} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Applicant name & cargo */}
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-full bg-slate-850 flex items-center justify-center text-slate-400 border border-slate-800 shrink-0">
+                      <User size={14} />
+                    </div>
+                    <div className="min-w-0">
+                      <h4 className="font-bold text-slate-100 text-[13px] leading-tight truncate group-hover:text-amber-400 transition-all">
+                        {app.nombre}
+                      </h4>
+                      {app.cargo && (
+                        <p className="text-[9.5px] text-slate-400 font-medium truncate mt-0.5">
+                          {app.cargo}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Bento details grid: location, languages, status select */}
+                  <div className="grid grid-cols-1 gap-3 bg-slate-950/40 rounded-xl p-3 border border-slate-800/40 text-[10.5px]">
+                    <div className="flex items-center gap-2 text-slate-300">
+                      <MapPin size={11} className="text-blue-500 shrink-0" />
+                      <span className="truncate">{app.ciudad}, {app.pais}</span>
+                    </div>
+
+                    {app.idiomas && app.idiomas.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-1 mt-0.5">
+                        <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest mr-1">Idiomas:</span>
+                        {app.idiomas.map((idioma: string) => (
+                          <span key={idioma} className="px-2 py-0.5 bg-slate-800/80 text-slate-300 text-[8.5px] rounded border border-slate-700/60 font-bold">
+                            {idioma}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Status selection widget as part of the card body */}
+                    <div className="flex flex-col gap-1.5 pt-1.5 border-t border-slate-800/40">
+                      <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Estado</span>
+                      <select
+                        value={app.status === 'Recibido' ? 'En revisión' : (app.status || 'En revisión')}
+                        onChange={(e) => setStatusToConfirm({id: app.id, newStatus: e.target.value})}
+                        className={`w-full mt-1 outline-none px-3 py-2 rounded-xl text-xs font-black uppercase border transition-colors bg-slate-950 cursor-pointer ${getStatusColor(app.status === 'Recibido' ? 'En revisión' : (app.status || 'En revisión'))}`}
+                      >
+                        {app.status === 'Pendiente' && <option value="Pendiente" disabled>Pendiente</option>}
+                        {ESTADOS.map(estado => (
+                          <option key={estado} value={estado} className="bg-slate-900 text-slate-200">
+                            {estado}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Communication actions */}
+                  <div className="pt-2.5 border-t border-slate-800/80 flex flex-wrap gap-2">
+                    <a
+                      href={`mailto:${app.correo}`}
+                      className="flex-1 flex items-center justify-center gap-1.5 py-1.8 text-indigo-400 hover:text-indigo-300 text-[10px] font-bold bg-indigo-500/5 px-3 rounded-xl border border-indigo-500/10 hover:border-indigo-500/25 transition-all text-center"
+                    >
+                      <Mail size={11} />
+                      Enviar Correo
+                    </a>
+                    <a
+                      href={`https://wa.me/${app.whatsapp.replace(/\D/g,'')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 flex items-center justify-center gap-1.5 py-1.8 text-emerald-400 hover:text-emerald-300 text-[10px] font-bold bg-emerald-500/5 px-3 rounded-xl border border-emerald-500/10 hover:border-emerald-500/25 transition-all text-center"
+                    >
+                      <Phone size={11} />
+                      WhatsApp
+                    </a>
+                  </div>
+                </motion.div>
+              );
+            })
+          )}
         </div>
       </div>
 

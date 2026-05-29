@@ -1348,7 +1348,7 @@ export default function Ganancias({ user }: GananciasProps) {
               <div className="p-6 border-b border-slate-800">
                 <h3 className="text-lg font-bold text-white uppercase tracking-widest">{currentPeriodText}</h3>
               </div>
-              <div className="overflow-x-auto custom-scrollbar">
+              <div className="hidden lg:block overflow-x-auto custom-scrollbar">
                 <table className="w-full text-left border-collapse min-w-[600px]">
                   <thead>
                     <tr className="bg-slate-950 border-b border-slate-800">
@@ -1410,6 +1410,73 @@ export default function Ganancias({ user }: GananciasProps) {
                   )}
                 </table>
               </div>
+
+              {/* Mobile Bento-style Executive sales statistics stats */}
+              <div className="lg:hidden p-4.5 space-y-3 px-4 border-t border-slate-800 bg-slate-950/20">
+                {agentTransactionStats.length === 0 ? (
+                  <div className="py-8 text-center text-slate-500 italic text-sm">
+                    No hay ejecutivos comerciales registrados o en proceso.
+                  </div>
+                ) : (
+                  agentTransactionStats.map((stat, idx) => (
+                    <motion.div
+                      key={`stat-mob-${idx}`}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-slate-900/70 border border-slate-800 hover:border-amber-500/20 rounded-2xl p-4 flex flex-col gap-2 shadow-md relative overflow-hidden"
+                    >
+                      {/* Top bar: name & # */}
+                      <div className="flex items-center justify-between gap-2 border-b border-slate-800/40 pb-2">
+                        <h4 className="font-bold text-slate-100 text-[12.5px] leading-tight truncate">
+                          {stat.name}
+                        </h4>
+                        <span className="text-[9px] font-mono font-bold text-slate-500 select-none bg-slate-950 px-1.5 py-0.5 rounded-md">
+                          #{idx + 1}
+                        </span>
+                      </div>
+
+                      {/* Info grid */}
+                      <div className="grid grid-cols-2 gap-2 text-[10px] mt-1">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-[7.5px] text-slate-500 font-extrabold uppercase tracking-wider">Rango & %</span>
+                          <span className="text-slate-200 font-semibold truncate">
+                            {stat.rankName} - {Math.round(stat.commissionRate * 100)}%
+                          </span>
+                        </div>
+
+                        <div className="flex flex-col gap-0.5 text-right">
+                          <span className="text-[7.5px] text-amber-500 font-extrabold uppercase tracking-wider">Comisión Pagado</span>
+                          <span className="text-amber-400 font-black text-[12px]">
+                            {stat.currency === 'EURO' ? '€' : stat.currency === 'COP' ? 'Col$ ' : '$'}{stat.totalPagado.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                          </span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))
+                )}
+
+                {/* Mobile Cumulative total */}
+                {agentTransactionStats.length > 0 && (
+                  <div className="bg-slate-950/70 border border-slate-800/60 rounded-2xl p-4.5 mt-3 flex flex-col gap-2.5">
+                    <span className="text-[8px] text-slate-500 font-extrabold uppercase tracking-widest">Total Acumulado</span>
+                    <div className="text-right flex flex-col gap-1">
+                      <span className="text-amber-500 font-black text-sm font-mono">
+                        ${agentTransactionStats.filter(s => s.currency === 'USD').reduce((sum, s) => sum + s.totalPagado, 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      </span>
+                      {agentTransactionStats.some(s => s.currency === 'EURO') && (
+                        <span className="text-[10px] text-slate-400 font-semibold">
+                          €{agentTransactionStats.filter(s => s.currency === 'EURO').reduce((sum, s) => sum + s.totalPagado, 0).toLocaleString(undefined, { minimumFractionDigits: 2 })} (EURO)
+                        </span>
+                      )}
+                      {agentTransactionStats.some(s => s.currency === 'COP') && (
+                        <span className="text-[10px] text-slate-400 font-semibold">
+                          Col$ {agentTransactionStats.filter(s => s.currency === 'COP').reduce((sum, s) => sum + s.totalPagado, 0).toLocaleString(undefined, { minimumFractionDigits: 2 })} (COP)
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -1440,7 +1507,7 @@ export default function Ganancias({ user }: GananciasProps) {
                 </button>
               )}
             </div>
-            <div className="overflow-x-auto custom-scrollbar">
+            <div className="hidden lg:block overflow-x-auto custom-scrollbar">
               <table className="w-full text-left border-collapse min-w-[800px]">
                 <thead>
                   <tr className="bg-slate-950 border-b border-slate-800">
@@ -1542,6 +1609,108 @@ export default function Ganancias({ user }: GananciasProps) {
                   )}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile Detailed Movements Bento Cards */}
+            <div className="lg:hidden p-3.5 space-y-4">
+              {currentItems.length === 0 ? (
+                <div className="py-12 text-center text-slate-500 font-medium text-xs bg-slate-900/10 border border-slate-800 rounded-2xl">
+                  No hay movimientos registrados para los filtros seleccionados.
+                </div>
+              ) : (
+                currentItems.map((earning, idx) => {
+                  const inv = invoices.find(i => i.id === earning.invoiceId);
+                  const cli = clientes.find(c => c.id === inv?.businessId);
+                  const currency = cli?.currency || 'USD';
+                  const seller = platformUsers.find(u => u.id === earning.userId)?.fullName || 'Desconocido';
+                  const dateStr = new Date(earning.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' }).replace(/\//g, '');
+                  const idComision = earning.id.startsWith('COM-') ? earning.id : `COM${earning.id.substring(earning.id.length - 3).toUpperCase()}-${dateStr}`;
+
+                  return (
+                    <motion.div
+                      key={`earn-mob-${earning.id}-${idx}`}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-slate-900/60 backdrop-blur-md border border-slate-800 hover:border-amber-500/20 rounded-2xl p-4 flex flex-col gap-3 shadow-xl transition-all relative overflow-hidden group"
+                    >
+                      {/* Top Bar: Checkbox (if ADMIN_MAESTRO and not Pagado), ID Commission, ID Invoice */}
+                      <div className="flex items-center justify-between gap-1.5 pb-2 border-b border-slate-800/40">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          {user?.roleId === 'ADMIN_MAESTRO' && earning.status !== 'Pagado' && (
+                            <input
+                              type="checkbox"
+                              checked={selectedEarnings.includes(earning.id)}
+                              onChange={() => toggleEarningSelection(earning.id)}
+                              className="w-4 h-4 rounded border-slate-700 bg-slate-900/50 checked:bg-amber-500 checked:border-amber-500 focus:ring-amber-500/50 cursor-pointer shrink-0"
+                            />
+                          )}
+                          <span className="text-[9.5px] font-mono text-slate-400 font-bold tracking-tight uppercase truncate">
+                            {idComision}
+                          </span>
+                        </div>
+                        <span className="text-[9px] font-mono font-medium text-slate-500 shrink-0">
+                          {inv?.invoiceNumber ? `Fra. ${inv.invoiceNumber}` : '-'}
+                        </span>
+                      </div>
+
+                      {/* Middle sector: Concept and Seller */}
+                      <div className="flex items-center justify-between gap-2 text-xs">
+                        <div className="min-w-0">
+                          <p className="text-slate-300 font-medium truncate">Ganancia por comisión</p>
+                          <p className="text-[10px] text-slate-400 font-semibold truncate mt-0.5">Comercial: <span className="text-slate-200">{seller}</span></p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-slate-500 uppercase tracking-widest text-[8px] font-extrabold mb-0.5">Monto</p>
+                          <p className="font-extrabold text-[13px] text-emerald-400 font-mono">
+                            {currency === 'EURO' ? '€' : '$'}{safeToLocaleString(earning.amount)}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Bottom status and direct billing actions */}
+                      <div className="pt-2.5 border-t border-slate-800/60 flex items-center justify-between gap-2">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border shrink-0 ${
+                            earning.status === 'Pagado' ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20' :
+                            earning.status === 'Procesado' ? 'bg-blue-500/15 text-blue-400 border-blue-500/20' :
+                            'bg-amber-500/15 text-amber-500 border-amber-500/20'
+                        }`}>
+                          {earning.status}
+                        </span>
+
+                        {user?.roleId === 'ADMIN_MAESTRO' ? (
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            {earning.status === 'En proceso' && (
+                              <button
+                                onClick={() => requestSingleProcess(earning.id)}
+                                className="text-[9.5px] font-black uppercase tracking-wider text-blue-400 bg-blue-500/5 px-2.5 py-1.5 rounded-xl border border-blue-500/15 hover:bg-blue-500/10 hover:border-blue-500/25 transition-all"
+                              >
+                                Procesar
+                              </button>
+                            )}
+                            {earning.status === 'Procesado' && (
+                              <button
+                                onClick={() => requestSinglePay(earning.id)}
+                                className="text-[9.5px] font-black uppercase tracking-wider text-emerald-400 bg-emerald-500/5 px-2.5 py-1.5 rounded-xl border border-emerald-500/15 hover:bg-emerald-500/10 hover:border-emerald-500/25 transition-all"
+                              >
+                                Pagar
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleDeleteEarning(earning.id)}
+                              className="p-1.5 rounded-xl border border-slate-800 hover:text-red-400 hover:bg-red-500/5 hover:border-red-500/25 text-slate-500 transition-colors"
+                              title="Eliminar"
+                            >
+                              <Trash2 size={11} strokeWidth={2.5} />
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-[9px] text-slate-600 font-bold uppercase tracking-wider">Historial</span>
+                        )}
+                      </div>
+                    </motion.div>
+                  );
+                })
+              )}
             </div>
             
             {totalPages > 1 && (

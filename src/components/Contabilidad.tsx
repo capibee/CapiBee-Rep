@@ -1572,7 +1572,7 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
           </div>
 
           <div className="bg-slate-900/60 backdrop-blur-2xl border border-slate-800 rounded-3xl overflow-hidden flex flex-col shadow-2xl">
-            <div className="overflow-x-auto custom-scrollbar">
+            <div className="hidden lg:block overflow-x-auto custom-scrollbar">
               <table className="w-full text-left border-collapse min-w-[1000px]">
                 <thead>
                   <tr className="bg-slate-950 border-b border-slate-800">
@@ -1694,6 +1694,142 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
                 </tbody>
               </table>
               <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+            </div>
+
+            {/* Mobile Bento-style Invoice list */}
+            <div className="lg:hidden p-3.5 space-y-4">
+              {isTableLoading ? (
+                <div className="py-12">
+                  <TableLoader />
+                </div>
+              ) : currentInvoices.length === 0 ? (
+                <div className="py-12 text-center text-slate-500 font-medium text-xs bg-slate-900/10 border border-slate-800 rounded-2xl">
+                  No hay facturas registradas para esta vista.
+                </div>
+              ) : (
+                currentInvoices.map((inv, idx) => {
+                  const client = clientes.find(c => c.id === inv.businessId);
+                  const currency = client?.currency || 'USD';
+                  const subtotal = inv.items && inv.items.length > 0
+                      ? inv.items.reduce((acc, item) => acc + (item.quantity * item.price), 0)
+                      : (inv.quantity || 0) * (inv.priceUSD || 0);
+                  const total = subtotal * (1 + (inv.tax || 0) / 100);
+                  const debe = total - (inv.paidAmount || 0);
+                  const statusComputed = getInvoiceComputedStatus(inv);
+                  const currentInvoiceId = `${inv.invoiceNumber}-${new Date(inv.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).split('/').join('')}`;
+
+                  return (
+                    <motion.div
+                      key={`inv-mob-${inv.id}-${idx}`}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-slate-900/60 backdrop-blur-md border border-slate-800 hover:border-amber-500/20 rounded-2xl p-4 flex flex-col gap-3.5 shadow-xl transition-all relative overflow-hidden group"
+                    >
+                      {/* Top row: Invoice ID, emission date, action buttons */}
+                      <div className="flex items-center justify-between gap-2 border-b border-slate-800/40 pb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[9.5px] font-mono text-slate-400 font-bold tracking-tight select-none">
+                            {currentInvoiceId}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            onClick={() => handleDownloadInvoice(inv)}
+                            className="p-1.5 text-slate-400 hover:text-emerald-400 hover:bg-slate-800 rounded-xl border border-slate-800/60 transition-colors"
+                            title="Descargar PDF"
+                          >
+                            <FileDown size={11} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteInvoice(inv)}
+                            disabled={!permissions.delete}
+                            className={`p-1.5 rounded-xl border transition-colors ${
+                              !permissions.delete
+                                ? 'border-transparent text-slate-700 cursor-not-allowed'
+                                : 'border-slate-800 text-slate-400 hover:text-red-500 hover:bg-red-500/5 hover:border-red-500/20'
+                            }`}
+                            title="Eliminar Factura"
+                          >
+                            <Trash2 size={11} />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Business Name */}
+                      <div className="min-w-0">
+                        <h4 className="font-bold text-slate-100 text-[13px] leading-tight select-all">
+                          {inv.businessName}
+                        </h4>
+                        <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-1">EMISIÓN: <span className="text-slate-400 font-medium font-mono">{inv.emissionDate}</span></p>
+                      </div>
+
+                      {/* Bento Details widget: Total, Balance Due, status dropdown */}
+                      <div className="grid grid-cols-2 gap-3 bg-slate-950/40 rounded-xl p-3 border border-slate-800/40 text-[10.5px]">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-[8px] text-slate-500 font-extrabold uppercase tracking-widest">Total Factura</span>
+                          <span className="text-slate-300 font-bold">${safeToLocaleString(total)} {currency}</span>
+                        </div>
+
+                        <div className="flex flex-col gap-0.5 text-right">
+                          <span className="text-[8px] text-emerald-500 font-extrabold uppercase tracking-widest">Saldo Pendiente</span>
+                          <span className="text-emerald-400 font-black">${safeToLocaleString(debe)} {currency}</span>
+                        </div>
+
+                        {/* Status Select inside bento style */}
+                        <div className="flex flex-col gap-1 col-span-2 mt-1 pt-1.5 border-t border-slate-800/40">
+                          <span className="text-[8px] text-slate-500 font-extrabold uppercase tracking-widest">Estado</span>
+                          <select
+                            value={statusComputed.label}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (val === 'ENVIADA') handleUpdateStatus(inv, 'Enviada');
+                              else if (val === 'ANULADA') handleUpdateStatus(inv, 'Anulado');
+                              else if (val === 'EMITIDA') handleUpdateStatus(inv, 'Pendiente');
+                            }}
+                            className={`w-full mt-1 px-3 py-2 rounded-xl text-xs font-black tracking-widest uppercase border ${statusComputed.bg} ${statusComputed.text} ${statusComputed.border} outline-none cursor-pointer text-center bg-slate-950`}
+                          >
+                            <option value="EMITIDA" className="bg-slate-900 text-slate-300">EMITIDA</option>
+                            <option value="ENVIADA" className="bg-slate-900 text-blue-400">ENVIADA</option>
+                            <option value="PAGO PARCIAL" disabled className="bg-slate-900 text-amber-500">PAGO PARCIAL {statusComputed.label === 'PAGO PARCIAL' ? '' : '(Auto)'}</option>
+                            <option value="PAGADA" disabled className="bg-slate-900 text-emerald-500">PAGADA {statusComputed.label === 'PAGADA' ? '' : '(Auto)'}</option>
+                            <option value="VENCIDA" disabled className="bg-slate-900 text-rose-500">VENCIDA {statusComputed.label === 'VENCIDA' ? '' : '(Auto)'}</option>
+                            <option value="ANULADA" className="bg-slate-900 text-red-500">ANULADA</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Pay Button / Wallet interaction */}
+                      <div className="pt-2">
+                        <button
+                          onClick={() => { setSelectedInvoice(inv); setIsPaymentModalOpen(true); }}
+                          disabled={
+                            (!permissions.edit && !currentUser?.roleName?.toLowerCase().includes('ejecutivo')) || 
+                            inv.status === 'Anulado' || 
+                            debe <= 0
+                          }
+                          className={`w-full py-2.2 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-[0_2px_8px_rgba(16,185,129,0.1)] ${
+                            ((!permissions.edit && !currentUser?.roleName?.toLowerCase().includes('ejecutivo')) || inv.status === 'Anulado' || debe <= 0) 
+                              ? 'bg-emerald-600/30 text-white/40 cursor-not-allowed shadow-none border border-transparent' 
+                              : 'bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-500/10'
+                          }`}
+                        >
+                          <Wallet size={11} /> Registrar Pago
+                        </button>
+                      </div>
+                    </motion.div>
+                  );
+                })
+              )}
+
+              {totalPages > 1 && (
+                <div className="py-2">
+                  <Pagination 
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                  />
+                </div>
+              )}
             </div>
           </div>
 

@@ -712,7 +712,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
       </div>
 
       <div className="rounded-xl overflow-hidden bg-slate-900/20 border border-slate-800">
-          <div className="overflow-x-auto min-h-[400px]">
+          <div className="hidden lg:block overflow-x-auto min-h-[400px]">
           <table className="w-full text-left text-slate-300 min-w-[800px]">
             <thead className="bg-slate-900/80 text-slate-400 text-[10px] uppercase tracking-widest border-b border-slate-800">
                 <tr>
@@ -816,8 +816,144 @@ export default function Asuntos({ onBack }: AsuntosProps) {
             </tbody>
           </table>
           </div>
-          <div className="border-t border-slate-800">
-             <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+
+          {/* Mobile Bento-style Asuntos cards */}
+          <div className="lg:hidden p-3.5 space-y-4">
+            {isTableLoading ? (
+              <div className="py-12">
+                <TableLoader />
+              </div>
+            ) : currentItems.length === 0 ? (
+              <div className="py-12 text-center text-slate-500 font-medium text-xs bg-slate-900/10 border border-slate-800 rounded-2xl">
+                No hay asuntos registrados para esta vista.
+              </div>
+            ) : (
+              currentItems.map((a, index) => {
+                const business = businesses.find(b => b.id === a.businessId);
+                const currentAsuntoId = `AP${String((currentPage - 1) * itemsPerPage + index).padStart(3, '0')}`;
+                const formattedDate = new Date(a.fecha).toLocaleDateString('es-ES', { 
+                  day: 'numeric', month: 'short' 
+                });
+                const creadoPor = a.userId === "unknown" || a.userId === "Desconocido" || a.userId === "capibee.ia@gmail.com" ? "Administrador" : (platformUsers.find(u => u.id === a.userId || u.email === a.userId)?.full_name || a.userId);
+                const aCargo = a.destinatario || (a.assignedUserId ? platformUsers.find(u => u.id === a.assignedUserId)?.full_name || a.assignedUserId : "—");
+
+                return (
+                  <motion.div
+                    key={`asunto-mob-${a.id}-${index}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-slate-900/60 backdrop-blur-md border border-slate-800 hover:border-amber-500/20 rounded-2xl p-4.5 flex flex-col gap-3 shadow-xl transition-all relative overflow-hidden"
+                  >
+                    {/* ID and Date header, edit/delete actions */}
+                    <div className="flex items-center justify-between gap-2 border-b border-slate-800/40 pb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[9.5px] font-mono text-slate-500 font-bold select-none uppercase">
+                          {currentAsuntoId}
+                        </span>
+                        <span className="text-[9px] text-slate-600 bg-slate-950/40 px-1.5 py-0.2 rounded-md font-bold">
+                          {formattedDate}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <button
+                          onClick={() => {
+                            setSelectedAsunto(a);
+                            setIsViewModalOpen(true);
+                          }}
+                          className="p-1.5 text-slate-400 hover:text-yellow-400 hover:bg-slate-800 rounded-xl border border-slate-800/60 transition-colors"
+                          title="Ver detalle"
+                        >
+                          <Eye size={11} />
+                        </button>
+
+                        {isAdmin && (
+                          <>
+                            <button
+                              onClick={() => {
+                                setFormData({
+                                  nombreAsunto: a.nombreAsunto,
+                                  businessId: a.businessId,
+                                  datosAsunto: a.datosAsunto,
+                                  archivoAdjuntoUrl: a.archivoAdjuntoUrl,
+                                  contactName: a.contactName,
+                                  contactPhone: a.contactPhone,
+                                  sector: a.sector,
+                                  assignedUserId: a.assignedUserId || "",
+                                  destinatario: a.destinatario || "Área de Desarrollo"
+                                });
+                                setSelectedAsunto(a);
+                                setIsModalOpen(true);
+                              }}
+                              className="p-1.5 text-slate-400 hover:text-blue-400 hover:bg-slate-800 rounded-xl border border-slate-800/60 transition-colors"
+                              title="Editar"
+                            >
+                              <Pencil size={11} />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(a.id)}
+                              className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-red-500/5 hover:border-red-500/20 rounded-xl border border-slate-800 transition-colors"
+                              title="Eliminar"
+                            >
+                              <Trash2 size={11} />
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Asunto Title & Business */}
+                    <div className="min-w-0">
+                      <h4 className="font-bold text-slate-100 text-[13px] leading-tight select-all">
+                        {a.nombreAsunto}
+                      </h4>
+                      <p className="text-[10px] text-slate-400 font-semibold truncate mt-1">Empresa: <span className="text-slate-200">{business?.name || "—"}</span></p>
+                    </div>
+
+                    {/* Bento attributes widget */}
+                    <div className="grid grid-cols-2 gap-3.5 bg-slate-950/40 rounded-xl p-3.5 border border-slate-800/40 text-[10.5px]">
+                      <div className="flex flex-col gap-0.5 col-span-2">
+                        <span className="text-[8px] text-slate-500 font-extrabold uppercase tracking-widest">Sector</span>
+                        <div>
+                          {a.sector === "Área de Desarrollo" ? (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[8.5px] font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/15">
+                              Área de Desarrollo
+                            </span>
+                          ) : (
+                            <span className="text-slate-200 font-semibold">{a.sector || business?.category || "—"}</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-[8px] text-slate-500 font-extrabold uppercase tracking-widest">Contacto</span>
+                        <span className="text-slate-200 font-semibold truncate">
+                          {a.contactName || business?.contactName || "—"}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-[8px] text-slate-500 font-extrabold uppercase tracking-widest">Creado Por</span>
+                        <span className="text-slate-200 font-semibold truncate">
+                          {creadoPor}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-col gap-0.5 col-span-2 pt-1 border-t border-slate-800/40">
+                        <span className="text-[8px] text-slate-500 font-extrabold uppercase tracking-widest">A Cargo</span>
+                        <span className="text-indigo-400 font-bold">
+                          {aCargo}
+                        </span>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })
+            )}
+
+            <div className="py-2 border-t border-slate-800/60">
+              <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+            </div>
           </div>
       </div>
 

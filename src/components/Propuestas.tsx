@@ -834,7 +834,7 @@ export default function Propuestas({ onBack }: PropuestasProps) {
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto custom-scrollbar bg-slate-900/30 border border-slate-800 rounded-2xl relative">
+      <div className="hidden lg:block flex-1 overflow-auto custom-scrollbar bg-slate-900/30 border border-slate-800 rounded-2xl relative">
           <table className="w-full text-left min-w-[800px]">
             <thead className="text-slate-500 text-[10px] uppercase tracking-widest sticky top-0 bg-slate-950 z-10">
                 <tr>
@@ -997,6 +997,195 @@ export default function Propuestas({ onBack }: PropuestasProps) {
             </tbody>
           </table>
           <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+      </div>
+
+      {/* Mobile Bento-style Propuestas cards */}
+      <div className="lg:hidden flex-1 flex flex-col gap-4">
+        {isTableLoading ? (
+          <div className="py-12">
+            <TableLoader />
+          </div>
+        ) : currentItems.length === 0 ? (
+          <div className="py-12 text-center text-slate-500 font-medium text-xs bg-slate-900/10 border border-slate-800/80 rounded-2xl">
+            No se encontraron propuestas registradas.
+          </div>
+        ) : (
+          currentItems.map((p, index) => {
+            const asunto = asuntos.find(a => a.id === p.asuntoId);
+            const asignadoId = asunto ? asunto.userId : p.userId;
+            const asignadoName = platformUsers.find(u => u.id === asignadoId)?.full_name || asignadoId || "Desconocido";
+            const contactName = asunto ? (asunto.contactName || businesses.find(b => b.id === asunto.businessId)?.contactName || "—") : "—";
+            const currentPrefixedId = `PRO${String((currentPage - 1) * itemsPerPage + index + 1).padStart(3, '0')}`;
+            
+            return (
+              <motion.div
+                key={`p-mob-${p.id}-${index}`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-slate-900/60 backdrop-blur-md border border-slate-800/80 hover:border-amber-500/30 rounded-2xl p-4.5 flex flex-col gap-3.5 shadow-xl transition-all duration-300 relative overflow-hidden"
+              >
+                {/* Header Row: ID Code, Date, Action Controls */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[9.5px] font-mono text-slate-500 select-none uppercase font-bold">
+                      {currentPrefixedId}
+                    </span>
+                    <span className="text-[9px] text-slate-600 bg-slate-950/40 px-1.5 py-0.2 rounded-md font-bold">
+                      {new Date(p.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+                    </span>
+                  </div>
+
+                  {/* Actions buttons */}
+                  {!p.isAsunto && (
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        onClick={() => {
+                          const relatedPropuesta = propuestas.find(pr => pr.id === p.id);
+                          if (relatedPropuesta) {
+                            setSelectedPropuesta(relatedPropuesta);
+                            setIsViewModalOpen(true);
+                          }
+                        }}
+                        className="p-1.5 text-slate-400 hover:text-yellow-400 hover:bg-slate-800 rounded-xl border border-slate-800/60 transition-all"
+                        title="Ver detalle"
+                      >
+                        <Eye size={11} />
+                      </button>
+                      <button
+                        onClick={() => {
+                          const relatedPropuesta = propuestas.find(pr => pr.id === p.id);
+                          if (relatedPropuesta) {
+                            handleEditClick(relatedPropuesta);
+                          }
+                        }}
+                        className="p-1.5 text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-xl border border-slate-800/60 transition-all"
+                        title="Editar Propuesta"
+                      >
+                        <Edit size={11} />
+                      </button>
+                      {isSuperAdmin && (
+                        <button
+                          onClick={() => {
+                            setDeleteConfirmId(p.id);
+                          }}
+                          className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-500/5 hover:border-red-500/20 rounded-xl border border-slate-800 transition-all"
+                          title="Eliminar"
+                        >
+                          <Trash2 size={11} />
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Asunto / Proposal Title */}
+                <div className="min-w-0">
+                  <h4 className="font-bold text-slate-100 text-[13px] leading-tight tracking-wide">
+                    {asunto?.nombreAsunto || "Asunto Desconocido"}
+                  </h4>
+                </div>
+
+                {/* Bento Grid layout with Assigned user, Contact name and Status Select */}
+                <div className="grid grid-cols-2 gap-3.5 bg-slate-950/40 rounded-xl p-3 border border-slate-800/40 text-[10.5px]">
+                  <div className="flex flex-col gap-0.5 min-w-0">
+                    <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Asignado a</span>
+                    <span className="text-slate-200 font-medium truncate">{asignadoName}</span>
+                  </div>
+
+                  <div className="flex flex-col gap-0.5 min-w-0">
+                    <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Contacto</span>
+                    <span className="text-slate-200 font-medium truncate">{contactName}</span>
+                  </div>
+
+                  <div className="flex flex-col gap-1 col-span-2 mt-0.5">
+                    <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Estado</span>
+                    <select
+                      value={(p.status === "Cancelada" ? "Rechazada" : p.status) || (p.isAsunto ? 'Pendiente' : 'Enviada')}
+                      onChange={(e) => {
+                        setStatusChangeConfirm({
+                          id: p.id,
+                          isAsunto: p.isAsunto,
+                          newStatus: e.target.value,
+                          asuntoId: p.asuntoId
+                        });
+                      }}
+                      className={`w-full mt-1 text-[11px] font-black rounded-xl px-3 py-2 outline-none border transition-colors bg-slate-950 cursor-pointer ${
+                        (p.status === "Cancelada" ? "Rechazada" : p.status) === 'Aceptada'
+                          ? 'border-emerald-500/30 text-emerald-400 focus:ring-1 focus:ring-emerald-500/50'
+                          : (p.status === "Cancelada" ? "Rechazada" : p.status) === 'Rechazada'
+                          ? 'border-red-500/30 text-red-400 focus:ring-1 focus:ring-red-500/50'
+                          : (p.status === "Cancelada" ? "Rechazada" : p.status) === 'Pendiente' || p.isAsunto
+                          ? 'border-amber-500/30 text-amber-500 focus:ring-1 focus:ring-amber-500/50'
+                          : 'border-blue-500/30 text-blue-400 focus:ring-1 focus:ring-blue-500/50'
+                      }`}
+                    >
+                      <option value="Pendiente" className="bg-slate-900 text-amber-400">Pendiente Envío</option>
+                      <option value="Enviada" className="bg-slate-900 text-blue-400">Enviada</option>
+                      <option value="Aceptada" className="bg-slate-900 text-emerald-400">Aceptada</option>
+                      <option value="Rechazada" className="bg-slate-900 text-red-400">Rechazada</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* PDF Action Row */}
+                <div className="pt-2.5 border-t border-slate-800/80 flex items-center gap-2">
+                  {p.isAsunto ? (
+                    <button
+                      onClick={() => {
+                        setFormData({...formData, asuntoId: p.asuntoId});
+                        setIsCreatingForAsunto(true);
+                        setIsModalOpen(true);
+                      }}
+                      className="w-full py-2 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black text-[10px] uppercase tracking-wider rounded-xl transition-all shadow-[0_2px_8px_rgba(245,158,11,0.2)]"
+                    >
+                      Subir Propuesta
+                    </button>
+                  ) : (p.pdfUrl && p.pdfUrl !== "") ? (
+                    <div className="flex items-center justify-between w-full gap-2">
+                      <button
+                        onClick={() => {
+                          const win = window.open();
+                          if (win) {
+                            win.document.write(`<iframe src="${p.pdfUrl}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+                          }
+                        }}
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2 text-blue-400 border border-blue-500/20 bg-blue-500/5 rounded-xl hover:bg-blue-500/10 transition-colors text-[10px] font-bold"
+                        title="Ver Propuesta"
+                      >
+                        Ver PDF
+                      </button>
+                      <button
+                        onClick={() => document.getElementById(`pdf-upload-${p.id}`)?.click()}
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-slate-800 border border-slate-700/60 hover:bg-slate-700 text-white rounded-xl transition-colors text-[10px] font-bold"
+                      >
+                        <RefreshCw size={10} strokeWidth={2.5} /> Reemplazar
+                      </button>
+                      <input type="file" id={`pdf-upload-${p.id}`} className="hidden" accept="application/pdf" onChange={(e) => handlePdfUploadClick(p.id, e)} />
+                      <button onClick={() => handleRemovePdf(p.id)} className="text-red-400 hover:text-red-300 p-2.5 rounded-xl border border-slate-800 hover:bg-red-500/5 hover:border-red-500/25 transition-colors" title="Eliminar PDF">
+                        <X size={11} strokeWidth={2.5}/>
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => document.getElementById(`pdf-upload-${p.id}`)?.click()}
+                        className="w-full flex items-center justify-center gap-1.5 py-2 bg-slate-850 hover:bg-slate-800 text-amber-500 border border-amber-500/10 rounded-xl transition-all text-[10px] font-black uppercase tracking-wider"
+                      >
+                        <FileText size={11} /> Cargar Propuesta PDF
+                      </button>
+                      <input type="file" id={`pdf-upload-${p.id}`} className="hidden" accept="application/pdf" onChange={(e) => handlePdfUploadClick(p.id, e)} />
+                    </>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })
+        )}
+
+        {/* Mobile Pagination */}
+        <div className="py-2.5">
+          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+        </div>
       </div>
 
       <AnimatePresence>
