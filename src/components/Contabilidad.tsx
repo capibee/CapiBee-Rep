@@ -1721,8 +1721,16 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
                   return (
                     <motion.div
                       key={`inv-mob-${inv.id}-${idx}`}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
+                      initial={{ opacity: 0, y: 30, scale: 0.96 }}
+                      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                      viewport={{ once: true, margin: "-40px" }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 220,
+                        damping: 24,
+                        mass: 0.9,
+                        delay: Math.min(idx * 0.05, 0.25)
+                      }}
                       className="bg-slate-900/60 backdrop-blur-md border border-slate-800 hover:border-amber-500/20 rounded-2xl p-4 flex flex-col gap-3.5 shadow-xl transition-all relative overflow-hidden group"
                     >
                       {/* Top row: Invoice ID, emission date, action buttons */}

@@ -490,30 +490,35 @@ function WorldClocks() {
   }, []);
 
   return (
-    <div className="fixed bottom-1.5 right-4 z-[99999] pointer-events-none select-none flex items-center gap-2.5 text-[10.5px] font-medium text-white/60 tracking-wide font-mono">
+    <div className="fixed bottom-1.5 right-2 sm:right-4 z-[99999] pointer-events-none select-none flex items-center gap-1.5 sm:gap-2.5 text-[8.5px] sm:text-[10.5px] font-medium text-white/50 sm:text-white/60 tracking-wide font-mono bg-slate-950/40 backdrop-blur-[2px] px-2 py-0.5 rounded-full sm:bg-transparent sm:backdrop-blur-none sm:px-0 sm:py-0">
       <span className="flex items-center gap-1">
-        <Clock size={10} className="text-amber-400 animate-pulse" />
-        EE.UU {times["EE.UU"] || "--:--"}
+        <Clock size={8.5} className="text-amber-400 animate-pulse sm:w-2.5 sm:h-2.5" />
+        <span className="hidden sm:inline">EE.UU</span>
+        <span className="sm:hidden">US</span> {times["EE.UU"] || "--:--"}
       </span>
-      <span className="text-white/20">•</span>
+      <span className="text-white/20 select-none">•</span>
       <span className="flex items-center gap-1">
-        <Clock size={10} className="text-amber-400 animate-pulse" />
-        México {times["México"] || "--:--"}
+        <Clock size={8.5} className="text-amber-400 animate-pulse sm:w-2.5 sm:h-2.5" />
+        <span className="hidden sm:inline">México</span>
+        <span className="sm:hidden">MX</span> {times["México"] || "--:--"}
       </span>
-      <span className="text-white/20">•</span>
+      <span className="text-white/20 select-none">•</span>
       <span className="flex items-center gap-1">
-        <Clock size={10} className="text-amber-400 animate-pulse" />
-        Colombia {times["Colombia"] || "--:--"}
+        <Clock size={8.5} className="text-amber-400 animate-pulse sm:w-2.5 sm:h-2.5" />
+        <span className="hidden sm:inline">Colombia</span>
+        <span className="sm:hidden">CO</span> {times["Colombia"] || "--:--"}
       </span>
-      <span className="text-white/20">•</span>
+      <span className="text-white/20 select-none">•</span>
       <span className="flex items-center gap-1">
-        <Clock size={10} className="text-amber-400 animate-pulse" />
-        Argentina {times["Argentina"] || "--:--"}
+        <Clock size={8.5} className="text-amber-400 animate-pulse sm:w-2.5 sm:h-2.5" />
+        <span className="hidden sm:inline">Argentina</span>
+        <span className="sm:hidden">AR</span> {times["Argentina"] || "--:--"}
       </span>
-      <span className="text-white/20">•</span>
+      <span className="text-white/20 select-none">•</span>
       <span className="flex items-center gap-1">
-        <Clock size={10} className="text-amber-400 animate-pulse" />
-        España {times["España"] || "--:--"}
+        <Clock size={8.5} className="text-amber-400 animate-pulse sm:w-2.5 sm:h-2.5" />
+        <span className="hidden sm:inline">España</span>
+        <span className="sm:hidden">ES</span> {times["España"] || "--:--"}
       </span>
     </div>
   );

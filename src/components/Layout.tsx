@@ -376,7 +376,7 @@ export default function Layout({ children, activeModule, onSelectModule, onLogou
       </AnimatePresence>
 
       {/* Main Area */}
-        <div className="flex-1 flex flex-col min-w-0 relative pb-16 lg:pb-0">
+        <div className="flex-1 flex flex-col min-w-0 relative pb-0">
           <div className="pointer-events-none fixed inset-0 z-50 transition-opacity duration-300" style={{
             background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, rgba(245, 158, 11, 0.08), transparent 80%)`
           }} />
@@ -464,31 +464,7 @@ export default function Layout({ children, activeModule, onSelectModule, onLogou
             </div>
           </main>
 
-        {/* Mobile Bottom Navigation */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-slate-900/95 border-t border-amber-500/10 flex items-center justify-start overflow-x-auto px-2 z-50 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.5)] custom-scrollbar">
-          {menuItems.map((item) => (
-            <button
-              key={item.id === null ? 'mobile-home' : `mobile-${item.id}`}
-              onClick={() => onSelectModule(item.id)}
-              className={`flex flex-col items-center justify-center gap-1 min-w-[70px] px-2 py-1 transition-all relative shrink-0 ${
-                activeModule === item.id ? 'text-yellow-400' : 'text-slate-500'
-              }`}
-            >
-              <div className="relative flex items-center justify-center">
-                <item.icon size={20} />
-              </div>
-              <span className="text-[9px] font-bold uppercase tracking-tighter truncate w-full text-center">
-                {item.label}
-              </span>
-              {activeModule === item.id && (
-                <motion.div 
-                  layoutId="activeBottomTab"
-                  className="absolute bottom-0.5 w-1 h-1 bg-yellow-400 rounded-full"
-                />
-              )}
-            </button>
-          ))}
-        </div>
+
 
         {(user?.roleId === 'ADMIN_MAESTRO' || user?.roleName?.toUpperCase().includes('ADMIN') || user?.roleId?.toUpperCase().includes('ADMIN')) && (
           <CapibeeAgentChat />

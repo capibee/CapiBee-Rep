@@ -1020,8 +1020,16 @@ export default function Propuestas({ onBack }: PropuestasProps) {
             return (
               <motion.div
                 key={`p-mob-${p.id}-${index}`}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: 30, scale: 0.96 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{
+                  type: "spring",
+                  stiffness: 220,
+                  damping: 24,
+                  mass: 0.9,
+                  delay: Math.min(index * 0.05, 0.25)
+                }}
                 className="bg-slate-900/60 backdrop-blur-md border border-slate-800/80 hover:border-amber-500/30 rounded-2xl p-4.5 flex flex-col gap-3.5 shadow-xl transition-all duration-300 relative overflow-hidden"
               >
                 {/* Header Row: ID Code, Date, Action Controls */}
