@@ -31,7 +31,7 @@ const FallbackLoader = () => (
     <div className="relative w-12 h-12 flex items-center justify-center">
       <div className="hex-loader absolute w-10 h-10 bg-gradient-to-tr from-amber-400 via-yellow-300 to-amber-500 flex items-center justify-center">
         <div 
-          className="w-[82%] h-[82%] bg-[#020617]" 
+          className="w-[82%] h-[82%] bg-slate-950" 
           style={{
             clipPath: 'polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%)'
           }} 
@@ -167,7 +167,22 @@ export default function App() {
     if (!currentRole || !currentRole.permissions) {
       return {};
     }
-    return currentRole.permissions;
+
+    const perms = { ...currentRole.permissions };
+    const roleIdStr = (user?.roleId || "").toLowerCase();
+    const roleNameStr = (user?.roleName || "").toLowerCase();
+    const isAllowed = 
+      user?.roleId === 'ADMIN_MAESTRO' || 
+      roleIdStr.includes('admin') || 
+      roleNameStr.includes('admin') || 
+      roleIdStr.includes('desarrollo') || 
+      roleNameStr.includes('desarrollo');
+
+    if (!isAllowed) {
+      perms['mis_negocios'] = { active: false, view: false, create: false, edit: false, delete: false };
+    }
+
+    return perms;
   }, [user]);
 
   // Authenticated state and loader routing are configured in mainChild below

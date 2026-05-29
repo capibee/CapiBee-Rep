@@ -1,39 +1,58 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@400;500;700;900&family=Playfair+Display:wght@400;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@400;500;700;800;900&display=swap");
 @import "tailwindcss";
 
 @layer base {
   /* Configuración General */
   :root {
-    --font-main: 'Inter', sans-serif;
-    --font-titles: 'Playfair Display', serif;
+    --font-main: "Inter", sans-serif;
+    --font-titles: "Outfit", sans-serif;
   }
 
-  /* Títulos: Autoridad y elegancia */
+  /* Títulos: Autoridad y modernidad */
   h1 {
     font-family: var(--font-titles);
     font-size: clamp(28px, 5vw, 40px); /* Ajuste automático móvil/PC */
-    font-weight: 700;
-    line-height: 1.2;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
   }
 
   /* Subtítulos: Navegación clara */
-  h2, h3 {
-    font-family: var(--font-main);
+  h2,
+  h3 {
+    font-family: var(--font-titles);
     font-size: clamp(18px, 3vw, 22px);
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: -0.01em;
   }
 
   /* Cuerpo y Datos: Lectura cómoda */
-  body, p, td, li, span, div, a, button, input {
+  body,
+  p,
+  td,
+  li,
+  span,
+  div,
+  a,
+  button,
+  input,
+  select,
+  textarea {
     font-family: var(--font-main);
   }
 
   /* Specific base rules per user request */
-  body, p, td {
+  body {
+    background-color: var(--color-slate-950);
+    color: var(--color-slate-100);
+  }
+
+  body,
+  p,
+  td {
     font-family: var(--font-main);
     font-size: 15px;
     line-height: 1.6;
-    color: #333;
   }
 }
 
@@ -42,16 +61,55 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   --font-display: "Outfit", "Inter", ui-sans-serif, system-ui, sans-serif;
 
-  --color-forest-950: #051A15;
-  --color-forest-900: #072920;
-  --color-forest-800: #0B4233;
+  /* Redefine forest colors if used */
+  --color-forest-950: #09090b;
+  --color-forest-900: #18181b;
+  --color-forest-800: #27272a;
+
+  /* Transform all amber into bright CapiBee yellow */
+  --color-amber-50: #fefce8;
+  --color-amber-100: #fef9c3;
+  --color-amber-200: #fef08a;
+  --color-amber-300: #fde047;
+  --color-amber-400: #facc15; /* Main bright yellow */
+  --color-amber-500: #eab308;
+  --color-amber-600: #ca8a04;
+  --color-amber-700: #a16207;
+  --color-amber-800: #854d0e;
+  --color-amber-900: #713f12;
+  --color-amber-950: #422006;
+
+  /* Transform all slate into pure Zinc to match the grey logo */
+  --color-slate-50: #fafafa;
+  --color-slate-100: #f4f4f5;
+  --color-slate-200: #e4e4e7;
+  --color-slate-300: #d4d4d8;
+  --color-slate-400: #a1a1aa;
+  --color-slate-500: #71717a;
+  --color-slate-600: #52525b;
+  --color-slate-700: #3f3f46;
+  --color-slate-800: #27272a;
+  --color-slate-900: #18181b;
+  --color-slate-950: #09090b;
+
+  /* Transform blue to a more neutral/yellow complementary tone (like a warm white or light zinc) 
+     or keep it as a muted accent to not distract from the yellow brand. Let's make it gray-slate */
+  --color-blue-400: #9ca3af;
+  --color-blue-500: #6b7280;
+  --color-blue-600: #4b5563;
 }
 
 @layer utilities {
   @keyframes shimmer-effect {
-    0% { transform: translateX(-150%) skewX(-15deg); }
-    30% { transform: translateX(300%) skewX(-15deg); }
-    100% { transform: translateX(300%) skewX(-15deg); }
+    0% {
+      transform: translateX(-150%) skewX(-15deg);
+    }
+    30% {
+      transform: translateX(300%) skewX(-15deg);
+    }
+    100% {
+      transform: translateX(300%) skewX(-15deg);
+    }
   }
 
   .animate-shimmer {
@@ -72,34 +130,32 @@
     width: 6px;
     height: 6px;
   }
-  
+
   .custom-scrollbar::-webkit-scrollbar-track {
     background: transparent;
   }
-  
+
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(16, 185, 129, 0.2); 
+    background: rgba(16, 185, 129, 0.2);
     border-radius: 10px;
   }
-  
+
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(16, 185, 129, 0.4); 
+    background: rgba(16, 185, 129, 0.4);
   }
 
   /* Hexagonal Loader */
   .hex-loader {
-    clip-path: polygon(
-      25% 5%, 75% 5%,
-      100% 50%,
-      75% 95%,
-      25% 95%,
-      0% 50%
-    );
+    clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
     animation: giro 1.4s linear infinite;
   }
 
   @keyframes giro {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 }

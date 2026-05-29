@@ -256,7 +256,7 @@ export default function Login({ onLogin }: LoginProps) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center bg-[#0a0802] p-3 xs:p-5 sm:p-8 lg:p-12 relative font-sans overflow-x-hidden overflow-y-auto">
+    <div className="min-h-screen flex flex-col justify-center bg-slate-950 p-3 xs:p-5 sm:p-8 lg:p-12 relative font-sans overflow-x-hidden overflow-y-auto">
         {!showB2BForm && (
           <button 
             onClick={() => setShowB2BForm(true)}

@@ -50,7 +50,7 @@ export default function SplashLoader({ onComplete }: SplashLoaderProps) {
   }, [onComplete]);
 
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#020617] overflow-hidden select-none">
+    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-slate-950 overflow-hidden select-none">
       {/* Background soft ambient radial glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-amber-500/[0.04] rounded-full blur-[80px] pointer-events-none" />
 
@@ -82,7 +82,7 @@ export default function SplashLoader({ onComplete }: SplashLoaderProps) {
             <div className="hex-loader absolute w-12 h-12 bg-gradient-to-tr from-amber-400 via-yellow-300 to-amber-500 flex items-center justify-center">
               {/* Inner dark core hexagon to create a perfect high-contrast outline effect */}
               <div 
-                className="w-[82%] h-[82%] bg-[#020617]" 
+                className="w-[82%] h-[82%] bg-slate-950" 
                 style={{
                   clipPath: 'polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%)'
                 }} 

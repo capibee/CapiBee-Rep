@@ -215,3 +215,5 @@ export interface PlatformUser {
   createdAt: number;
   status?: 'Activo' | 'Inactivo';
 }
+
+

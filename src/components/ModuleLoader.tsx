@@ -6,7 +6,7 @@ interface ModuleLoaderProps {
 
 export default function ModuleLoader({ moduleName }: ModuleLoaderProps) {
   return (
-    <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#020617]/98 backdrop-blur-sm select-none">
+    <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-950/98 backdrop-blur-sm select-none">
       {/* Background ultra soft ambient glow */}
       <div className="absolute w-56 h-56 bg-amber-500/[0.03] rounded-full blur-3xl pointer-events-none" />
 
@@ -18,7 +18,7 @@ export default function ModuleLoader({ moduleName }: ModuleLoaderProps) {
             <div className="hex-loader absolute w-12 h-12 bg-gradient-to-tr from-amber-400 via-yellow-300 to-amber-500 flex items-center justify-center">
               {/* Inner dark core hexagon to create a perfect high-contrast outline effect */}
               <div 
-                className="w-[82%] h-[82%] bg-[#020617]" 
+                className="w-[82%] h-[82%] bg-slate-950" 
                 style={{
                   clipPath: 'polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%)'
                 }} 

@@ -15,8 +15,14 @@ export default function Finanzas() {
   const [viewMode, setViewMode] = useState<'month' | 'year'>('month');
   const [selectedCurrency, setSelectedCurrency] = useState<'USD' | 'EUR' | 'COP'>('USD');
   const [isTableLoading, setIsTableLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
+    try {
+      const savedUser = localStorage.getItem('capibee_user');
+      if (savedUser) setCurrentUser(JSON.parse(savedUser));
+    } catch (e) {}
+
     const savedInvoices = localStorage.getItem('capibee_invoices');
     if (savedInvoices) setInvoices(JSON.parse(savedInvoices));
     
@@ -71,6 +77,19 @@ export default function Finanzas() {
 
     return { ventas, costos, comisiones, margen, propAceptadas, llamados, ytdPropAceptadas };
   }, [invoices, businesses, clients, selectedCurrency]);
+
+  const isSuperAdminOrDesarrollo = useMemo(() => {
+    if (!currentUser) return false;
+    const roleIdStr = (currentUser.roleId || "").toLowerCase();
+    const roleNameStr = (currentUser.roleName || "").toLowerCase();
+    return (
+      currentUser.roleId === 'ADMIN_MAESTRO' ||
+      roleIdStr.includes('admin') ||
+      roleNameStr.includes('admin') ||
+      roleIdStr.includes('desarrollo') ||
+      roleNameStr.includes('desarrollo')
+    );
+  }, [currentUser]);
 
   const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
@@ -430,15 +449,17 @@ export default function Finanzas() {
            />
 
            {/* 7. Establecimientos */}
-           <QuantitativeChart 
-              title="Establecimientos"
-              description="Total de establecimientos comerciales y puntos de servicio gestionados e integrados."
-              items={businesses}
-              getDate={(b) => b.createdAt}
-              barColor="#ec4899"
-              gradientId="colorEstablecimientos"
-              icon={Building}
-           />
+           {isSuperAdminOrDesarrollo && (
+             <QuantitativeChart 
+                title="Establecimientos"
+                description="Total de establecimientos comerciales y puntos de servicio gestionados e integrados."
+                items={businesses}
+                getDate={(b) => b.createdAt}
+                barColor="#ec4899"
+                gradientId="colorEstablecimientos"
+                icon={Building}
+             />
+           )}
         </div>
       </div>
     </div>

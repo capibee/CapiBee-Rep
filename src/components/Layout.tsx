@@ -154,6 +154,20 @@ export default function Layout({ children, activeModule, onSelectModule, onLogou
     { id: 'finanzas', label: 'KPI\'s', icon: PieChart },
   ].filter(item => {
     if (item.id === null) return true;
+    
+    // Strict restriction for 'mis_negocios' (Establecimientos) to Super Admin or Desarrollo roles only
+    if (item.id === 'mis_negocios') {
+      const roleIdStr = (user?.roleId || "").toLowerCase();
+      const roleNameStr = (user?.roleName || "").toLowerCase();
+      const isAllowed = 
+        user?.roleId === 'ADMIN_MAESTRO' || 
+        roleIdStr.includes('admin') || 
+        roleNameStr.includes('admin') || 
+        roleIdStr.includes('desarrollo') || 
+        roleNameStr.includes('desarrollo');
+      if (!isAllowed) return false;
+    }
+
     const perm = userPermissions[item.id];
     return perm?.active && (perm.view || perm.create || perm.edit || perm.delete);
   });
@@ -182,7 +196,7 @@ export default function Layout({ children, activeModule, onSelectModule, onLogou
   };
 
   return (
-    <div className="flex h-screen bg-[#020617] text-slate-200 overflow-hidden font-sans" onMouseMove={handleMouseMove}>
+    <div className="flex h-screen bg-slate-950 text-slate-200 overflow-hidden font-sans" onMouseMove={handleMouseMove}>
       {/* Sidebar - Hidden on mobile, overlay on mobile if open */}
       <aside className={`fixed inset-y-0 left-0 z-[60] lg:relative lg:flex ${
         isSidebarCollapsed ? 'w-20' : 'w-64'
