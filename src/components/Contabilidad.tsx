@@ -1421,56 +1421,70 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
 
   return (
     <div className="h-full bg-transparent flex flex-col font-sans overflow-hidden text-slate-200">
-      <main className="flex-1 p-4 sm:p-6 lg:p-10 overflow-y-auto relative custom-scrollbar min-h-0">
+      <main className="flex-1 p-2 sm:p-4 lg:p-10 overflow-y-auto overflow-x-hidden relative custom-scrollbar min-h-0">
         <div className="max-w-[1400px] mx-auto relative z-10">
           
-          <div className="mb-4 flex flex-wrap lg:flex-nowrap gap-4 items-center bg-slate-900/60 p-3 rounded-xl border border-slate-800 shadow-lg backdrop-blur-md w-full">
-            <div className="flex items-center gap-3">
-              <span className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Filtrar:</span>
-              <div className="flex bg-slate-950 p-1 rounded-lg">
-                <button onClick={() => setKpiFilter(f => ({...f, type: 'all'}))} className={`px-3 py-1.5 rounded-md text-[10px] font-black uppercase transition-colors ${kpiFilter.type === 'all' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>Todos</button>
-                <button onClick={() => setKpiFilter(f => ({...f, type: 'year'}))} className={`px-3 py-1.5 rounded-md text-[10px] font-black uppercase transition-colors ${kpiFilter.type === 'year' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>Año</button>
-                <button onClick={() => setKpiFilter(f => ({...f, type: 'month'}))} className={`px-3 py-1.5 rounded-md text-[10px] font-black uppercase transition-colors ${kpiFilter.type === 'month' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>Mes</button>
-                <button onClick={() => setKpiFilter(f => ({...f, type: 'period'}))} className={`px-3 py-1.5 rounded-md text-[10px] font-black uppercase transition-colors ${kpiFilter.type === 'period' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>Periodo</button>
-                <button onClick={() => setKpiFilter(f => ({...f, type: 'week'}))} className={`px-3 py-1.5 rounded-md text-[10px] font-black uppercase transition-colors ${kpiFilter.type === 'week' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>Semana</button>
-                <button onClick={() => setKpiFilter(f => ({...f, type: 'day'}))} className={`px-3 py-1.5 rounded-md text-[10px] font-black uppercase transition-colors ${kpiFilter.type === 'day' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>Día</button>
+          <div className="mb-6 flex flex-col xl:flex-row gap-4 items-start xl:items-center bg-slate-900/60 p-4 rounded-xl border border-slate-800 shadow-lg backdrop-blur-md w-full">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full xl:w-auto">
+              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest shrink-0 pl-1">Filtro de Tiempo:</span>
+              <div className="flex overflow-x-auto snap-x w-full sm:w-auto gap-1 bg-slate-950 p-1.5 rounded-xl border border-slate-800/50 custom-scrollbar pb-1.5">
+                {[
+                  { value: 'all', label: 'Todos' },
+                  { value: 'year', label: 'Año' },
+                  { value: 'month', label: 'Mes' },
+                  { value: 'period', label: 'Periodo' },
+                  { value: 'week', label: 'Semana' },
+                  { value: 'day', label: 'Día' }
+                ].map(opt => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setKpiFilter(f => ({...f, type: opt.value as any}))}
+                    className={`snap-start whitespace-nowrap px-4 py-2 rounded-lg text-[10px] font-black uppercase transition-all flex-1 sm:flex-none ${
+                      kpiFilter.type === opt.value
+                        ? 'bg-emerald-500/20 text-emerald-400 shadow-sm border border-emerald-500/30'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-800/50 border border-transparent'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
               </div>
             </div>
             
             {kpiFilter.type !== 'all' && kpiFilter.type !== 'week' && kpiFilter.type !== 'day' && (
-                <div className="flex gap-2">
+                <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
                   {(kpiFilter.type === 'month' || kpiFilter.type === 'period') && (
-                    <select value={kpiFilter.month} onChange={e => setKpiFilter(f => ({...f, month: parseInt(e.target.value)}))} className="bg-slate-950 text-[10px] p-1.5 px-2 rounded-lg font-bold text-slate-300 border border-slate-800 outline-none focus:border-emerald-500 shadow-inner" style={{ colorScheme: 'dark' }}>
+                    <select value={kpiFilter.month} onChange={e => setKpiFilter(f => ({...f, month: parseInt(e.target.value)}))} className="bg-slate-950 text-xs p-2.5 px-3 flex-1 sm:flex-none rounded-xl font-bold text-slate-300 border border-slate-800 outline-none focus:border-emerald-500 shadow-inner" style={{ colorScheme: 'dark' }}>
                       {Array.from({length: 12}, (_, i) => i + 1).map(m => <option key={m} value={m} className="bg-slate-950 text-slate-300">Mes {m}</option>)}
                     </select>
                   )}
                   {kpiFilter.type === 'period' && (
-                    <select value={kpiFilter.period} onChange={e => setKpiFilter(f => ({...f, period: parseInt(e.target.value)}))} className="bg-slate-950 text-[10px] p-1.5 px-2 rounded-lg font-bold text-slate-300 border border-slate-800 outline-none focus:border-emerald-500 shadow-inner" style={{ colorScheme: 'dark' }}>
+                    <select value={kpiFilter.period} onChange={e => setKpiFilter(f => ({...f, period: parseInt(e.target.value)}))} className="bg-slate-950 text-xs p-2.5 px-3 flex-1 sm:flex-none rounded-xl font-bold text-slate-300 border border-slate-800 outline-none focus:border-emerald-500 shadow-inner" style={{ colorScheme: 'dark' }}>
                       <option value={1} className="bg-slate-950 text-slate-300">Q1 (1-15)</option>
                       <option value={2} className="bg-slate-950 text-slate-300">Q2 (16-31)</option>
                     </select>
                   )}
-                  <select value={kpiFilter.year} onChange={e => setKpiFilter(f => ({...f, year: parseInt(e.target.value)}))} className="bg-slate-950 text-[10px] p-1.5 px-2 rounded-lg font-bold text-slate-300 border border-slate-800 outline-none focus:border-emerald-500 shadow-inner" style={{ colorScheme: 'dark' }}>
-                      {Array.from({length: 5}, (_, i) => new Date().getFullYear() - 2 + i).map(y => <option key={y} value={y} className="bg-slate-950 text-slate-300">{y}</option>)}
+                  <select value={kpiFilter.year} onChange={e => setKpiFilter(f => ({...f, year: parseInt(e.target.value)}))} className="bg-slate-950 text-xs p-2.5 px-3 flex-1 sm:flex-none rounded-xl font-bold text-slate-300 border border-slate-800 outline-none focus:border-emerald-500 shadow-inner" style={{ colorScheme: 'dark' }}>
+                      {Array.from({length: 5}, (_, i) => new Date().getFullYear() - 2 + i).map(y => <option key={y} value={y} className="bg-slate-900 text-slate-300">{y}</option>)}
                   </select>
                 </div>
             )}
             
-            <div className="ml-auto w-full lg:w-auto grid grid-cols-2 xl:grid-cols-4 gap-3 lg:gap-4 md:grid-cols-4">
+            <div className="ml-auto w-full xl:w-auto flex overflow-x-auto snap-x gap-3 lg:gap-4 mt-2 lg:mt-0 custom-scrollbar pb-2 md:grid md:grid-cols-4 md:pb-0">
               {/* Box 1: Emitidas */}
-              <div className="p-3 px-4 rounded-xl border border-slate-800 bg-slate-950/80 shadow relative overflow-hidden flex flex-col justify-center min-w-[120px]">
+              <div className="snap-start flex-none w-[140px] md:w-auto p-3 px-4 rounded-xl border border-slate-800 bg-slate-950/80 shadow relative overflow-hidden flex flex-col justify-center">
                 <div className="text-[8px] uppercase font-bold tracking-widest text-slate-400 mb-1">Emitidas</div>
                 <div className="text-xl font-black text-white">{totals.kpis.emitidasCount}</div>
               </div>
 
               {/* Box 2: Enviadas */}
-              <div className="p-3 px-4 rounded-xl border border-blue-500/20 bg-blue-500/10 shadow relative overflow-hidden flex flex-col justify-center min-w-[120px]">
+              <div className="snap-start flex-none w-[140px] md:w-auto p-3 px-4 rounded-xl border border-blue-500/20 bg-blue-500/10 shadow relative overflow-hidden flex flex-col justify-center">
                 <div className="text-[8px] uppercase font-bold tracking-widest text-blue-400 mb-1">Enviadas</div>
                 <div className="text-xl font-black text-blue-100">{totals.kpis.enviadasCount}</div>
               </div>
 
               {/* Box 3: Total Cobrado */}
-              <div className="p-3 px-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 shadow-inner relative overflow-hidden flex flex-col justify-center min-w-[150px]">
+              <div className="snap-start flex-none w-[150px] md:w-auto p-3 px-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 shadow-inner relative overflow-hidden flex flex-col justify-center">
                 <div className="text-[8px] uppercase font-bold tracking-widest text-emerald-400 mb-1">Total Cobrado</div>
                 <div className="flex flex-col gap-0.5">
                   <div className="text-lg font-black text-emerald-400 leading-none">
@@ -1490,7 +1504,7 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
               </div>
 
               {/* Box 4: Ventas */}
-              <div className="p-3 px-4 rounded-xl border border-slate-700 bg-slate-900/80 shadow-inner relative overflow-hidden flex flex-col justify-center min-w-[150px]">
+              <div className="snap-start flex-none w-[150px] md:w-auto p-3 px-4 rounded-xl border border-slate-700 bg-slate-900/80 shadow-inner relative overflow-hidden flex flex-col justify-center">
                 <div className="text-[8px] uppercase font-bold tracking-widest text-slate-400 mb-1">Venta</div>
                 <div className="flex flex-col gap-0.5">
                   <div className="text-lg font-black text-white leading-none">

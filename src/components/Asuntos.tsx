@@ -587,32 +587,32 @@ export default function Asuntos({ onBack }: AsuntosProps) {
 
   return (
     <div className="h-full bg-transparent flex flex-col font-sans overflow-hidden text-slate-200">
-      <main className="flex-1 p-3 sm:p-5 lg:p-8 overflow-y-auto relative custom-scrollbar min-h-0">
-        <div className="max-w-[1400px] mx-auto relative z-10">
+      <main className="flex-1 p-2 sm:p-4 lg:p-8 overflow-y-auto overflow-x-hidden relative custom-scrollbar min-h-0">
+        <div className="max-w-[1400px] mx-auto relative z-10 w-full mb-8">
 
-          <div className="flex justify-end items-center mb-2">
+          <div className="flex justify-end items-center mb-4">
             <button onClick={() => {
                 setIsAsuntoModalOpen(true);
-            }} className="bg-yellow-400 hover:bg-yellow-500 text-slate-950 px-4 py-2 rounded-lg flex items-center gap-2 font-black transition-all shadow-md text-sm">
+            }} className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-5 py-2.5 rounded-xl flex items-center gap-2 font-black transition-all shadow-lg shadow-amber-500/20 text-xs tracking-wide uppercase">
                 <Plus size={16} /> Crear Asunto
             </button>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2 mb-2">
+          <div className="flex overflow-x-auto snap-x gap-3 pb-4 custom-scrollbar lg:grid lg:grid-cols-5 mb-4">
           <button 
             type="button"
             onClick={() => toggleKpi("ytd")}
-            className={`snap-start flex-none w-[140px] md:flex-1 flex flex-col justify-between gap-1 p-2.5 px-3 rounded-xl border bg-slate-950/30 shadow-sm transition-colors group relative cursor-pointer ${
+            className={`snap-start flex-none w-[150px] lg:w-auto flex flex-col justify-between gap-2 p-3 rounded-xl border shadow-sm transition-colors group relative cursor-pointer ${
               selectedKpis.includes("ytd")
                 ? "border-amber-500/50 ring-1 ring-amber-500/20 bg-slate-900/50"
-                : "border-slate-800/50 hover:bg-slate-900/60"
+                : "border-slate-800/50 bg-slate-950/30 hover:bg-slate-900/60"
             }`}
           >
-              <div className="text-[9px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">Total Clientes</div>
-              <div className="text-xl text-slate-100 font-black flex items-center justify-between">
+              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold group-hover:text-slate-400 transition-colors">Total Asuntos</div>
+              <div className="text-2xl text-slate-100 font-black flex items-center justify-between w-full">
                 <span>{kpis.totalYTD}</span>
                 {selectedKpis.includes("ytd") && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 block animate-pulse"></span>
+                  <span className="w-2 h-2 rounded-full bg-amber-400 block animate-pulse"></span>
                 )}
               </div>
           </button>
@@ -620,14 +620,14 @@ export default function Asuntos({ onBack }: AsuntosProps) {
           <button 
             type="button"
             onClick={() => toggleKpi("mes")}
-            className={`snap-start flex-none w-[140px] md:flex-1 flex flex-col justify-between gap-1 p-2.5 px-3 rounded-xl border bg-slate-950/30 shadow-sm transition-colors group relative cursor-pointer ${
+            className={`snap-start flex-none w-[150px] lg:w-auto flex flex-col justify-between gap-2 p-3 rounded-xl border shadow-sm transition-colors group relative cursor-pointer ${
               selectedKpis.includes("mes")
                 ? "border-amber-500/50 ring-1 ring-amber-500/20 bg-slate-900/50"
-                : "border-slate-800/50 hover:bg-slate-900/60"
+                : "border-slate-800/50 bg-slate-950/30 hover:bg-slate-900/60"
             }`}
           >
-              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">Clientes YDT</div>
-              <div className="text-2xl text-yellow-400 font-black flex items-center justify-between">
+              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold group-hover:text-slate-400 transition-colors">Asuntos Mes</div>
+              <div className="text-2xl text-yellow-400 font-black flex items-center justify-between w-full">
                 <span>{kpis.totalMonth}</span>
                 {selectedKpis.includes("mes") && (
                   <span className="w-2 h-2 rounded-full bg-yellow-400 block animate-pulse"></span>
@@ -638,17 +638,17 @@ export default function Asuntos({ onBack }: AsuntosProps) {
           <button 
             type="button"
             onClick={() => toggleKpi("quincena")}
-            className={`p-3 rounded-xl text-left transition-all duration-200 border cursor-pointer select-none relative overflow-hidden group ${
+            className={`snap-start flex-none w-[150px] lg:w-auto flex flex-col justify-between gap-2 p-3 rounded-xl border shadow-sm transition-colors group relative cursor-pointer ${
               selectedKpis.includes("quincena")
-                ? "bg-yellow-400/10 border-yellow-400/60 shadow-lg shadow-yellow-400/5 ring-1 ring-yellow-400/30 scale-[1.02]"
-                : "bg-slate-900/30 border-slate-800/80 hover:border-slate-700/80 opacity-70 hover:opacity-100 hover:bg-slate-900/40"
+                ? "border-amber-500/50 ring-1 ring-amber-500/20 bg-slate-900/50"
+                : "border-slate-800/50 bg-slate-950/30 hover:bg-slate-900/60"
             }`}
           >
-              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">Clientes Mes</div>
-              <div className="text-2xl text-yellow-400 font-black flex items-center justify-between">
+              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold group-hover:text-slate-400 transition-colors">Asuntos Quincena</div>
+              <div className="text-2xl text-yellow-500 font-black flex items-center justify-between w-full">
                 <span>{kpis.totalFortnight}</span>
                 {selectedKpis.includes("quincena") && (
-                  <span className="w-2 h-2 rounded-full bg-yellow-400 block animate-pulse"></span>
+                  <span className="w-2 h-2 rounded-full bg-yellow-500 block animate-pulse"></span>
                 )}
               </div>
           </button>
@@ -656,14 +656,14 @@ export default function Asuntos({ onBack }: AsuntosProps) {
           <button 
             type="button"
             onClick={() => toggleKpi("semanal")}
-            className={`p-3 rounded-xl text-left transition-all duration-200 border cursor-pointer select-none relative overflow-hidden group ${
+            className={`snap-start flex-none w-[150px] lg:w-auto flex flex-col justify-between gap-2 p-3 rounded-xl border shadow-sm transition-colors group relative cursor-pointer ${
               selectedKpis.includes("semanal")
-                ? "bg-yellow-400/10 border-yellow-400/60 shadow-lg shadow-yellow-400/5 ring-1 ring-yellow-400/30 scale-[1.02]"
-                : "bg-slate-900/30 border-slate-800/80 hover:border-slate-700/80 opacity-70 hover:opacity-100 hover:bg-slate-900/40"
+                ? "border-amber-500/50 ring-1 ring-amber-500/20 bg-slate-900/50"
+                : "border-slate-800/50 bg-slate-950/30 hover:bg-slate-900/60"
             }`}
           >
-              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">Clientes Periodo 16 al 30 de Mayo</div>
-              <div className="text-2xl text-yellow-400 font-black flex items-center justify-between">
+              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold group-hover:text-slate-400 transition-colors text-left">Asuntos Semana</div>
+              <div className="text-2xl text-yellow-400 font-black flex items-center justify-between w-full">
                 <span>{kpis.totalWeek}</span>
                 {selectedKpis.includes("semanal") && (
                   <span className="w-2 h-2 rounded-full bg-yellow-400 block animate-pulse"></span>
@@ -674,14 +674,14 @@ export default function Asuntos({ onBack }: AsuntosProps) {
           <button 
             type="button"
             onClick={() => toggleKpi("hoy")}
-            className={`p-3 rounded-xl text-left transition-all duration-200 border cursor-pointer select-none relative overflow-hidden group ${
+            className={`snap-start flex-none w-[150px] lg:w-auto flex flex-col justify-between gap-2 p-3 rounded-xl border shadow-sm transition-colors group relative cursor-pointer ${
               selectedKpis.includes("hoy")
-                ? "bg-yellow-400/10 border-yellow-400/60 shadow-lg shadow-yellow-400/5 ring-1 ring-yellow-400/30 scale-[1.02]"
-                : "bg-slate-900/30 border-slate-800/80 hover:border-slate-700/80 opacity-70 hover:opacity-100 hover:bg-slate-900/40"
+                ? "border-amber-500/50 ring-1 ring-amber-500/20 bg-slate-900/50"
+                : "border-slate-800/50 bg-slate-950/30 hover:bg-slate-900/60"
             }`}
           >
-              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 group-hover:text-slate-400 transition-colors">Clientes Hoy</div>
-              <div className="text-2xl text-yellow-400 font-black flex items-center justify-between">
+              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold group-hover:text-slate-400 transition-colors">Asuntos Hoy</div>
+              <div className="text-2xl text-yellow-400 font-black flex items-center justify-between w-full">
                 <span>{kpis.totalToday}</span>
                 {selectedKpis.includes("hoy") && (
                   <span className="w-2 h-2 rounded-full bg-yellow-400 block animate-pulse"></span>
@@ -690,25 +690,27 @@ export default function Asuntos({ onBack }: AsuntosProps) {
           </button>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-2 mb-2">
+      <div className="flex flex-col lg:flex-row gap-3 mb-4 bg-slate-900/60 p-4 rounded-xl border border-slate-800 shadow-lg backdrop-blur-md">
         <div className="relative flex-grow">
-            <Search className="absolute left-3 top-2.5 text-slate-600" size={14}/>
-            <input type="text" placeholder="Buscar por ID o Empresa..." className="bg-slate-900/30 border border-slate-800 rounded-lg p-2 pl-9 text-slate-200 text-sm w-full focus:ring-1 focus:ring-yellow-500/50 outline-none transition-all placeholder:text-slate-600" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}/>
+            <Search className="absolute left-4 top-3.5 text-slate-500" size={16}/>
+            <input type="text" placeholder="Buscar por ID o Empresa..." className="bg-slate-950 border border-slate-800 rounded-xl p-3 pl-11 text-slate-200 text-sm w-full focus:border-amber-500/50 outline-none transition-all placeholder:text-slate-600 shadow-inner" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}/>
         </div>
-        <select className="bg-slate-900/30 border border-slate-800 rounded-lg p-2 text-slate-300 text-sm outline-none focus:ring-1 focus:ring-yellow-500/50" value={clientFilter} onChange={e => setClientFilter(e.target.value)}>
-            <option value="">Todos los contactos</option>
-            {businesses.map((b, idx) => <option key={`biz-${b.id || idx}-${idx}`} value={b.name}>{b.name}</option>)}
-        </select>
-        <select className="bg-slate-900/30 border border-slate-800 rounded-lg p-2 text-slate-300 text-sm outline-none focus:ring-1 focus:ring-yellow-500/50 min-w-[124px]" value={yearFilter} onChange={e => { setYearFilter(e.target.value); setCurrentPage(1); }}>
-            <option value="">Todos los años</option>
-            {availableYears.map(y => <option key={y} value={String(y)}>{y}</option>)}
-        </select>
-        {canViewAll && (
-            <select className="bg-slate-900/30 border border-slate-800 rounded-lg p-2 text-slate-300 text-sm outline-none focus:ring-1 focus:ring-yellow-500/50" value={executiveFilter} onChange={e => setExecutiveFilter(e.target.value)}>
-                <option value="">Todos los Ejecutivos</option>
-                {uniquePlatformUsers.map(u => <option key={`user-${u.id}`} value={u.id}>{u.full_name || u.email}</option>)}
+        <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+            <select className="bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-300 text-sm outline-none focus:border-amber-500/50 flex-1 sm:flex-none shadow-inner" value={clientFilter} onChange={e => setClientFilter(e.target.value)}>
+                <option value="">Todos los contactos</option>
+                {businesses.map((b, idx) => <option key={`biz-${b.id || idx}-${idx}`} value={b.name}>{b.name}</option>)}
             </select>
-        )}
+            <select className="bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-300 text-sm outline-none focus:border-amber-500/50 min-w-[124px] flex-1 sm:flex-none shadow-inner" value={yearFilter} onChange={e => { setYearFilter(e.target.value); setCurrentPage(1); }}>
+                <option value="">Todos los años</option>
+                {availableYears.map(y => <option key={y} value={String(y)}>{y}</option>)}
+            </select>
+            {canViewAll && (
+                <select className="bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-300 text-sm outline-none focus:border-amber-500/50 flex-1 sm:flex-none shadow-inner" value={executiveFilter} onChange={e => setExecutiveFilter(e.target.value)}>
+                    <option value="">Todos los Ejecutivos</option>
+                    {uniquePlatformUsers.map(u => <option key={`user-${u.id}`} value={u.id}>{u.full_name || u.email}</option>)}
+                </select>
+            )}
+        </div>
       </div>
 
       <div className="rounded-xl overflow-hidden bg-slate-900/20 border border-slate-800">
@@ -818,13 +820,13 @@ export default function Asuntos({ onBack }: AsuntosProps) {
           </div>
 
           {/* Mobile Bento-style Asuntos cards */}
-          <div className="lg:hidden p-3.5 space-y-4">
+          <div className="lg:hidden flex flex-col gap-4">
             {isTableLoading ? (
               <div className="py-12">
                 <TableLoader />
               </div>
             ) : currentItems.length === 0 ? (
-              <div className="py-12 text-center text-slate-500 font-medium text-xs bg-slate-900/10 border border-slate-800 rounded-2xl">
+              <div className="py-12 text-center text-slate-500 font-medium text-sm bg-slate-900/10 border border-slate-800 rounded-3xl">
                 No hay asuntos registrados para esta vista.
               </div>
             ) : (
@@ -832,7 +834,7 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                 const business = businesses.find(b => b.id === a.businessId);
                 const currentAsuntoId = `AP${String((currentPage - 1) * itemsPerPage + index).padStart(3, '0')}`;
                 const formattedDate = new Date(a.fecha).toLocaleDateString('es-ES', { 
-                  day: 'numeric', month: 'short' 
+                  day: 'numeric', month: 'short', year: 'numeric' 
                 });
                 const creadoPor = a.userId === "unknown" || a.userId === "Desconocido" || a.userId === "capibee.ia@gmail.com" ? "Administrador" : (platformUsers.find(u => u.id === a.userId || u.email === a.userId)?.full_name || a.userId);
                 const aCargo = a.destinatario || (a.assignedUserId ? platformUsers.find(u => u.id === a.assignedUserId)?.full_name || a.assignedUserId : "—");
@@ -850,29 +852,29 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                       mass: 0.9,
                       delay: Math.min(index * 0.05, 0.25)
                     }}
-                    className="bg-slate-900/60 backdrop-blur-md border border-slate-800 hover:border-amber-500/20 rounded-2xl p-4.5 flex flex-col gap-3 shadow-xl transition-all relative overflow-hidden"
+                    className="bg-slate-900/60 backdrop-blur-md border border-slate-800 hover:border-amber-500/20 rounded-3xl p-5 flex flex-col gap-4 shadow-xl transition-all relative overflow-hidden group"
                   >
                     {/* ID and Date header, edit/delete actions */}
                     <div className="flex items-center justify-between gap-2 border-b border-slate-800/40 pb-2">
                       <div className="flex items-center gap-2">
-                        <span className="text-[9.5px] font-mono text-slate-500 font-bold select-none uppercase">
+                        <span className="text-[11px] font-mono text-slate-400 font-bold select-none uppercase">
                           {currentAsuntoId}
                         </span>
-                        <span className="text-[9px] text-slate-600 bg-slate-950/40 px-1.5 py-0.2 rounded-md font-bold">
+                        <span className="text-[10px] text-slate-500 bg-slate-950/40 px-2 py-0.5 rounded-md font-bold uppercase tracking-widest">
                           {formattedDate}
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-1.5 shrink-0">
+                      <div className="flex items-center gap-1.5 shrink-0 opacity-80 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => {
                             setSelectedAsunto(a);
                             setIsViewModalOpen(true);
                           }}
-                          className="p-1.5 text-slate-400 hover:text-yellow-400 hover:bg-slate-800 rounded-xl border border-slate-800/60 transition-colors"
+                          className="p-2 text-slate-400 hover:text-amber-400 hover:bg-slate-800 rounded-xl transition-colors"
                           title="Ver detalle"
                         >
-                          <Eye size={11} />
+                          <Eye size={14} />
                         </button>
 
                         {isAdmin && (
@@ -893,17 +895,17 @@ export default function Asuntos({ onBack }: AsuntosProps) {
                                 setSelectedAsunto(a);
                                 setIsModalOpen(true);
                               }}
-                              className="p-1.5 text-slate-400 hover:text-blue-400 hover:bg-slate-800 rounded-xl border border-slate-800/60 transition-colors"
+                              className="p-2 text-slate-400 hover:text-blue-400 hover:bg-slate-800 rounded-xl transition-colors"
                               title="Editar"
                             >
-                              <Pencil size={11} />
+                              <Pencil size={14} />
                             </button>
                             <button
                               onClick={() => handleDelete(a.id)}
-                              className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-red-500/5 hover:border-red-500/20 rounded-xl border border-slate-800 transition-colors"
+                              className="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors"
                               title="Eliminar"
                             >
-                              <Trash2 size={11} />
+                              <Trash2 size={14} />
                             </button>
                           </>
                         )}
@@ -912,37 +914,37 @@ export default function Asuntos({ onBack }: AsuntosProps) {
 
                     {/* Asunto Title & Business */}
                     <div className="min-w-0">
-                      <h4 className="font-bold text-slate-100 text-[13px] leading-tight select-all">
+                      <h4 className="font-bold text-slate-100 text-base leading-tight select-all">
                         {a.nombreAsunto}
                       </h4>
-                      <p className="text-[10px] text-slate-400 font-semibold truncate mt-1">Empresa: <span className="text-slate-200">{business?.name || "—"}</span></p>
+                      <p className="text-[11px] font-bold uppercase tracking-widest mt-1 text-slate-500">EMPRESA: <span className="text-slate-300 font-medium">{business?.name || "—"}</span></p>
                     </div>
 
                     {/* Bento attributes widget */}
-                    <div className="grid grid-cols-2 gap-3.5 bg-slate-950/40 rounded-xl p-3.5 border border-slate-800/40 text-[10.5px]">
+                    <div className="grid grid-cols-2 gap-3 bg-slate-950/40 rounded-xl p-3 border border-slate-800/40 text-[10.5px]">
                       <div className="flex flex-col gap-0.5 col-span-2">
-                        <span className="text-[8px] text-slate-500 font-extrabold uppercase tracking-widest">Sector</span>
+                        <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-widest">Sector</span>
                         <div>
                           {a.sector === "Área de Desarrollo" ? (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[8.5px] font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/15">
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/15">
                               Área de Desarrollo
                             </span>
                           ) : (
-                            <span className="text-slate-200 font-semibold">{a.sector || business?.category || "—"}</span>
+                            <span className="text-slate-200 font-semibold text-xs">{a.sector || business?.category || "—"}</span>
                           )}
                         </div>
                       </div>
 
                       <div className="flex flex-col gap-0.5">
-                        <span className="text-[8px] text-slate-500 font-extrabold uppercase tracking-widest">Contacto</span>
-                        <span className="text-slate-200 font-semibold truncate">
+                        <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-widest">Contacto</span>
+                        <span className="text-slate-200 font-semibold truncate text-xs">
                           {a.contactName || business?.contactName || "—"}
                         </span>
                       </div>
 
-                      <div className="flex flex-col gap-0.5">
-                        <span className="text-[8px] text-slate-500 font-extrabold uppercase tracking-widest">Creado Por</span>
-                        <span className="text-slate-200 font-semibold truncate">
+                      <div className="flex flex-col gap-0.5 text-right">
+                        <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-widest">Creado Por</span>
+                        <span className="text-slate-300 font-semibold truncate text-xs">
                           {creadoPor}
                         </span>
                       </div>
