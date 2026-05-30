@@ -449,7 +449,7 @@ export default function Login({ onLogin }: LoginProps) {
                             value={role.id}
                             className="bg-slate-950 text-slate-200"
                           >
-                            {role.name}
+                            {role.name ? role.name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ') : ''}
                           </option>
                         ))}
                     </select>

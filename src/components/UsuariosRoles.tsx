@@ -610,7 +610,7 @@ export default function UsuariosRoles({}: UsuariosRolesProps) {
                         </button>
                       </div>
                     </div>
-                    <h3 className="text-lg font-black text-white mb-2 group-hover:text-blue-400 transition-colors uppercase tracking-tight">{role.name}</h3>
+                    <h3 className="text-lg font-black text-white mb-2 group-hover:text-blue-400 transition-colors tracking-tight">{role.name ? role.name.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ') : ''}</h3>
                     <p className="text-xs text-slate-500 font-medium mb-6 line-clamp-2">
                       {role.description || "Sin descripción establecida."}
                     </p>
@@ -667,7 +667,7 @@ export default function UsuariosRoles({}: UsuariosRolesProps) {
                 >
                   <option value="">Todos los Roles</option>
                   {roles.map(r => (
-                    <option key={r.id} value={r.id}>{r.name}</option>
+                    <option key={r.id} value={r.id}>{r.name ? r.name.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ') : ''}</option>
                   ))}
                 </select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" size={14} />
@@ -735,9 +735,9 @@ export default function UsuariosRoles({}: UsuariosRolesProps) {
                           </div>
                         </td>
                         <td className="p-5">
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-slate-800 text-slate-300 border border-slate-700/50">
-                            <Shield size={10} className="text-blue-400" />
-                            {user.roleName}
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700/50">
+                            <Shield size={12} className="text-blue-400" />
+                            {user.roleName ? user.roleName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ') : ''}
                           </span>
                         </td>
                         <td className="p-5">
@@ -1011,7 +1011,7 @@ export default function UsuariosRoles({}: UsuariosRolesProps) {
                       >
                         <option value="">Seleccionar Rol...</option>
                         {roles.map(role => (
-                          <option key={role.id} value={role.id}>{role.name}</option>
+                          <option key={role.id} value={role.id}>{role.name ? role.name.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ') : ''}</option>
                         ))}
                       </select>
                     </div>

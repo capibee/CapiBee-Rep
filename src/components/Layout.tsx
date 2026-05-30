@@ -395,10 +395,10 @@ export default function Layout({ children, activeModule, onSelectModule, onLogou
             <div className="flex flex-col">
               <span className="text-white font-bold text-xs truncate">{user?.fullName || 'Admin Global'}</span>
               <span className="text-[10px] text-slate-500 truncate">{user?.email || 'capibee.ia@gmail.com'}</span>
-              <span className="text-[9px] text-amber-500 font-bold uppercase truncate shrink-0">
-                  {user?.roleName}
+              <span className="flex items-center gap-1.5 text-xs text-amber-500 font-bold truncate shrink-0 mt-0.5">
+                  {user?.roleName ? user.roleName.split(' ').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ') : ''}
                   {user?.roleName?.toUpperCase() !== 'SUPERADMIN' && user?.roleId?.toUpperCase() !== 'SUPERADMIN' && user?.roleId !== 'ADMIN_MAESTRO' && user?.roleName?.toUpperCase() !== 'SUPER ADMINISTRADOR' && userRank && (
-                      <span className="ml-1 bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded text-[8px]">
+                      <span className="ml-1 bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded text-[10px] uppercase">
                         RANGO: {userRank.rankLetter}
                       </span>
                   )}
