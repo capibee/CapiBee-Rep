@@ -1731,7 +1731,7 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
                         mass: 0.9,
                         delay: Math.min(idx * 0.05, 0.25)
                       }}
-                      className="bg-slate-900/60 backdrop-blur-md border border-slate-800 hover:border-amber-500/20 rounded-2xl p-4 flex flex-col gap-3.5 shadow-xl transition-all relative overflow-hidden group"
+                      className="bg-slate-900/60 backdrop-blur-md border border-slate-800 hover:border-amber-500/20 rounded-3xl p-5 flex flex-col gap-4 shadow-xl transition-all relative overflow-hidden group"
                     >
                       {/* Top row: Invoice ID, emission date, action buttons */}
                       <div className="flex items-center justify-between gap-2 border-b border-slate-800/40 pb-2">
@@ -1765,7 +1765,7 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
 
                       {/* Business Name */}
                       <div className="min-w-0">
-                        <h4 className="font-bold text-slate-100 text-[13px] leading-tight select-all">
+                        <h4 className="font-bold text-slate-100 text-base leading-tight select-all">
                           {inv.businessName}
                         </h4>
                         <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-1">EMISIÓN: <span className="text-slate-400 font-medium font-mono">{inv.emissionDate}</span></p>
@@ -1774,13 +1774,13 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
                       {/* Bento Details widget: Total, Balance Due, status dropdown */}
                       <div className="grid grid-cols-2 gap-3 bg-slate-950/40 rounded-xl p-3 border border-slate-800/40 text-[10.5px]">
                         <div className="flex flex-col gap-0.5">
-                          <span className="text-[8px] text-slate-500 font-extrabold uppercase tracking-widest">Total Factura</span>
-                          <span className="text-slate-300 font-bold">${safeToLocaleString(total)} {currency}</span>
+                          <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-widest">Total Factura</span>
+                          <span className="text-xs text-slate-200 font-bold">${safeToLocaleString(total)} {currency}</span>
                         </div>
 
                         <div className="flex flex-col gap-0.5 text-right">
-                          <span className="text-[8px] text-emerald-500 font-extrabold uppercase tracking-widest">Saldo Pendiente</span>
-                          <span className="text-emerald-400 font-black">${safeToLocaleString(debe)} {currency}</span>
+                          <span className="text-[10px] text-emerald-500 font-extrabold uppercase tracking-widest">Saldo Pendiente</span>
+                          <span className="text-emerald-400 font-black text-sm">${safeToLocaleString(debe)} {currency}</span>
                         </div>
 
                         {/* Status Select inside bento style */}
@@ -1794,7 +1794,7 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
                               else if (val === 'ANULADA') handleUpdateStatus(inv, 'Anulado');
                               else if (val === 'EMITIDA') handleUpdateStatus(inv, 'Pendiente');
                             }}
-                            className={`w-full mt-1 px-3 py-2 rounded-xl text-xs font-black tracking-widest uppercase border ${statusComputed.bg} ${statusComputed.text} ${statusComputed.border} outline-none cursor-pointer text-center bg-slate-950`}
+                            className={`w-full mt-2 px-3 py-3 rounded-xl text-[10px] font-black tracking-widest uppercase border ${statusComputed.bg} ${statusComputed.text} ${statusComputed.border} outline-none cursor-pointer text-center bg-slate-950`}
                           >
                             <option value="EMITIDA" className="bg-slate-900 text-slate-300">EMITIDA</option>
                             <option value="ENVIADA" className="bg-slate-900 text-blue-400">ENVIADA</option>
@@ -1815,13 +1815,13 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
                             inv.status === 'Anulado' || 
                             debe <= 0
                           }
-                          className={`w-full py-2.2 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-[0_2px_8px_rgba(16,185,129,0.1)] ${
+                          className={`w-full py-3 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-[0_2px_8px_rgba(16,185,129,0.1)] ${
                             ((!permissions.edit && !currentUser?.roleName?.toLowerCase().includes('ejecutivo')) || inv.status === 'Anulado' || debe <= 0) 
                               ? 'bg-emerald-600/30 text-white/40 cursor-not-allowed shadow-none border border-transparent' 
                               : 'bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-500/10'
                           }`}
                         >
-                          <Wallet size={11} /> Registrar Pago
+                          <Wallet size={14} /> Registrar Pago
                         </button>
                       </div>
                     </motion.div>
