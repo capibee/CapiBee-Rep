@@ -36,6 +36,7 @@ export default function InvoiceForm({
   onClose, 
   onSubmit, 
   clients, 
+  businesses = [],
   onNewClient, 
   nextInvoiceNumber 
 }: InvoiceFormProps) {
