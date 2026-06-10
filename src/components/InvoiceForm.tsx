@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   X, 
   Plus, 
@@ -52,10 +52,12 @@ export default function InvoiceForm({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredClients = clients.filter(c => 
-    (c.companyName || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
-    (c.contactName || '').toLowerCase().includes(searchTerm.toLowerCase())
-  ).slice(0, 50); // Limit results for performance
+  const filteredClients = useMemo(() => {
+    return clients.filter(c => 
+      (c.companyName || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
+      (c.contactName || '').toLowerCase().includes(searchTerm.toLowerCase())
+    ).slice(0, 50); // Limit results for performance
+  }, [clients, searchTerm]);
 
   const selectedClient = clients.find(c => c.id === formData.businessId);
 

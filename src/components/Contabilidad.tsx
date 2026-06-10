@@ -322,10 +322,14 @@ export default function Contabilidad({ onLogout, onBack }: ContabilidadProps) {
   
       return clientes.filter((cliente) => {
         const linkedBusiness = businesses.find((b) => b.id === cliente.id);
-        return (
-          linkedBusiness &&
-          linkedBusiness.responsibleName === currentUser.fullName
+        const isClientOwner = cliente.userId && cliente.userId === currentUser.id;
+        const isUnassigned = !cliente.userId;
+        const isBusinessResponsible = linkedBusiness && (
+          linkedBusiness.responsibleName === currentUser.fullName ||
+          linkedBusiness.userId === currentUser.id
         );
+
+        return isClientOwner || isBusinessResponsible || isUnassigned;
       });
     }, [clientes, businesses, currentUser]);
 
