@@ -52,14 +52,44 @@ export default function InvoiceForm({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredClients = useMemo(() => {
-    return clients.filter(c => 
-      (c.companyName || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
-      (c.contactName || '').toLowerCase().includes(searchTerm.toLowerCase())
-    ).slice(0, 50); // Limit results for performance
-  }, [clients, searchTerm]);
+  const filteredOptions = useMemo(() => {
+    const term = searchTerm.toLowerCase();
+    const results: Array<{ id: string; name: string; sub: string; isBusiness: boolean }> = [];
+    
+    clients.forEach(c => {
+      const name = c.companyName || c.contactName || 'Sin Nombre';
+      if (name.toLowerCase().includes(term)) {
+        results.push({
+          id: c.id,
+          name: name,
+          sub: `Cliente - ${c.currency || 'USD'}`,
+          isBusiness: false
+        });
+      }
+    });
 
-  const selectedClient = clients.find(c => c.id === formData.businessId);
+    businesses.forEach(b => {
+      const name = b.name || 'Sin Nombre';
+      if (name.toLowerCase().includes(term) && !results.some(r => r.id === b.id)) {
+        results.push({
+          id: b.id,
+          name: name,
+          sub: 'Directorio/Empresa',
+          isBusiness: true
+        });
+      }
+    });
+
+    return results.slice(0, 50);
+  }, [clients, businesses, searchTerm]);
+
+  const selectedOption = useMemo(() => {
+    const c = clients.find(c => c.id === formData.businessId);
+    if (c) return { name: c.companyName || c.contactName || 'Sin Nombre', sub: c.currency };
+    const b = businesses.find(b => b.id === formData.businessId);
+    if (b) return { name: b.name || 'Sin Nombre', sub: '' };
+    return null;
+  }, [clients, businesses, formData.businessId]);
 
   const subtotal = formData.items.reduce((acc, item) => acc + (item.quantity * item.price), 0);
   const taxAmount = subtotal * (formData.tax / 100);
@@ -161,7 +191,7 @@ export default function InvoiceForm({
                          className={`w-full bg-slate-950 border border-slate-800 rounded-xl py-3.5 sm:py-3 px-4 text-xs font-bold focus:outline-none focus:border-amber-500/50 transition-all cursor-pointer shadow-inner flex items-center justify-between ${!formData.businessId ? 'text-slate-400' : 'text-white'}`}
                       >
                          <span className="truncate">
-                            {selectedClient ? `${selectedClient.companyName || selectedClient.contactName} (${selectedClient.currency})` : 'Seleccionar empresa...'}
+                            {selectedOption ? `${selectedOption.name} ${selectedOption.sub ? `(${selectedOption.sub})` : ''}` : 'Seleccionar empresa u cliente...'}
                          </span>
                          <ChevronDown className={`text-slate-500 group-hover:text-amber-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} size={16} />
                       </div>
@@ -182,29 +212,29 @@ export default function InvoiceForm({
                                     <input 
                                        type="text" 
                                        autoFocus
-                                       placeholder="Buscar cliente..." 
+                                       placeholder="Buscar cliente remoto/empresa..." 
                                        className="w-full bg-slate-950 border border-slate-800 rounded-lg py-2 pl-9 pr-3 text-xs font-medium text-white focus:outline-none focus:border-amber-500/50 transition-all"
                                        value={searchTerm}
                                        onChange={e => setSearchTerm(e.target.value)}
                                     />
                                  </div>
                                  <div className="flex-1 overflow-y-auto custom-scrollbar">
-                                    {filteredClients.length > 0 ? (
-                                       filteredClients.map(c => (
+                                    {filteredOptions.length > 0 ? (
+                                       filteredOptions.map(opt => (
                                          <div 
-                                             key={c.id} 
+                                             key={opt.id} 
                                              onClick={() => {
-                                                setFormData({...formData, businessId: c.id});
+                                                setFormData({...formData, businessId: opt.id});
                                                 setIsDropdownOpen(false);
                                                 setSearchTerm('');
                                              }}
-                                             className={`px-4 py-2.5 text-xs font-medium cursor-pointer transition-colors hover:bg-slate-800 ${formData.businessId === c.id ? 'bg-amber-500/10 text-amber-500' : 'text-slate-300'}`}
+                                             className={`px-4 py-2.5 text-xs font-medium cursor-pointer transition-colors hover:bg-slate-800 ${formData.businessId === opt.id ? 'bg-amber-500/10 text-amber-500' : 'text-slate-300'}`}
                                          >
-                                            {c.companyName || c.contactName} <span className="text-slate-500 text-[10px]">({c.currency})</span>
+                                            {opt.name} <span className="text-slate-500 text-[10px]">({opt.sub})</span>
                                          </div>
                                        ))
                                     ) : (
-                                       <div className="p-4 text-center text-xs text-slate-500">No se encontraron resultados</div>
+                                       <div className="p-4 text-center text-xs text-slate-500">No se encontraron resultados en el servidor</div>
                                     )}
                                  </div>
                               </motion.div>
