@@ -17,7 +17,8 @@ import {
   Hash,
   DollarSign,
   Briefcase,
-  ChevronDown
+  ChevronDown,
+  Search
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Client, Business, InvoiceItem } from '../types';
@@ -47,6 +48,16 @@ export default function InvoiceForm({
     dueDate: 'Hoy',
     note: ''
   });
+
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredClients = clients.filter(c => 
+    (c.companyName || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
+    (c.contactName || '').toLowerCase().includes(searchTerm.toLowerCase())
+  ).slice(0, 50); // Limit results for performance
+
+  const selectedClient = clients.find(c => c.id === formData.businessId);
 
   const subtotal = formData.items.reduce((acc, item) => acc + (item.quantity * item.price), 0);
   const taxAmount = subtotal * (formData.tax / 100);
@@ -143,18 +154,61 @@ export default function InvoiceForm({
                   <div className="space-y-1.5 sm:space-y-2">
                     <label className="text-[9px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Cliente / Empresa</label>
                     <div className="relative group">
-                      <select 
-                        required
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3.5 sm:py-3 px-4 text-xs font-bold text-white focus:outline-none focus:border-amber-500/50 transition-all appearance-none cursor-pointer shadow-inner"
-                        value={formData.businessId}
-                        onChange={e => setFormData({...formData, businessId: e.target.value})}
+                      <div 
+                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                         className={`w-full bg-slate-950 border border-slate-800 rounded-xl py-3.5 sm:py-3 px-4 text-xs font-bold focus:outline-none focus:border-amber-500/50 transition-all cursor-pointer shadow-inner flex items-center justify-between ${!formData.businessId ? 'text-slate-400' : 'text-white'}`}
                       >
-                        <option value="">Seleccionar empresa...</option>
-                        {clients.map(c => (
-                          <option key={c.id} value={c.id}>{c.companyName || c.contactName} ({c.currency})</option>
-                        ))}
-                      </select>
-                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 group-hover:text-amber-500 transition-colors pointer-events-none" size={16} />
+                         <span className="truncate">
+                            {selectedClient ? `${selectedClient.companyName || selectedClient.contactName} (${selectedClient.currency})` : 'Seleccionar empresa...'}
+                         </span>
+                         <ChevronDown className={`text-slate-500 group-hover:text-amber-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} size={16} />
+                      </div>
+
+                      <AnimatePresence>
+                         {isDropdownOpen && (
+                            <>
+                              <div className="fixed inset-0 z-40" onClick={() => setIsDropdownOpen(false)} />
+                              <motion.div 
+                                  initial={{ opacity: 0, y: -5 }} 
+                                  animate={{ opacity: 1, y: 0 }} 
+                                  exit={{ opacity: 0, y: -5 }} 
+                                  className="absolute z-50 w-full mt-2 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl overflow-hidden flex flex-col"
+                                  style={{ maxHeight: '250px' }}
+                              >
+                                 <div className="p-2 border-b border-slate-800 shrink-0 relative">
+                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
+                                    <input 
+                                       type="text" 
+                                       autoFocus
+                                       placeholder="Buscar cliente..." 
+                                       className="w-full bg-slate-950 border border-slate-800 rounded-lg py-2 pl-9 pr-3 text-xs font-medium text-white focus:outline-none focus:border-amber-500/50 transition-all"
+                                       value={searchTerm}
+                                       onChange={e => setSearchTerm(e.target.value)}
+                                    />
+                                 </div>
+                                 <div className="flex-1 overflow-y-auto custom-scrollbar">
+                                    {filteredClients.length > 0 ? (
+                                       filteredClients.map(c => (
+                                         <div 
+                                             key={c.id} 
+                                             onClick={() => {
+                                                setFormData({...formData, businessId: c.id});
+                                                setIsDropdownOpen(false);
+                                                setSearchTerm('');
+                                             }}
+                                             className={`px-4 py-2.5 text-xs font-medium cursor-pointer transition-colors hover:bg-slate-800 ${formData.businessId === c.id ? 'bg-amber-500/10 text-amber-500' : 'text-slate-300'}`}
+                                         >
+                                            {c.companyName || c.contactName} <span className="text-slate-500 text-[10px]">({c.currency})</span>
+                                         </div>
+                                       ))
+                                    ) : (
+                                       <div className="p-4 text-center text-xs text-slate-500">No se encontraron resultados</div>
+                                    )}
+                                 </div>
+                              </motion.div>
+                            </>
+                         )}
+                      </AnimatePresence>
                     </div>
                   </div>
 
