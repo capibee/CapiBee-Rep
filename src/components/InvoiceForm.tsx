@@ -57,18 +57,6 @@ export default function InvoiceForm({
     const term = searchTerm.toLowerCase();
     const results: Array<{ id: string; name: string; sub: string; isBusiness: boolean }> = [];
     
-    clients.forEach(c => {
-      const name = c.companyName || c.contactName || 'Sin Nombre';
-      if (name.toLowerCase().includes(term)) {
-        results.push({
-          id: c.id,
-          name: name,
-          sub: `Cliente - ${c.currency || 'USD'}`,
-          isBusiness: false
-        });
-      }
-    });
-
     businesses.forEach(b => {
       const name = b.name || 'Sin Nombre';
       if (name.toLowerCase().includes(term) && !results.some(r => r.id === b.id)) {
@@ -82,7 +70,7 @@ export default function InvoiceForm({
     });
 
     return results.slice(0, 50);
-  }, [clients, businesses, searchTerm]);
+  }, [businesses, searchTerm]);
 
   const selectedOption = useMemo(() => {
     const c = clients.find(c => c.id === formData.businessId);
