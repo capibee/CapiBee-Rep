@@ -116,344 +116,267 @@ export default function InvoiceForm({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-3 sm:p-6"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4"
     >
       <motion.div 
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        initial={{ opacity: 0, scale: 0.98, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="bg-slate-900 border border-slate-800 w-full max-w-4xl rounded-3xl sm:rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh]"
+        exit={{ opacity: 0, scale: 0.98, y: 10 }}
+        className="bg-slate-900 w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh] border border-slate-800"
       >
         {/* Header */}
-        <div className="px-5 sm:px-8 py-5 sm:py-6 border-b border-slate-800 flex items-center justify-between bg-slate-900/50 backdrop-blur-xl shrink-0">
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 shadow-inner border border-amber-500/20">
-              <FileText size={20} className="sm:hidden" />
-              <FileText size={24} className="hidden sm:block" />
+        <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between shrink-0 bg-slate-900/50">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-emerald-500 flex items-center justify-center text-white shadow-lg">
+              <FileText size={20} />
             </div>
             <div>
-              <h2 className="text-lg sm:text-xl font-display font-black text-white tracking-tight uppercase leading-none">Emitir Factura</h2>
-              <div className="flex items-center gap-2 mt-1.5 sm:mt-0.5">
-                <span className="text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest">Documento</span>
-                <span className="text-[10px] font-mono font-bold text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded-md">{nextInvoiceNumber}</span>
+              <h2 className="text-xl font-bold text-white tracking-tight">Emitir Factura</h2>
+              <div className="text-sm tracking-tight text-slate-500 mt-0.5">
+                Documento <span className="font-mono text-amber-500 font-medium">{nextInvoiceNumber}</span>
               </div>
             </div>
           </div>
           <button 
             onClick={onClose}
-            className="p-2.5 sm:p-3 text-slate-500 hover:text-white hover:bg-slate-800 rounded-2xl transition-all active:scale-95 bg-slate-900/50 sm:bg-transparent"
+            className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
           >
-            <X size={20} className="sm:hidden" />
-            <X size={24} className="hidden sm:block" />
+            <X size={20} />
           </button>
         </div>
 
         {/* Content */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 lg:p-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6">
+          <div className="space-y-8">
             
-            {/* Left Column: Form Details */}
-            <div className="lg:col-span-8 space-y-10">
+            {/* Top Details */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               
-              {/* Section: Client & General */}
-              <div className="space-y-5 sm:space-y-6">
+              {/* Client Selection */}
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5 sm:gap-3">
-                    <div className="w-1.5 h-5 sm:w-1 sm:h-6 bg-amber-500 rounded-full" />
-                    <h3 className="text-[11px] sm:text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Facturar A</h3>
-                  </div>
-                  <button 
-                    type="button"
-                    onClick={onNewClient}
-                    className="text-[9px] sm:text-[10px] font-black text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 uppercase tracking-wider"
+                  <label className="text-sm font-medium text-slate-300">Cliente / Empresa</label>
+                </div>
+                
+                <div className="relative">
+                  <div 
+                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                     className={`w-full bg-slate-950 border border-slate-800 rounded-lg py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all cursor-pointer flex items-center justify-between ${!formData.businessId ? 'text-slate-400' : 'text-white'}`}
                   >
-                    <Plus size={14} className="shrink-0" /> <span className="hidden sm:inline">Nuevo Cliente</span><span className="sm:hidden">Nuevo</span>
-                  </button>
+                     <span className="truncate">
+                        {selectedOption ? `${selectedOption.name} ${selectedOption.sub ? `(${selectedOption.sub})` : ''}` : 'Seleccionar...'}
+                     </span>
+                     <ChevronDown className={`text-slate-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} size={16} />
+                  </div>
+
+                  <AnimatePresence>
+                     {isDropdownOpen && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setIsDropdownOpen(false)} />
+                          <motion.div 
+                              initial={{ opacity: 0, y: -5 }} 
+                              animate={{ opacity: 1, y: 0 }} 
+                              exit={{ opacity: 0, y: -5 }} 
+                              className="absolute z-50 w-full mt-1 bg-slate-900 border border-slate-800 rounded-lg shadow-lg overflow-hidden flex flex-col"
+                              style={{ maxHeight: '250px' }}
+                          >
+                             <div className="p-2 border-b border-slate-800 relative shrink-0">
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                                <input 
+                                   type="text" 
+                                   autoFocus
+                                   placeholder="Buscar..." 
+                                   className="w-full bg-slate-950 border border-slate-800 rounded-md py-1.5 pl-9 pr-3 text-sm text-white focus:outline-none focus:border-amber-500/50"
+                                   value={searchTerm}
+                                   onChange={e => setSearchTerm(e.target.value)}
+                                />
+                             </div>
+                             <div className="flex-1 overflow-y-auto">
+                                {filteredOptions.length > 0 ? (
+                                   filteredOptions.map(opt => (
+                                     <div 
+                                         key={opt.id} 
+                                         onClick={() => {
+                                            setFormData({...formData, businessId: opt.id});
+                                            setIsDropdownOpen(false);
+                                            setSearchTerm('');
+                                         }}
+                                         className={`px-4 py-2 text-sm cursor-pointer hover:bg-slate-800 ${formData.businessId === opt.id ? 'bg-amber-500/10 text-amber-500' : 'text-slate-300'}`}
+                                     >
+                                        {opt.name} <span className="text-slate-400 text-xs">({opt.sub})</span>
+                                     </div>
+                                   ))
+                                ) : (
+                                   <div className="p-4 text-center text-sm text-slate-500">No se encontraron resultados</div>
+                                )}
+                             </div>
+                          </motion.div>
+                        </>
+                     )}
+                  </AnimatePresence>
+                </div>
+              </div>
+
+              {/* Dates & Payment */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-4">
+                  <label className="text-sm font-medium text-slate-300">Fecha de Emisión</label>
+                  <input 
+                    type="date"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-lg py-2 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 [color-scheme:dark]"
+                    value={formData.emissionDate}
+                    onChange={e => setFormData({...formData, emissionDate: e.target.value})}
+                  />
+                </div>
+                
+                <div className="space-y-4">
+                  <label className="text-sm font-medium text-slate-300">Forma de Pago</label>
+                  <div className="relative">
+                    <select 
+                      className="w-full bg-slate-950 border border-slate-800 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 appearance-none cursor-pointer"
+                      value={formData.paymentMethod}
+                      onChange={e => setFormData({...formData, paymentMethod: e.target.value})}
+                    >
+                      {['Transferencia'].map(m => (
+                        <option key={m} value={m}>{m}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Items */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium text-white pb-2 border-b border-slate-800">
+                Detalle de Servicios
+              </h3>
+              
+              <div className="space-y-3">
+                <div className="hidden md:grid grid-cols-12 gap-4 px-2">
+                  <div className="col-span-6 text-xs text-slate-500 uppercase">Descripción</div>
+                  <div className="col-span-2 text-xs text-slate-500 uppercase text-center">Cant</div>
+                  <div className="col-span-2 text-xs text-slate-500 uppercase text-right">Precio</div>
+                  <div className="col-span-2 text-xs text-slate-500 uppercase text-right">Total</div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                  <div className="space-y-1.5 sm:space-y-2">
-                    <label className="text-[9px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Cliente / Empresa</label>
-                    <div className="relative group">
-                      <div 
-                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                         className={`w-full bg-slate-950 border border-slate-800 rounded-xl py-3.5 sm:py-3 px-4 text-xs font-bold focus:outline-none focus:border-amber-500/50 transition-all cursor-pointer shadow-inner flex items-center justify-between ${!formData.businessId ? 'text-slate-400' : 'text-white'}`}
-                      >
-                         <span className="truncate">
-                            {selectedOption ? `${selectedOption.name} ${selectedOption.sub ? `(${selectedOption.sub})` : ''}` : 'Seleccionar empresa u cliente...'}
-                         </span>
-                         <ChevronDown className={`text-slate-500 group-hover:text-amber-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} size={16} />
+                <AnimatePresence>
+                  {formData.items.map((item, index) => (
+                    <motion.div 
+                      key={`${index}`}
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center"
+                    >
+                      <div className="col-span-6">
+                        <input 
+                          required
+                          type="text"
+                          placeholder="Descripción del servicio..."
+                          className="w-full bg-slate-950 border border-slate-800 rounded-lg py-2 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                          value={item.description}
+                          onChange={e => updateItem(index, 'description', e.target.value)}
+                        />
+                      </div>
+                      
+                      <div className="col-span-2">
+                        <input 
+                          type="number"
+                          min="1"
+                          placeholder="Cantidad"
+                          className="w-full bg-slate-950 border border-slate-800 rounded-lg py-2 px-3 text-sm text-center text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 font-mono"
+                          value={item.quantity}
+                          onChange={e => updateItem(index, 'quantity', parseInt(e.target.value) || 0)}
+                        />
                       </div>
 
-                      <AnimatePresence>
-                         {isDropdownOpen && (
-                            <>
-                              <div className="fixed inset-0 z-40" onClick={() => setIsDropdownOpen(false)} />
-                              <motion.div 
-                                  initial={{ opacity: 0, y: -5 }} 
-                                  animate={{ opacity: 1, y: 0 }} 
-                                  exit={{ opacity: 0, y: -5 }} 
-                                  className="absolute z-50 w-full mt-2 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl overflow-hidden flex flex-col"
-                                  style={{ maxHeight: '250px' }}
-                              >
-                                 <div className="p-2 border-b border-slate-800 shrink-0 relative">
-                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
-                                    <input 
-                                       type="text" 
-                                       autoFocus
-                                       placeholder="Buscar cliente remoto/empresa..." 
-                                       className="w-full bg-slate-950 border border-slate-800 rounded-lg py-2 pl-9 pr-3 text-xs font-medium text-white focus:outline-none focus:border-amber-500/50 transition-all"
-                                       value={searchTerm}
-                                       onChange={e => setSearchTerm(e.target.value)}
-                                    />
-                                 </div>
-                                 <div className="flex-1 overflow-y-auto custom-scrollbar">
-                                    {filteredOptions.length > 0 ? (
-                                       filteredOptions.map(opt => (
-                                         <div 
-                                             key={opt.id} 
-                                             onClick={() => {
-                                                setFormData({...formData, businessId: opt.id});
-                                                setIsDropdownOpen(false);
-                                                setSearchTerm('');
-                                             }}
-                                             className={`px-4 py-2.5 text-xs font-medium cursor-pointer transition-colors hover:bg-slate-800 ${formData.businessId === opt.id ? 'bg-amber-500/10 text-amber-500' : 'text-slate-300'}`}
-                                         >
-                                            {opt.name} <span className="text-slate-500 text-[10px]">({opt.sub})</span>
-                                         </div>
-                                       ))
-                                    ) : (
-                                       <div className="p-4 text-center text-xs text-slate-500">No se encontraron resultados en el servidor</div>
-                                    )}
-                                 </div>
-                              </motion.div>
-                            </>
-                         )}
-                      </AnimatePresence>
-                    </div>
-                  </div>
+                      <div className="col-span-2">
+                        <input 
+                          type="number"
+                          step="0.01"
+                          placeholder="0.00"
+                          className="w-full bg-slate-950 border border-slate-800 rounded-lg py-2 px-3 text-sm text-right text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 font-mono"
+                          value={item.price || ''}
+                          onChange={e => updateItem(index, 'price', parseFloat(e.target.value) || 0)}
+                        />
+                      </div>
 
-                  <div className="space-y-1.5 sm:space-y-2">
-                    <label className="text-[9px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Forma de Pago</label>
-                    <div className="relative group">
-                       <select 
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3.5 sm:py-3 px-4 text-xs font-bold text-white focus:outline-none focus:border-amber-500/50 transition-all appearance-none cursor-pointer shadow-inner"
-                        value={formData.paymentMethod}
-                        onChange={e => setFormData({...formData, paymentMethod: e.target.value})}
-                      >
-                        {['Transferencia', 'Efectivo', 'T. Crédito', 'Crypto', 'Cheque'].map(m => (
-                          <option key={m} value={m}>{m}</option>
-                        ))}
-                      </select>
-                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 group-hover:text-amber-500 transition-colors pointer-events-none" size={16} />
-                    </div>
-                  </div>
-                </div>
-              </div>
+                      <div className="col-span-2 flex items-center justify-between md:justify-end gap-3 text-sm font-mono text-white px-2">
+                        <span>$ {(item.quantity * item.price).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                        <div className="w-6">
+                          {formData.items.length > 1 && (
+                            <button 
+                              type="button"
+                              onClick={() => removeItem(index)}
+                              className="text-slate-400 hover:text-red-500 p-1"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
 
-              {/* Section: Items Table */}
-              <div className="space-y-5 sm:space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5 sm:gap-3">
-                    <div className="w-1.5 h-5 sm:w-1 sm:h-6 bg-blue-500 rounded-full" />
-                    <h3 className="text-[11px] sm:text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Detalle de Servicios</h3>
-                  </div>
-                </div>
-
-                <div className="bg-slate-950/30 border border-slate-800 sm:rounded-[1.5rem] rounded-2xl overflow-hidden shadow-inner">
-                  <div className="hidden md:grid bg-slate-950/50 p-4 grid-cols-12 gap-4 border-b border-slate-800">
-                    <div className="col-span-6 text-[10px] font-black text-slate-500 uppercase tracking-widest pl-2">Descripción</div>
-                    <div className="col-span-2 text-center text-[10px] font-black text-slate-500 uppercase tracking-widest">Cant.</div>
-                    <div className="col-span-2 text-center text-[10px] font-black text-slate-500 uppercase tracking-widest">V. Unitario</div>
-                    <div className="col-span-2 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest pr-2">Subtotal</div>
-                  </div>
-                  
-                  <div className="divide-y divide-slate-800/50">
-                    <AnimatePresence initial={false}>
-                      {formData.items.map((item, index) => (
-                        <motion.div 
-                          key={`${index}`}
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, scale: 0.98 }}
-                          className="p-4 grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-4 items-start md:items-center group relative bg-slate-900/10 hover:bg-slate-900/30 transition-colors"
-                        >
-                          <div className="col-span-1 md:col-span-6 w-full relative">
-                            <label className="md:hidden text-[9px] font-bold text-slate-500 uppercase tracking-widest px-1 block mb-2">Concepto / Servicio</label>
-                            <input 
-                              required
-                              type="text"
-                              placeholder="Ej. Honorarios profesionales..."
-                              className="w-full bg-slate-950 md:bg-transparent border border-slate-800 md:border-transparent rounded-xl md:rounded-none py-3.5 md:py-1.5 px-4 md:px-0 text-sm font-medium text-white focus:outline-none placeholder:text-slate-600 focus:border-amber-500/50 transition-all shadow-inner md:shadow-none"
-                              value={item.description}
-                              onChange={e => updateItem(index, 'description', e.target.value)}
-                            />
-                            {formData.items.length > 1 && (
-                               <button 
-                                 type="button"
-                                 onClick={() => removeItem(index)}
-                                 className="absolute right-3 top-[34px] md:top-1/2 md:-translate-y-1/2 md:hidden p-2 bg-rose-500/10 text-rose-500 rounded-lg hover:bg-rose-500/20 transition-all border border-rose-500/20"
-                               >
-                                 <Trash2 size={14} />
-                               </button>
-                             )}
-                          </div>
-                          
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 col-span-1 md:col-span-6 w-full">
-                            <div className="col-span-1 md:col-span-2">
-                              <label className="md:hidden text-[9px] font-bold text-slate-500 uppercase tracking-widest px-1 block mb-2">Cantidad</label>
-                              <div className="relative">
-                                <input 
-                                  type="number"
-                                  min="1"
-                                  className="w-full bg-slate-950 md:bg-slate-900 border border-slate-800 rounded-xl py-3 md:py-2.5 px-3 text-sm font-bold font-mono text-center text-white focus:border-amber-500/50 transition-all outline-none shadow-inner"
-                                  value={item.quantity}
-                                  onChange={e => updateItem(index, 'quantity', parseInt(e.target.value) || 0)}
-                                />
-                              </div>
-                            </div>
-                            <div className="col-span-1 md:col-span-2">
-                              <label className="md:hidden text-[9px] font-bold text-slate-500 uppercase tracking-widest px-1 block mb-2">Valor Neto</label>
-                              <div className="relative">
-                                <span className="absolute left-3 md:left-2 top-1/2 -translate-y-1/2 text-slate-500 text-xs font-bold">$</span>
-                                <input 
-                                  type="number"
-                                  step="0.01"
-                                  className="w-full bg-slate-950 md:bg-slate-900 border border-slate-800 rounded-xl py-3 md:py-2.5 pl-8 md:pl-6 pr-3 text-sm font-bold font-mono text-right md:text-center text-white focus:border-amber-500/50 transition-all outline-none shadow-inner"
-                                  value={item.price || ''}
-                                  onChange={e => updateItem(index, 'price', parseFloat(e.target.value) || 0)}
-                                />
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="col-span-1 md:col-span-2 mt-2 md:mt-0 pt-3 md:pt-0 border-t border-slate-800 border-dashed md:border-none flex justify-between md:justify-end items-center relative w-full pr-2">
-                             <span className="md:hidden text-[10px] font-black text-slate-400 uppercase tracking-widest">Subtotal Ítem</span>
-                             <span className="text-sm font-mono font-black text-amber-400 md:text-slate-300">
-                               $ {(item.quantity * item.price).toLocaleString(undefined, {minimumFractionDigits: 2})}
-                             </span>
-                             {formData.items.length > 1 && (
-                               <button 
-                                 type="button"
-                                 onClick={() => removeItem(index)}
-                                 className="hidden md:flex absolute -right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-1.5 text-slate-500 hover:text-rose-500 transition-all hover:bg-slate-800 rounded-lg"
-                               >
-                                 <Trash2 size={16} />
-                               </button>
-                             )}
-                          </div>
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
-                  </div>
-
-                  <div className="p-4 bg-slate-950">
-                    <button 
-                      type="button"
-                      onClick={addItem}
-                      className="flex items-center justify-center w-full md:w-auto gap-2 md:px-6 py-3.5 md:py-2.5 bg-slate-900 hover:bg-slate-800 sm:border border-slate-800 text-[11px] font-bold text-slate-300 hover:text-white transition-colors uppercase tracking-[0.15em] rounded-xl outline-dashed outline-1 outline-slate-700 outline-offset-2 sm:outline-none"
-                    >
-                      <Plus size={16} strokeWidth={3} /> Añadir Concepto
-                    </button>
-                  </div>
+                <div className="pt-2">
+                  <button 
+                    type="button"
+                    onClick={addItem}
+                    className="text-sm text-emerald-500 hover:text-emerald-400 hover:underline flex items-center gap-1"
+                  >
+                    <Plus size={16} /> Añadir fila
+                  </button>
                 </div>
               </div>
             </div>
 
-            {/* Right Column: Totals & Dates */}
-            <div className="lg:col-span-4 space-y-8">
-              
-              {/* Dates Card */}
-              <div className="bg-slate-950/80 p-5 sm:p-6 rounded-3xl sm:rounded-[2rem] border border-slate-800/80 space-y-6 shadow-xl relative overflow-hidden backdrop-blur-md">
-                <div className="absolute -top-4 -right-4 p-8 opacity-[0.03] text-amber-500 pointer-events-none">
-                  <Calendar size={120} />
+            <div className="border-t border-slate-800 pt-6 mt-8 flex flex-col md:flex-row justify-end gap-10">
+              <div className="w-full md:w-64 space-y-3">
+                <div className="flex justify-between text-sm text-slate-400">
+                  <span>Subtotal</span>
+                  <span className="font-mono text-white">$ {subtotal.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
                 </div>
-                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2 relative z-10">
-                  <Calendar size={14} className="text-amber-500" /> Tiempos & Vencimiento
-                </h4>
-
-                <div className="space-y-4 sm:space-y-5 relative z-10">
-                  <div className="space-y-1.5 sm:space-y-2">
-                    <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest ml-1">Fecha de Emisión</label>
+                <div className="flex justify-between text-sm text-slate-400 items-center">
+                  <span>Tax (%)</span>
+                  <div className="flex items-center gap-2">
                     <input 
-                      type="date"
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl sm:rounded-2xl py-3 px-4 text-sm font-bold text-white focus:border-amber-500/50 outline-none transition-all shadow-inner"
-                      value={formData.emissionDate}
-                      onChange={e => setFormData({...formData, emissionDate: e.target.value})}
+                      type="number"
+                      className="w-16 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-right text-sm text-white font-mono focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
+                      value={formData.tax || ''}
+                      placeholder="0"
+                      onChange={e => setFormData({...formData, tax: parseFloat(e.target.value) || 0})}
                     />
                   </div>
-                  <div className="space-y-1.5 sm:space-y-2">
-                    <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest ml-1">Términos de Pago</label>
-                    <div className="grid grid-cols-2 lg:grid-cols-2 gap-2">
-                      {['Hoy', '7 dias', '15 dias', '30 dias'].map(plazo => (
-                        <button
-                          key={plazo}
-                          type="button"
-                          onClick={() => setFormData({...formData, dueDate: plazo})}
-                          className={`py-2.5 sm:py-2.5 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-tighter sm:tracking-widest border transition-all ${
-                            formData.dueDate === plazo 
-                              ? 'bg-amber-500/10 text-amber-500 border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.1)]' 
-                              : 'bg-slate-900 text-slate-500 border-slate-800 hover:border-slate-700 hover:bg-slate-800'
-                          }`}
-                        >
-                          {plazo}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
                 </div>
-              </div>
-
-              {/* Summary Card */}
-              <div className="bg-gradient-to-br from-slate-950 to-slate-900 p-6 sm:p-8 rounded-3xl sm:rounded-[2rem] border border-white/5 space-y-6 sm:space-y-8 shadow-2xl relative overflow-hidden group">
-                <div className="absolute -top-12 -right-12 w-48 h-48 bg-amber-500/5 rounded-full blur-[50px] group-hover:bg-amber-500/10 transition-colors pointer-events-none" />
-                
-                <div className="space-y-5 sm:space-y-6 relative z-10">
-                   <div className="flex justify-between items-center text-[10px] sm:text-[11px] font-black text-slate-400 sm:text-slate-500 uppercase tracking-widest">
-                     <span>Subtotal Neto</span>
-                     <span className="text-slate-200 font-mono text-xs md:text-sm">$ {subtotal.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
-                   </div>
-
-                   <div className="flex justify-between items-center text-[10px] sm:text-[11px] font-black text-slate-400 sm:text-slate-500 uppercase tracking-widest">
-                     <span className="leading-tight">Impuestos (%)</span>
-                     <div className="flex items-center gap-3">
-                       <input 
-                        type="number"
-                        className="w-14 sm:w-16 bg-slate-900 border border-slate-700 rounded-lg md:rounded-xl py-1.5 px-2 text-xs sm:text-sm font-black text-center text-amber-400 outline-none focus:border-amber-500/50 shadow-inner"
-                        value={formData.tax || ''}
-                        placeholder="0"
-                        min="0"
-                        onChange={e => setFormData({...formData, tax: parseFloat(e.target.value) || 0})}
-                       />
-                       <span className="text-slate-400 font-mono text-xs w-[70px] text-right">+ $ {taxAmount.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
-                     </div>
-                   </div>
-
-                   <div className="h-px bg-slate-800/60 w-full" />
-
-                   <div className="space-y-2">
-                     <span className="text-[10px] font-black text-amber-500 uppercase tracking-[0.3em] block">Total Factura</span>
-                     <div className="text-4xl sm:text-5xl font-display font-black text-white tracking-tighter tabular-nums truncate flex items-center">
-                       <span className="text-2xl mt-1 text-slate-500 mr-2">$</span>
-                       {total.toLocaleString(undefined, {minimumFractionDigits: 2})}
-                     </div>
-                   </div>
-                </div>
-
-                <div className="relative z-10 space-y-4 pt-2">
-                  <button 
-                    type="submit"
-                    disabled={!formData.businessId}
-                    className="w-full py-4 sm:py-5 bg-amber-500 hover:bg-amber-400 disabled:opacity-30 disabled:cursor-not-allowed text-slate-950 font-black uppercase tracking-[0.2em] rounded-2xl sm:rounded-3xl shadow-xl shadow-amber-500/20 active:scale-95 transition-all text-xs flex items-center justify-center gap-2"
-                  >
-                    Confirmar & Generar <Check size={18} strokeWidth={3} />
-                  </button>
-                  <p className="text-[8px] sm:text-[9px] text-center text-slate-500 uppercase font-bold tracking-widest leading-relaxed px-4">Al emitir, se guardará y notificará automáticamente.</p>
+                <div className="flex justify-between text-base font-medium text-white pt-2 border-t border-slate-800">
+                  <span>Total</span>
+                  <span className="font-mono text-emerald-400">$ {total.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
                 </div>
               </div>
             </div>
+
           </div>
         </form>
+
+        <div className="px-6 py-4 border-t border-slate-800 bg-slate-950 flex justify-end gap-3 shrink-0">
+          <button 
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 rounded-lg transition-colors border border-slate-800"
+          >
+            Cancelar
+          </button>
+          <button 
+            onClick={handleSubmit}
+            disabled={!formData.businessId}
+            className="px-6 py-2 text-sm font-bold text-white bg-gradient-to-r from-amber-500 to-emerald-500 hover:from-amber-400 hover:to-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors flex items-center gap-1.5 shadow-lg shadow-amber-500/10"
+          >
+            <Check size={16} strokeWidth={3} /> Emitir Factura
+          </button>
+        </div>
       </motion.div>
     </motion.div>
   );
