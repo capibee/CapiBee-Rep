@@ -718,10 +718,20 @@ export default function ScrapingModal(props: ScrapingModalProps) {
   if (!API_KEY || API_KEY === 'YOUR_API_KEY') {
     return createPortal(
       <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4">
-        <div className="bg-slate-900 border border-amber-500/20 rounded-2xl p-6 max-w-sm text-center shadow-xl">
-          <h2 className="text-white font-bold mb-2">Maps API Key Required</h2>
-          <p className="text-xs text-slate-300 mb-4">Please add a valid GOOGLE_MAPS_PLATFORM_KEY in the AI Studio Secrets panel to use the Scraping Module.</p>
-          <button onClick={props.onClose} className="px-4 py-2 bg-slate-800 text-white rounded font-semibold hover:bg-slate-700 text-xs shadow">Close</button>
+        <div className="bg-slate-900 border border-amber-500/20 rounded-2xl p-8 max-w-lg text-center shadow-2xl">
+          <h2 className="text-white text-xl font-bold mb-4">Se requiere clave de API de Google Maps</h2>
+          <div className="text-sm text-slate-300 mb-6 text-left space-y-3">
+            <p><strong>Paso 1:</strong> <a href="https://console.cloud.google.com/google/maps-apis/start?utm_campaign=gmp-code-assist-ais" target="_blank" rel="noopener noreferrer" className="text-amber-500 hover:underline">Obtén una clave de API</a></p>
+            <p><strong>Paso 2:</strong> Añade tu clave como secreto en AI Studio:</p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Abre <strong>Settings</strong> (icono de engranaje ⚙️, <strong>esquina superior derecha</strong>)</li>
+              <li>Selecciona <strong>Secrets</strong></li>
+              <li>Escribe <code>GOOGLE_MAPS_PLATFORM_KEY</code> como nombre del secreto, pulsa <strong>Enter</strong></li>
+              <li>Pega tu clave de API como valor, pulsa <strong>Enter</strong></li>
+            </ul>
+            <p className="text-amber-500 font-medium mt-2">La aplicación se reconstruirá automáticamente tras añadir el secreto.</p>
+          </div>
+          <button onClick={props.onClose} className="w-full px-4 py-3 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-700 transition-colors shadow">Cerrar módulo</button>
         </div>
       </div>,
       document.body
