@@ -127,7 +127,9 @@ export default function SupabaseHub({ onBack }: SupabaseHubProps) {
   };
 
   const copySQLEditorLink = () => {
-    navigator.clipboard.writeText('https://supabase.com/dashboard/project/rmfiorgvfqucstiiwitg/sql/new');
+    const url = import.meta.env.VITE_SUPABASE_URL || '';
+    const projectId = url.match(/https:\/\/([^\.]+)\.supabase\.co/)?.[1] || 'rmfiorgvfqucstiiwitg';
+    navigator.clipboard.writeText(`https://supabase.com/dashboard/project/${projectId}/sql/new`);
     alert('Enlace del editor SQL copiado al portapapeles!');
   };
 
@@ -143,7 +145,7 @@ export default function SupabaseHub({ onBack }: SupabaseHubProps) {
             <div>
               <div className="flex items-center gap-2">
                 <span className="bg-emerald-500/10 text-emerald-500 text-[9px] font-black tracking-widest uppercase px-2 py-0.5 rounded border border-emerald-500/20 shadow-sm">
-                  PROYECTO: rmfiorgvfqucstiiwitg
+                  PROYECTO: {(import.meta.env.VITE_SUPABASE_URL || '').match(/https:\/\/([^\.]+)\.supabase\.co/)?.[1] || 'No Configurado'}
                 </span>
               </div>
               <h1 className="text-2xl font-black uppercase tracking-wider text-slate-200 mt-1">
@@ -191,7 +193,7 @@ export default function SupabaseHub({ onBack }: SupabaseHubProps) {
               <div className="bg-slate-950/80 border border-slate-800/60 rounded-xl p-4 mb-4">
                 <div className="text-[10px] uppercase font-bold tracking-wider text-slate-600 mb-1">PROYECTO URL DE SUPABASE</div>
                 <div className="font-mono text-xs text-amber-500/90 break-all select-all">
-                  https://rmfiorgvfqucstiiwitg.supabase.co
+                  {import.meta.env.VITE_SUPABASE_URL || 'No configurado'}
                 </div>
               </div>
 
